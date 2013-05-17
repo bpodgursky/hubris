@@ -1,0 +1,4 @@
+10  20  bob
+15  32  joe
+3   18  star
+6   12  place
