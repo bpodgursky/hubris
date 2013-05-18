@@ -7,22 +7,23 @@ import com.bpodgursky.hubris.response.ResponseTransformer;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 
 public class RemoteConnection implements GameConnection {
-
 	private final NpHttpClient client;
 
 	
 	public RemoteConnection(String userName, String password) throws Exception {
-		LoginClient login = new LoginClient();
-		LoginClient.LoginResponse response = login.login(userName, password);
-		
-		if (response.getResponseType() != LoginClient.LoginResponseType.SUCCESS) {
-			System.err.println();
-			throw new Exception("Couldn't login! Reason: " + response.getResponseType());
-		}
-		this.client = new NpHttpClient(response.getCookies());
-
-
+    this(new LoginClient().login(userName, password));
 	}
+
+  public RemoteConnection(LoginClient.LoginResponse loginResponse) throws Exception {
+    if (loginResponse.getResponseType() != LoginClient.LoginResponseType.SUCCESS) {
+      throw new RuntimeException("Couldn't login! Reason: " + loginResponse.getResponseType());
+    }
+    this.client = new NpHttpClient(loginResponse.getCookies());
+  }
+
+  public RemoteConnection(String cookies) {
+    this.client = new NpHttpClient(cookies);
+  }
 
 	@Override
 	public <R> R sendRequest(GameRequest<R> request) throws Exception {

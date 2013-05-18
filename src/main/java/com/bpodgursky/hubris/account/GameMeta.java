@@ -2,9 +2,9 @@ package com.bpodgursky.hubris.account;
 
 public class GameMeta {
   private String name;
-  private Integer id;
+  private long id;
 
-  public GameMeta(String name, Integer id) {
+  public GameMeta(String name, long id) {
     this.name = name;
     this.id = id;
   }
@@ -18,7 +18,7 @@ public class GameMeta {
     return name;
   }
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 }

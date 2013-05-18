@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class LoginClient {
   public enum LoginResponseType {
-    SUCCESS, INVALID_LOGIN;
+    SUCCESS, INVALID_LOGIN, INVALID_TWO_FACTOR_AUTH_TOKEN;
   }
 
   public static class LoginResponse {
@@ -84,25 +84,8 @@ public class LoginClient {
     };
   }
 
-  protected static class ExceptionThrowingCallback implements TwoFactorAuthCallback {
-    private final RuntimeException e;
-
-    public ExceptionThrowingCallback(RuntimeException e) {
-      this.e = e;
-    }
-
-    public ExceptionThrowingCallback(String message) {
-      this.e = new RuntimeException(message);
-    }
-
-    @Override
-    public String requestAuthToken() {
-      throw e;
-    }
-  }
-
   public LoginResponse login(String username, String password) {
-    return login(username, password, new ExceptionThrowingCallback("Two-factor authentication needed, but no callback provided."));
+    return login(username, password, new ExceptionThrowingTwoFactorCallback("Two-factor authentication needed, but no callback provided."));
   }
 
   public LoginResponse login(String username, String password, TwoFactorAuthCallback twoFactorAuthCallback) {
@@ -169,12 +152,12 @@ public class LoginClient {
     // There's a hidden form that automatically submits via JavaScript. Submit it.
     Form hiddenPostForm = postTwoFactorAuthResponse.form(LoginConstants.TWO_FACTOR_AUTH_HIDDEN_POST_FORM_NAME);
     if (hiddenPostForm == null) {
-      throw new RuntimeException("Couldn't find hidden post form");
+      return new LoginResponse(LoginResponseType.INVALID_TWO_FACTOR_AUTH_TOKEN, null);
     }
     Document postHiddenPostResponse = hiddenPostForm.submit();
     return handlePostLoginResponse(agent,
       postHiddenPostResponse,
-      new ExceptionThrowingCallback("Two-factor authentication already passed, but detected Google asking for it again."));
+      new ExceptionThrowingTwoFactorCallback("Two-factor authentication already passed, but detected Google asking for it again."));
   }
 
   protected LoginResponse handleConfirmAccess(MechanizeAgent agent, Document confirmAccessPage) {

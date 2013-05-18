@@ -1,6 +1,25 @@
 package com.bpodgursky.hubris.client;
 
-import com.bpodgursky.hubris.command.*;
+import com.bpodgursky.hubris.command.ClearAllFleetPaths;
+import com.bpodgursky.hubris.command.ClearFleetLastPath;
+import com.bpodgursky.hubris.command.CreateCarrier;
+import com.bpodgursky.hubris.command.GameRequest;
+import com.bpodgursky.hubris.command.GetEvents;
+import com.bpodgursky.hubris.command.GetMessageComments;
+import com.bpodgursky.hubris.command.GetMessages;
+import com.bpodgursky.hubris.command.GetState;
+import com.bpodgursky.hubris.command.SendCash;
+import com.bpodgursky.hubris.command.SendMessage;
+import com.bpodgursky.hubris.command.SendMessageComment;
+import com.bpodgursky.hubris.command.SendTech;
+import com.bpodgursky.hubris.command.SetGarrison;
+import com.bpodgursky.hubris.command.SetNextResearch;
+import com.bpodgursky.hubris.command.SetResearch;
+import com.bpodgursky.hubris.command.SetWaypoint;
+import com.bpodgursky.hubris.command.TransferShips;
+import com.bpodgursky.hubris.command.UpgradeEconomy;
+import com.bpodgursky.hubris.command.UpgradeIndustry;
+import com.bpodgursky.hubris.command.UpgradeScience;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.event.GameEvent;
@@ -13,14 +32,13 @@ import com.bpodgursky.hubris.universe.TechType;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import java.util.List;
 
-public class GameClient {
-
+public class SingleGameClient {
   private final String userName;
   private final Integer playerNumber;
   private final Long gameNumber;
   private final GameConnection connection;
 
-  public GameClient(String userName, Integer playerNumber, Long gameNumber, GameConnection connection) throws Exception {
+  public SingleGameClient(String userName, Integer playerNumber, Long gameNumber, GameConnection connection) throws Exception {
 
     this.userName = userName;
     this.playerNumber = playerNumber;
@@ -110,13 +128,6 @@ public class GameClient {
   }
 
   public static void main(String[] args) throws Exception {
-
-    GameClient connection = new GameClient("rapleaf.np.test@gmail.com", 6, 28326395l, new RemoteConnection("rapleaf.np.test@gmail.com", "rapleaf_np"));
-
-    GameState state = connection.getState();
-    System.out.println(state);
-
-    state.writeGnuPlot("current_state");
 
 //		connection.sendTech(TechType.WEAPONS, 4);
 
