@@ -46,14 +46,24 @@ public class LoginClient {
   }
 
   protected static class LoginConstants {
+    // First login page stuff
     public final static String LOGIN_URL_SUBSTR = "google.com/accounts/ServiceLogin";
     public final static String LOGIN_FORM_ID = "gaia_loginform";
     public final static String USERNAME_FIELD_NAME = "Email";
     public final static String PASSWORD_FIELD_NAME = "Passwd";
+
+    // Two-factor auth stuff
+    public static final String TWO_FACTOR_AUTH_FORM = "verify-form";
+    public static final String TWO_FACTOR_AUTH_TOKEN_NAME = "smsUserPin";
+    public static final String TWO_FACTOR_AUTH_HIDDEN_POST_FORM_NAME = "hiddenpost";
+
+    // Confirm access stuff
     public final static String CONFIRM_ACCESS_TITLE = "Google Accounts";
-    public final static String CONFIRM_ACCESS_FORM_ACTION_SUBSTR = "/conflogin";
+    public final static String CONFIRM_ACCESS_FORM_ACTION = "https://appengine.google.com/_ah/conflogin";
     public final static String CONFIRM_ACCESS_PERSIST_CHECKBOX_NAME = "persist";
     public final static String CONFIRM_ACCESS_SUBMIT_BUTTON = "submit_true";
+
+    // Cookies and response handling
     public final static String COOKIE_DOMAIN = "np.ironhelmet.com";
     public final static Set<Integer> REDIRECT_STATUS_CODES = Sets.newHashSet(302, 303);
     public final static RedirectHandler REDIRECT_HANDLER = new RedirectHandler() {
@@ -74,8 +84,28 @@ public class LoginClient {
     };
   }
 
+  protected static class ExceptionThrowingCallback implements TwoFactorAuthCallback {
+    private final RuntimeException e;
+
+    public ExceptionThrowingCallback(RuntimeException e) {
+      this.e = e;
+    }
+
+    public ExceptionThrowingCallback(String message) {
+      this.e = new RuntimeException(message);
+    }
+
+    @Override
+    public String requestAuthToken() {
+      throw e;
+    }
+  }
 
   public LoginResponse login(String username, String password) {
+    return login(username, password, new ExceptionThrowingCallback("Two-factor authentication needed, but no callback provided."));
+  }
+
+  public LoginResponse login(String username, String password, TwoFactorAuthCallback twoFactorAuthCallback) {
     final MechanizeAgent agent = buildAgent();
 
     // Request homepage and find "login" link.
@@ -102,6 +132,10 @@ public class LoginClient {
     loginForm.getPassword(HtmlQueryBuilder.byName(LoginConstants.PASSWORD_FIELD_NAME)).set(password);
     Document postLoginPage = loginForm.submit();
 
+    return handlePostLoginResponse(agent, postLoginPage, twoFactorAuthCallback);
+  }
+
+  protected LoginResponse handlePostLoginResponse(MechanizeAgent agent, Document postLoginPage, TwoFactorAuthCallback twoFactorAuthCallback) {
     // A few possibilities at this point:
     //  1. Login failed -- indicated by the login form being present in the response
     //  2. Login succeeded, but authorization needed. Indicated by a different form being present in the response.
@@ -111,6 +145,9 @@ public class LoginClient {
     //     all of which could theoretically be handled if need be.
     if (postLoginPage.form(LoginConstants.LOGIN_FORM_ID) != null) {
       return new LoginResponse(LoginResponseType.INVALID_LOGIN, null);
+    }
+    else if (postLoginPage.form(LoginConstants.TWO_FACTOR_AUTH_FORM) != null) {
+      return handleTwoFactorAuth(agent, postLoginPage, twoFactorAuthCallback);
     }
     else if (postLoginPage.getUri().contains(HubrisConstants.homepageUrl)) {
       return handleLoginPassed(agent);
@@ -123,10 +160,27 @@ public class LoginClient {
     }
   }
 
+  protected LoginResponse handleTwoFactorAuth(MechanizeAgent agent, Document postLoginPage, TwoFactorAuthCallback twoFactorAuthCallback) {
+    String authToken = twoFactorAuthCallback.requestAuthToken();
+    Form authForm = postLoginPage.form(LoginConstants.TWO_FACTOR_AUTH_FORM);
+    authForm.get(LoginConstants.TWO_FACTOR_AUTH_TOKEN_NAME).set(authToken);
+    Document postTwoFactorAuthResponse = authForm.submit();
+
+    // There's a hidden form that automatically submits via JavaScript. Submit it.
+    Form hiddenPostForm = postTwoFactorAuthResponse.form(LoginConstants.TWO_FACTOR_AUTH_HIDDEN_POST_FORM_NAME);
+    if (hiddenPostForm == null) {
+      throw new RuntimeException("Couldn't find hidden post form");
+    }
+    Document postHiddenPostResponse = hiddenPostForm.submit();
+    return handlePostLoginResponse(agent,
+      postHiddenPostResponse,
+      new ExceptionThrowingCallback("Two-factor authentication already passed, but detected Google asking for it again."));
+  }
+
   protected LoginResponse handleConfirmAccess(MechanizeAgent agent, Document confirmAccessPage) {
     Form confirmAccessForm = null;
     for (Form form : confirmAccessPage.forms()) {
-      if (form.getUri().contains(LoginConstants.CONFIRM_ACCESS_FORM_ACTION_SUBSTR)) {
+      if (form.getUri().equals(LoginConstants.CONFIRM_ACCESS_FORM_ACTION)) {
         confirmAccessForm = form;
         break;
       }
@@ -140,7 +194,7 @@ public class LoginClient {
       .getSubmitButton(HtmlQueryBuilder.byName(LoginConstants.CONFIRM_ACCESS_SUBMIT_BUTTON))
       .submit();
 
-    String landingUrl = confirmAccessResponse.getRequest().getURI().toString();
+    String landingUrl = confirmAccessResponse.getResponse().toString();
     if (!landingUrl.contains(HubrisConstants.homepageUrl)) {
       throw new RuntimeException("Didn't get redirected to homepage after access confirmation. Instead, got: " + landingUrl);
     }
@@ -152,7 +206,7 @@ public class LoginClient {
     List<String> mergedCookies = Lists.newArrayList();
     for (Cookie cookie : agent.cookies().getAll()) {
       if (cookie.getDomain().equals(LoginConstants.COOKIE_DOMAIN)) {
-        mergedCookies.add(cookie.getName().concat("_").concat(cookie.getValue()));
+        mergedCookies.add(cookie.getName().concat("=").concat(cookie.getValue()));
       }
     }
 
