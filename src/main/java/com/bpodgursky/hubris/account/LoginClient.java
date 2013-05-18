@@ -171,7 +171,6 @@ public class LoginClient {
     if (confirmAccessForm == null) {
       throw new RuntimeException("Couldn't find confirm access form in confirm access page");
     }
-    System.out.println(confirmAccessPage.getRoot());
     confirmAccessForm.getCheckbox(HtmlQueryBuilder.byName(LoginConstants.CONFIRM_ACCESS_PERSIST_CHECKBOX_NAME)).check();
     Document confirmAccessResponse = confirmAccessForm
       .getSubmitButton(HtmlQueryBuilder.byName(LoginConstants.CONFIRM_ACCESS_SUBMIT_BUTTON))
