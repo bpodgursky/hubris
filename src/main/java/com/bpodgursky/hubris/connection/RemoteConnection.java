@@ -19,7 +19,7 @@ public class RemoteConnection implements GameConnection {
 			System.err.println();
 			throw new Exception("Couldn't login! Reason: " + response.getResponseType());
 		}
-		this.client = new NpHttpClient(response.getCookie());
+		this.client = new NpHttpClient(response.getCookies());
 
 
 	}

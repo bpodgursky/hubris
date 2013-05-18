@@ -61,7 +61,7 @@ public class AccountManager {
       System.exit(1);
     }
 
-    NpHttpClient client = new NpHttpClient(login.getCookie());
+    NpHttpClient client = new NpHttpClient(login.getCookies());
     AccountManager manager = new AccountManager(client);
 
     System.out.println(manager.getActiveGames());
