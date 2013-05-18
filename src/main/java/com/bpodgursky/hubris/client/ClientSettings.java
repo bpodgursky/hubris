@@ -28,7 +28,7 @@ public class ClientSettings {
   private String password;
   private boolean promptPassword;
   private boolean promptTwoFactorAuth;
-  private String cookiesCacheFile;
+  private String cookiesCacheDir;
 
   public String getUsername() {
     return username;
@@ -54,12 +54,12 @@ public class ClientSettings {
     this.promptPassword = promptPassword;
   }
 
-  public String getCookiesCacheFile() {
-    return cookiesCacheFile;
+  public String getCookiesCacheDir() {
+    return cookiesCacheDir;
   }
 
-  public void setCookiesCacheFile(String cookiesCacheFile) {
-    this.cookiesCacheFile = cookiesCacheFile;
+  public void setCookiesCacheDir(String cookiesCacheDir) {
+    this.cookiesCacheDir = cookiesCacheDir;
   }
 
   public boolean isPromptTwoFactorAuth() {
@@ -70,8 +70,8 @@ public class ClientSettings {
     this.promptTwoFactorAuth = promptTwoFactorAuth;
   }
 
-  public boolean hasCookieCache() {
-    return getCookiesCacheFile() != null && new File(getCookiesCacheFile()).exists();
+  public boolean hasCookieCache(String username) {
+    return getCookiesCacheDir() != null && new File(getCookiesCacheDir(), username).exists();
   }
 
   public TwoFactorAuthCallback getTwoFactorAuthCallback() {
@@ -83,18 +83,20 @@ public class ClientSettings {
     }
   }
 
-  public void writeCookiesToCache(String cookies) throws IOException {
-    if (getCookiesCacheFile() == null) {
+  public void writeCookiesToCache(String username, String cookies) throws IOException {
+    if (getCookiesCacheDir() == null) {
       throw new RuntimeException("No cookie cache file specified, but tried to access it");
     }
-    FileUtils.writeStringToFile(new File(getCookiesCacheFile()), cookies);
+    File cookiesFile = new File(getCookiesCacheDir(), username);
+    FileUtils.writeStringToFile(cookiesFile, cookies);
   }
 
-  public String readCookiesFromCache() throws IOException {
-    if (getCookiesCacheFile() == null) {
+  public String readCookiesFromCache(String username) throws IOException {
+    if (getCookiesCacheDir() == null) {
       throw new RuntimeException("No cookie cache file specified, but tried to access it");
     }
-    return FileUtils.readFileToString(new File(getCookiesCacheFile()));
+    File cookiesFile = new File(getCookiesCacheDir(), username);
+    return FileUtils.readFileToString(cookiesFile);
   }
 
   public String getCookies() throws IOException {
@@ -104,7 +106,7 @@ public class ClientSettings {
       throw new RuntimeException("Missing required setting: username");
     }
 
-    if (!hasCookieCache() || (cookies = readCookiesFromCache()).isEmpty()) {
+    if (!hasCookieCache(getUsername()) || (cookies = readCookiesFromCache(getUsername())).isEmpty()) {
       LoginClient client = new LoginClient();
 
       String password;
@@ -119,7 +121,7 @@ public class ClientSettings {
       if (loginResponse.getResponseType() != LoginClient.LoginResponseType.SUCCESS) {
         throw new RuntimeException("Failed to login.");
       }
-      writeCookiesToCache(loginResponse.getCookies());
+      writeCookiesToCache(getUsername(), loginResponse.getCookies());
       cookies = loginResponse.getCookies();
     }
 

@@ -21,7 +21,6 @@ import com.bpodgursky.hubris.command.UpgradeEconomy;
 import com.bpodgursky.hubris.command.UpgradeIndustry;
 import com.bpodgursky.hubris.command.UpgradeScience;
 import com.bpodgursky.hubris.connection.GameConnection;
-import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.event.GameEvent;
 import com.bpodgursky.hubris.event.Message;
 import com.bpodgursky.hubris.universe.Comment;
@@ -34,17 +33,18 @@ import java.util.List;
 
 public class SingleGameClient {
   private final String userName;
-  private final Integer playerNumber;
+  private Integer playerNumber;
   private final Long gameNumber;
   private final GameConnection connection;
 
-  public SingleGameClient(String userName, Integer playerNumber, Long gameNumber, GameConnection connection) throws Exception {
-
+  public SingleGameClient(String userName, Long gameNumber, GameConnection connection) throws Exception {
     this.userName = userName;
-    this.playerNumber = playerNumber;
     this.gameNumber = gameNumber;
     this.connection = connection;
+    this.playerNumber = 0;
 
+    // Fetch player number
+    playerNumber = Integer.parseInt(getState().gameData.getMid());
   }
 
   public void sendTech(TechType tech, Integer to) throws Exception {
@@ -126,37 +126,4 @@ public class SingleGameClient {
   public GameState getState() throws TransformerFactoryConfigurationError, Exception {
     return send(new GetState(playerNumber, userName, gameNumber));
   }
-
-  public static void main(String[] args) throws Exception {
-
-//		connection.sendTech(TechType.WEAPONS, 4);
-
-//		connection.setResearch(TechType.RANGE);
-
-//		connection.setNextResearch("fleet_speed");
-
-//		connection.buyScience(80);
-
-//		connection.buyIndustry(170);
-
-//		connection.clearAllFleetPaths(276);
-
-//		connection.clearFleetLastPath(276);
-
-//		connection.setWaypoint(276, 168);
-
-//		connection.setGarrison(118, 1);
-
-//		connection.buyEconomy(166);
-
-//		System.out.println(connection.sendCash(7, 1));
-
-//		connection.transferShips(14, 177, 591, 1);
-
-//		connection.createCarrier(180, 1);
-
-//		connection.sendMessageComment("ag1uZXB0dW5lc3ByaWRlchULEgxHYW1lX01lc3NhZ2UY5rLGDQw", "bump");
-
-  }
-
 }

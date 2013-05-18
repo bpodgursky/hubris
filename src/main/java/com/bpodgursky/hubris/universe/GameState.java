@@ -191,4 +191,8 @@ public class GameState {
     new File(tmpStarRoot + "_none").delete();
     new File(tmpFleetRoot + "_none").delete();
   }
+
+  public Game getGameData() {
+    return gameData;
+  }
 }

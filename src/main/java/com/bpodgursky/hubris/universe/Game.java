@@ -32,9 +32,13 @@ public class Game {
 		this.sfv = sfv;
 		this.tr = tr;
 		this.tt = tt;
-	} 
-	
-	public String toString(){
+	}
+
+  public String getMid() {
+    return mid;
+  }
+
+  public String toString(){
 		
 		JSONObject json = new JSONObject();
 		try{
