@@ -10,11 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.bpodgursky.hubris.common.HubrisUtil;
-import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 public class GameState {
@@ -86,30 +83,10 @@ public class GameState {
   }
 
   public String toString() {
-
-    JSONObject obj = new JSONObject();
-    try {
-      obj.put("game", new JSONObject(gameData));
-      obj.put("alliance", new JSONObject(alliance));
-      obj.put("players", HubrisUtil.asJsonMap(playersByID));
-      obj.put("stars", HubrisUtil.asJsonMap(starsByID));
-      obj.put("fleets", HubrisUtil.asJsonMap(fleetsByID));
-      obj.put("tech", HubrisUtil.asJsonMap(techStatesByName));
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-
-    try {
-      return obj.toString(1);
-    } catch (JSONException e) {
-      e.printStackTrace();
-
-      return "";
-    }
+    return new Gson().toJson(this);
   }
 
-  private static final Map<Integer, String> colorsByID = new HashMap<Integer, String>();
+  private transient static final Map<Integer, String> colorsByID = new HashMap<Integer, String>();
 
   static {
     colorsByID.put(-1, "#778899");
