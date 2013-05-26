@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.bpodgursky.hubris.common.HubrisUtil;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,12 +89,12 @@ public class GameState {
 
     JSONObject obj = new JSONObject();
     try {
-      obj.put("game", gameData);
-      obj.put("alliance", alliance);
-      obj.put("players", playersByID);
-      obj.put("stars", starsByID);
-      obj.put("fleets", fleetsByID);
-      obj.put("tech", techStatesByName);
+      obj.put("game", new JSONObject(gameData));
+      obj.put("alliance", new JSONObject(alliance));
+      obj.put("players", HubrisUtil.asJsonMap(playersByID));
+      obj.put("stars", HubrisUtil.asJsonMap(starsByID));
+      obj.put("fleets", HubrisUtil.asJsonMap(fleetsByID));
+      obj.put("tech", HubrisUtil.asJsonMap(techStatesByName));
 
     } catch (JSONException e) {
       e.printStackTrace();

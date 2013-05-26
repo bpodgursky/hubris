@@ -47,4 +47,32 @@ public class Tech {
 
     return json.toString();
   }
+
+  public Double getSv() {
+    return sv;
+  }
+
+  public Double getBv() {
+    return bv;
+  }
+
+  public Double getV() {
+    return v;
+  }
+
+  public String getResearchName() {
+    return researchName;
+  }
+
+  public Integer getCurrentLevel() {
+    return currentLevel;
+  }
+
+  public Integer getCurrentResearchPoints() {
+    return currentResearchPoints;
+  }
+
+  public Integer getRequiredUpgradePoints() {
+    return requiredUpgradePoints;
+  }
 }

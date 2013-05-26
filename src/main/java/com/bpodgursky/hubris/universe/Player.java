@@ -82,4 +82,80 @@ public class Player {
 		
 		return json.toString();
 	}
+
+  public boolean isAi() {
+    return ai;
+  }
+
+  public String getAlliances() {
+    return alliances;
+  }
+
+  public Integer getCash() {
+    return cash;
+  }
+
+  public String getCurrentResearch() {
+    return currentResearch;
+  }
+
+  public String getNextResearch() {
+    return nextResearch;
+  }
+
+  public Integer getWeapons() {
+    return weapons;
+  }
+
+  public Double getRange() {
+    return range;
+  }
+
+  public Double getSpeed() {
+    return speed;
+  }
+
+  public Double getScanning() {
+    return scanning;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Integer getEconomy() {
+    return economy;
+  }
+
+  public Integer getIndustry() {
+    return industry;
+  }
+
+  public Integer getCarriers() {
+    return carriers;
+  }
+
+  public Integer getHomeFleets() {
+    return homeFleets;
+  }
+
+  public Integer getScience() {
+    return science;
+  }
+
+  public Integer getShipFleets() {
+    return shipFleets;
+  }
+
+  public Integer getAllFleets() {
+    return allFleets;
+  }
+
+  public Integer getStars() {
+    return stars;
+  }
 }

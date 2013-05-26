@@ -59,4 +59,48 @@ public class Fleet {
 		
 		return json.toString();
 	}
+
+  public String getName() {
+    return name;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public Integer getPlayer() {
+    return player;
+  }
+
+  public Integer getEta() {
+    return eta;
+  }
+
+  public Integer getNextETA() {
+    return nextETA;
+  }
+
+  public Integer getFleets() {
+    return fleets;
+  }
+
+  public Integer getVictories() {
+    return victories;
+  }
+
+  public List<Integer> getDestinations() {
+    return destinations;
+  }
+
+  public Integer getX() {
+    return x;
+  }
+
+  public Integer getY() {
+    return y;
+  }
+
+  public Integer getRt() {
+    return rt;
+  }
 }
