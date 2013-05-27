@@ -29,6 +29,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import com.bpodgursky.hubris.command.GetState;
+import com.bpodgursky.hubris.notification.*;
+import com.bpodgursky.hubris.universe.*;
+import com.bpodgursky.hubris.universe.Comment;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -60,73 +65,7 @@ public class ResponseTransformer {
     }
   }
 
-  public static <R> R parse(String response, GameRequest originalRequest) throws Exception {
-    switch (originalRequest.requestType) {
-      case GetEvents: {
-        return (R) parseEventList(response);
-      }
-      case GetMessageComments: {
-        return (R) parseMessageComments(response);
-      }
-      case GetMessages: {
-        return (R) parseMessages(response);
-      }
-      case SendMessage: {
-        return (R) new Integer(1);
-      }
-      case SendMessageComment: {
-        return (R) new Integer(1);
-      }
-      case SendCash: {
-        return (R) new Integer(1);
-      }
-      case TransferShips: {
-        return (R) new Integer(1);
-      }
-      case CreateCarrier: {
-        return (R) new Integer(1);
-      }
-      case ClearLastFleetPath: {
-        return (R) new Integer(1);
-      }
-      case FleetWaypoint: {
-        return (R) new Integer(1);
-      }
-      case SetGarrison: {
-        return (R) new Integer(1);
-      }
-      case UpgradeEcon: {
-        return (R) new Integer(1);
-      }
-      case UpgradeIndustry: {
-        return (R) new Integer(1);
-      }
-      case UpgradeScience: {
-        return (R) new Integer(1);
-      }
-      case SetNextResearch: {
-        return (R) new Integer(1);
-      }
-      case SetResearch: {
-        return (R) new Integer(1);
-      }
-      case GetState: {
-        return (R) parseUniverse(originalRequest, response);
-      }
-      case ClearAllFleetPaths: {
-        return (R) new Integer(1);
-      }
-      case SendTech: {
-        return (R) new Integer(1);
-      }
-
-      default: {
-        throw new RuntimeException("request type " + originalRequest.requestType + " not implemented!");
-      }
-    }
-  }
-
-  private static GameState parseUniverse(GameRequest originalRequest, String response) throws SAXException, IOException, TransformerException {
+  public static GameState parseUniverse(GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -318,7 +257,7 @@ public class ResponseTransformer {
     return techs;
   }
 
-  private static List<Message> parseMessages(String messages) throws TransformerException, SAXException, IOException {
+  public static List<Message> parseMessages(String messages) throws TransformerException, SAXException, IOException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(messages.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -374,7 +313,7 @@ public class ResponseTransformer {
     return messageList;
   }
 
-  private static List<Comment> parseMessageComments(String comments) throws SAXException, IOException, TransformerException {
+  public static List<Comment> parseMessageComments(String comments) throws SAXException, IOException, TransformerException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(comments.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
