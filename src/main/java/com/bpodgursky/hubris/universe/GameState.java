@@ -22,9 +22,10 @@ public class GameState {
   public final Map<String, Tech> techStatesByName;
   public final Alliance alliance;
   public final Game gameData;
+  private final int playerId;
 
   public GameState(Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
-                   Collection<Tech> techs, Alliance alliance) {
+                   Collection<Tech> techs, Alliance alliance, int playerId) {
     this.playersByID = new HashMap<Integer, Player>();
 
     for (Player p : players) {
@@ -51,6 +52,7 @@ public class GameState {
 
     this.alliance = alliance;
     this.gameData = gameData;
+    this.playerId = playerId;
   }
 
   public String toString() {

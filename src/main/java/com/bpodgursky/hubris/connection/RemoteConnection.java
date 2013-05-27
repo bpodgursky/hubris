@@ -26,7 +26,7 @@ public class RemoteConnection implements GameConnection {
   }
 
 	@Override
-	public <R> R sendRequest(GameRequest<R> request) throws Exception {
+	public <R> R sendRequest(GameRequest request) throws Exception {
 		return ResponseTransformer.parse(client.post(HubrisConstants.gameRequestUrl, request.toRequestParams()), request);
 	}
 }

@@ -5,6 +5,6 @@ import com.bpodgursky.hubris.command.GameRequest;
 
 public interface GameConnection {
 
-	public abstract <R> R sendRequest(GameRequest<R> request) throws Exception;
+	public abstract <R> R sendRequest(GameRequest request) throws Exception;
 	
 }

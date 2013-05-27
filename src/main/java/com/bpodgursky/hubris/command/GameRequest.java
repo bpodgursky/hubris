@@ -21,7 +21,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
-public abstract class GameRequest<R> {
+public abstract class GameRequest {
 
   public final Integer playerNumber;
   public final String userName;
@@ -206,4 +206,24 @@ public abstract class GameRequest<R> {
   }
 
   protected abstract void addRequestParams(Map<String, String> params) throws Exception;
+
+  public Integer getPlayerNumber() {
+    return playerNumber;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public Long getGameNumber() {
+    return gameNumber;
+  }
+
+  public RequestType getRequestType() {
+    return requestType;
+  }
+
+  public static DocumentBuilder getDocBuilder() {
+    return docBuilder;
+  }
 }

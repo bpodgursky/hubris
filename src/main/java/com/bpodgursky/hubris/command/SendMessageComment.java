@@ -4,7 +4,7 @@ import com.bpodgursky.hubris.command.GameRequest;
 
 import java.util.Map;
 
-public class SendMessageComment extends GameRequest<Integer> {
+public class SendMessageComment extends GameRequest {
 
 	public final String key;
 	public final String body;

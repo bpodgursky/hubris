@@ -5,13 +5,17 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.bpodgursky.hubris.universe.GameStateDelta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class TransferShips extends GameRequest<GameStateDelta> {
+public class TransferShips extends GameRequest {
 
-	public final Integer loc1;
+  @Override
+  protected void addRequestParams(Map<String, String> params) throws Exception {
+    //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  public final Integer loc1;
 	public final Integer loc2;
 	public final Integer loc1Final;
 	public final Integer loc2Final;
@@ -25,10 +29,10 @@ public class TransferShips extends GameRequest<GameStateDelta> {
 		this.loc2Final = loc2Final;
 	}
 
-	@Override
-	protected void addRequestParams(Map<String, String> params) throws Exception {
-		params.put("order", transferShipsOrder(loc1, loc2, loc1Final, loc2Final));
-	}
+//	@Override
+//	protected void addRequestParams(Map<String, String> params) throws Exception {
+//		params.put("order", transferShipsOrder(loc1, loc2, loc1Final, loc2Final));
+//	}
 	
 	private final String transferShipsOrder(Integer loc1, Integer loc2, Integer loc1Final, Integer loc2Final) throws TransformerFactoryConfigurationError, TransformerException{
     Document doc = docBuilder.newDocument();
@@ -57,5 +61,4 @@ public class TransferShips extends GameRequest<GameStateDelta> {
     
     return asString(doc);
 	}
-
 }

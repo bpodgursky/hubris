@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SendMessage extends GameRequest<Integer> {
+public class SendMessage extends GameRequest {
 
 	public final String subject;
 	public final String body;

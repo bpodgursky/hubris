@@ -42,10 +42,7 @@ public class ResponseTransformer {
     }
   }
 
-  public static <R> R parse(String response, GameRequest<R> originalRequest) throws Exception {
-
-    System.out.println(response);
-
+  public static <R> R parse(String response, GameRequest originalRequest) throws Exception {
     switch (originalRequest.requestType) {
       case GetEvents: {
         return (R) parseEventList(response);
@@ -63,46 +60,46 @@ public class ResponseTransformer {
         return (R) new Integer(1);
       }
       case SendCash: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case TransferShips: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case CreateCarrier: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case ClearLastFleetPath: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case FleetWaypoint: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case SetGarrison: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case UpgradeEcon: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case UpgradeIndustry: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case UpgradeScience: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case SetNextResearch: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case SetResearch: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case GetState: {
-        return (R) parseUniverse(response);
+        return (R) parseUniverse(originalRequest, response);
       }
       case ClearAllFleetPaths: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
       case SendTech: {
-        return (R) processDelta(response);
+        return (R) new Integer(1);
       }
 
       default: {
@@ -111,7 +108,7 @@ public class ResponseTransformer {
     }
   }
 
-  private static GameState parseUniverse(String response) throws SAXException, IOException, TransformerException {
+  private static GameState parseUniverse(GameRequest originalRequest, String response) throws SAXException, IOException, TransformerException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -135,7 +132,7 @@ public class ResponseTransformer {
     List<Tech> techs = getTechs(children.item(11));
 
 
-    return new GameState(game, players, stars, fleets, techs, alliances);
+    return new GameState(game, players, stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -151,35 +148,6 @@ public class ResponseTransformer {
         gameAttributes.getNamedItem("sfv").getNodeValue(),
         gameAttributes.getNamedItem("tr").getNodeValue(),
         gameAttributes.getNamedItem("tt").getNodeValue());
-  }
-
-  private static GameStateDelta processDelta(String delta) throws SAXException, IOException, TransformerException {
-    Document doc = docBuilder.parse(new ByteArrayInputStream(delta.getBytes()));
-
-    TransformerFactory factory = TransformerFactory.newInstance();
-    Transformer transformer = factory.newTransformer();
-    StreamResult result = new StreamResult(new StringWriter());
-    DOMSource source = new DOMSource(doc);
-    transformer.transform(source, result);
-
-    NodeList nodes = doc.getChildNodes();
-
-    Element root = (Element) nodes.item(0);
-    Element universe = (Element) root.getElementsByTagName("universe_delta").item(0);
-
-
-    return parseUniverseDelta(universe);
-  }
-
-  private static GameStateDelta parseUniverseDelta(Element universeDelta) {
-    NodeList children = universeDelta.getChildNodes();
-
-    Alliance alliances = getAlliances(children.item(1));
-    List<Player> players = getPlayers(children.item(3));
-    List<Star> stars = getStars(children.item(5));
-    List<Fleet> fleets = getFleets(children.item(7));
-
-    return new GameStateDelta(players, stars, fleets, Collections.<Tech>emptyList(), alliances);
   }
 
   private static Alliance getAlliances(Node alliance) {

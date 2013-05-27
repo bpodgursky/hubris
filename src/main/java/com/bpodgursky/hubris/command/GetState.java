@@ -4,7 +4,7 @@ import com.bpodgursky.hubris.universe.GameState;
 
 import java.util.Map;
 
-public class GetState extends GameRequest<GameState> {
+public class GetState extends GameRequest {
 
   public GetState(Integer player, String userName, Long game) {
     super(RequestType.GetState, player, userName, game);
