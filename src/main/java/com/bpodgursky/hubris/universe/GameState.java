@@ -22,9 +22,10 @@ public class GameState {
   public final Map<String, Tech> techStatesByName;
   public final Alliance alliance;
   public final Game gameData;
+  private final int playerId;
 
   public GameState(Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
-                   Collection<Tech> techs, Alliance alliance) {
+                   Collection<Tech> techs, Alliance alliance, int playerId) {
     this.playersByID = new HashMap<Integer, Player>();
 
     for (Player p : players) {
@@ -51,35 +52,7 @@ public class GameState {
 
     this.alliance = alliance;
     this.gameData = gameData;
-  }
-
-  public GameState apply(GameStateDelta delta) {
-
-    Map<Integer, Player> playersByID = new HashMap<Integer, Player>(this.playersByID);
-    Map<Integer, Star> starsByID = new HashMap<Integer, Star>(this.starsByID);
-    Map<Integer, Fleet> fleetsByID = new HashMap<Integer, Fleet>(this.fleetsByID);
-    Map<String, Tech> techStatesByName = new HashMap<String, Tech>(this.techStatesByName);
-
-    for (Player p : delta.getPlayers()) {
-      playersByID.put(p.id, p);
-    }
-
-    for (Star s : delta.getStars()) {
-      starsByID.put(s.id, s);
-    }
-
-    for (Fleet f : delta.getFleets()) {
-      fleetsByID.put(f.id, f);
-    }
-
-    for (Tech t : delta.getTechs()) {
-      techStatesByName.put(t.researchName, t);
-    }
-
-    Alliance alliance = delta.getAlliance();
-    Game gameData = this.gameData;
-
-    return new GameState(gameData, playersByID.values(), starsByID.values(), fleetsByID.values(), techStatesByName.values(), alliance);
+    this.playerId = playerId;
   }
 
   public String toString() {

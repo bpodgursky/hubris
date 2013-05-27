@@ -1,6 +1,5 @@
 package com.bpodgursky.hubris.command;
 
-import com.bpodgursky.hubris.universe.GameStateDelta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -8,7 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import java.util.Map;
 
-public class SendTech extends GameRequest<GameStateDelta> {
+public class SendTech extends GameRequest {
 
 	public final String tech;
 	public final Integer to;

@@ -5,11 +5,10 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.bpodgursky.hubris.universe.GameStateDelta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class SendCash extends GameRequest<GameStateDelta> {
+public class SendCash extends GameRequest {
 
 	public final Integer destination;
 	public final Integer amount;

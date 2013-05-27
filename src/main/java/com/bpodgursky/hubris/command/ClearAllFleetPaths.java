@@ -5,11 +5,11 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.bpodgursky.hubris.universe.GameStateDelta;
+import com.bpodgursky.hubris.universe.GameState;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class ClearAllFleetPaths extends GameRequest<GameStateDelta> {
+public class ClearAllFleetPaths extends GameRequest {
 
 	public final Integer fleet;
 	

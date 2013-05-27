@@ -5,7 +5,7 @@ import com.bpodgursky.hubris.notification.Message;
 import java.util.List;
 import java.util.Map;
 
-public class GetMessages extends GameRequest<List<Message>> {
+public class GetMessages extends GameRequest {
 
 	public final Integer number;
 	public final Integer offset;

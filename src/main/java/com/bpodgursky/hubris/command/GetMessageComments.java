@@ -5,7 +5,7 @@ import com.bpodgursky.hubris.universe.Comment;
 import java.util.List;
 import java.util.Map;
 
-public class GetMessageComments extends GameRequest<List<Comment>> {
+public class GetMessageComments extends GameRequest {
 
 	public final Integer offset;
 	public final Integer number;

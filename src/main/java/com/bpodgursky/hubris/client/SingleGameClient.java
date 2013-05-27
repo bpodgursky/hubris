@@ -25,7 +25,6 @@ import com.bpodgursky.hubris.notification.GameNotification;
 import com.bpodgursky.hubris.notification.Message;
 import com.bpodgursky.hubris.universe.Comment;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.GameStateDelta;
 import com.bpodgursky.hubris.universe.TechType;
 
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -71,55 +70,55 @@ public class SingleGameClient {
     return send(new GetMessages(playerNumber, userName, gameNumber, number, offset));
   }
 
-  public GameStateDelta sendCash(Integer destination, Integer amount) throws TransformerFactoryConfigurationError, Exception {
-    return send(new SendCash(playerNumber, userName, gameNumber, destination, amount));
+  public void sendCash(Integer destination, Integer amount) throws TransformerFactoryConfigurationError, Exception {
+    send(new SendCash(playerNumber, userName, gameNumber, destination, amount));
   }
 
-  public GameStateDelta transferShips(Integer id1, Integer id2, Integer loc1Final, Integer loc2Final) throws Exception {
-    return send(new TransferShips(playerNumber, userName, gameNumber, id1, id2, loc1Final, loc2Final));
+  public void transferShips(Integer id1, Integer id2, Integer loc1Final, Integer loc2Final) throws Exception {
+    send(new TransferShips(playerNumber, userName, gameNumber, id1, id2, loc1Final, loc2Final));
   }
 
-  public GameStateDelta createCarrier(Integer star, Integer strength) throws TransformerFactoryConfigurationError, Exception {
-    return send(new CreateCarrier(playerNumber, userName, gameNumber, star, strength));
+  public void createCarrier(Integer star, Integer strength) throws TransformerFactoryConfigurationError, Exception {
+    send(new CreateCarrier(playerNumber, userName, gameNumber, star, strength));
   }
 
-  public GameStateDelta clearAllFleetPaths(Integer fleet) throws Exception {
-    return send(new ClearAllFleetPaths(playerNumber, userName, gameNumber, fleet));
+  public void clearAllFleetPaths(Integer fleet) throws Exception {
+    send(new ClearAllFleetPaths(playerNumber, userName, gameNumber, fleet));
   }
 
-  public GameStateDelta clearFleetLastPath(Integer fleet) throws TransformerFactoryConfigurationError, Exception {
-    return send(new ClearFleetLastPath(playerNumber, userName, gameNumber, fleet));
+  public void clearFleetLastPath(Integer fleet) throws TransformerFactoryConfigurationError, Exception {
+    send(new ClearFleetLastPath(playerNumber, userName, gameNumber, fleet));
   }
 
-  public GameStateDelta setWaypoint(Integer fleet, Integer star) throws TransformerFactoryConfigurationError, Exception {
-    return send(new SetWaypoint(playerNumber, userName, gameNumber, fleet, star));
+  public void setWaypoint(Integer fleet, Integer star) throws TransformerFactoryConfigurationError, Exception {
+    send(new SetWaypoint(playerNumber, userName, gameNumber, fleet, star));
   }
 
-  public GameStateDelta setGarrison(Integer star, Integer size) throws TransformerFactoryConfigurationError, Exception {
-    return send(new SetGarrison(playerNumber, userName, gameNumber, star, size));
+  public void setGarrison(Integer star, Integer size) throws TransformerFactoryConfigurationError, Exception {
+    send(new SetGarrison(playerNumber, userName, gameNumber, star, size));
   }
 
-  public GameStateDelta buyEconomy(Integer star) throws Exception {
-    return send(new UpgradeEconomy(playerNumber, userName, gameNumber, star));
+  public void buyEconomy(Integer star) throws Exception {
+    send(new UpgradeEconomy(playerNumber, userName, gameNumber, star));
   }
 
-  public GameStateDelta buyIndustry(Integer star) throws Exception {
-    return send(new UpgradeIndustry(playerNumber, userName, gameNumber, star));
+  public void buyIndustry(Integer star) throws Exception {
+    send(new UpgradeIndustry(playerNumber, userName, gameNumber, star));
   }
 
-  public GameStateDelta buyScience(Integer star) throws Exception {
-    return send(new UpgradeScience(playerNumber, userName, gameNumber, star));
+  public void buyScience(Integer star) throws Exception {
+    send(new UpgradeScience(playerNumber, userName, gameNumber, star));
   }
 
-  public GameStateDelta setNextResearch(String researchName) throws TransformerFactoryConfigurationError, Exception {
-    return send(new SetNextResearch(playerNumber, userName, gameNumber, researchName));
+  public void setNextResearch(String researchName) throws TransformerFactoryConfigurationError, Exception {
+    send(new SetNextResearch(playerNumber, userName, gameNumber, researchName));
   }
 
-  public GameStateDelta setResearch(TechType research) throws Exception {
-    return send(new SetResearch(playerNumber, userName, gameNumber, research.getGameId()));
+  public void setResearch(TechType research) throws Exception {
+    send(new SetResearch(playerNumber, userName, gameNumber, research.getGameId()));
   }
 
-  public <R> R send(GameRequest<R> request) throws Exception {
+  public <R> R send(GameRequest request) throws Exception {
     return connection.sendRequest(request);
   }
 

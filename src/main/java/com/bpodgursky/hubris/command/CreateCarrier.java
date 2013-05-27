@@ -5,11 +5,10 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.bpodgursky.hubris.universe.GameStateDelta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class CreateCarrier extends GameRequest<GameStateDelta> {
+public class CreateCarrier extends GameRequest {
 
   public final Integer star;
   public final Integer strength;
