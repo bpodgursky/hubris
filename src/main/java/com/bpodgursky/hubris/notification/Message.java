@@ -1,11 +1,11 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Message extends GameEvent {
+public class Message extends GameNotification {
 
   public final Integer fromPlayer;
   public final List<Integer> toPlayer;

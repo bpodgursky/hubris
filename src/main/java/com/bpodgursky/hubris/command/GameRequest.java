@@ -187,6 +187,9 @@ public abstract class GameRequest<R> {
       params.add(URLEncoder.encode(entry.getKey(), "utf-8") + "=" + URLEncoder.encode(entry.getValue(), "utf-8"));
     }
 
+
+//    return "player%5Fnumber=0&order=&game%5Fnumber=45546246&user=Bpodgursky%40gmail%2Ecom&see%5Fall=&request%5Ftype=game%5Forder"
+
     return StringUtils.join(params, "&");
   }
 

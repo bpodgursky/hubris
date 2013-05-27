@@ -1,9 +1,9 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CashSent extends GameEvent {
+public class CashSent extends GameNotification {
 
 	public final Integer recipient;
 	public final Integer amount;

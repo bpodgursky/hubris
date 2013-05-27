@@ -1,9 +1,9 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AIAdmin extends GameEvent {
+public class AIAdmin extends GameNotification {
 
 	public final Integer player;
 	

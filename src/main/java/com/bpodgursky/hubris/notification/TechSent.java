@@ -1,10 +1,10 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import com.bpodgursky.hubris.universe.TechType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TechSent extends GameEvent {
+public class TechSent extends GameNotification {
 
 	public final Integer recipient;
 	public final TechType tech;

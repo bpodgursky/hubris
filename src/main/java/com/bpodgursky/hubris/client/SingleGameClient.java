@@ -21,8 +21,8 @@ import com.bpodgursky.hubris.command.UpgradeEconomy;
 import com.bpodgursky.hubris.command.UpgradeIndustry;
 import com.bpodgursky.hubris.command.UpgradeScience;
 import com.bpodgursky.hubris.connection.GameConnection;
-import com.bpodgursky.hubris.event.GameEvent;
-import com.bpodgursky.hubris.event.Message;
+import com.bpodgursky.hubris.notification.GameNotification;
+import com.bpodgursky.hubris.notification.Message;
 import com.bpodgursky.hubris.universe.Comment;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.GameStateDelta;
@@ -59,7 +59,7 @@ public class SingleGameClient {
     send(new SendMessageComment(playerNumber, userName, gameNumber, key, body));
   }
 
-  public List<GameEvent> getEvents(Integer offset, Integer number) throws Exception {
+  public List<GameNotification> getEvents(Integer offset, Integer number) throws Exception {
     return send(new GetEvents(playerNumber, userName, gameNumber, offset, number));
   }
 

@@ -25,6 +25,7 @@ public class ClientSettings {
   }
 
   private String username;
+  private String npUsername;
   private String password;
   private boolean promptPassword;
   private boolean promptTwoFactorAuth;
@@ -32,6 +33,18 @@ public class ClientSettings {
 
   public String getUsername() {
     return username;
+  }
+
+  public void setNpUsername(String npUsername){
+    this.npUsername = npUsername;
+  }
+
+  public String getNpUsername(){
+    if(npUsername == null){
+      return username;
+    }
+
+    return npUsername;
   }
 
   public void setUsername(String username) {

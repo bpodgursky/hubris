@@ -1,11 +1,11 @@
 package com.bpodgursky.hubris.command;
 
-import com.bpodgursky.hubris.event.GameEvent;
+import com.bpodgursky.hubris.notification.GameNotification;
 
 import java.util.List;
 import java.util.Map;
 
-public class GetEvents extends GameRequest<List<GameEvent>>{
+public class GetEvents extends GameRequest<List<GameNotification>>{
 
 	public final Integer offset;
 	public final Integer number;

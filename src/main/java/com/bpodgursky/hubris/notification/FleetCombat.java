@@ -1,4 +1,4 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import org.json.JSONObject;
  *
  * @author bpodgursky
  */
-public class FleetCombat extends GameEvent {
+public class FleetCombat extends GameNotification {
 
   public final Integer defender;
   public final Map<Integer, Integer> playerIDToShipsBefore;

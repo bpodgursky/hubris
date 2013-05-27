@@ -1,9 +1,9 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CapturedSystem extends GameEvent {
+public class CapturedSystem extends GameNotification {
 
 	public final Integer star;
 	public final Integer fleet;

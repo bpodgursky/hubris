@@ -1,26 +1,26 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.notification;
 
-import com.bpodgursky.hubris.universe.TechType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TechReceived extends GameEvent {
+public class CashReceived extends GameNotification {
 
 	public final Integer sender;
-	public final TechType type;
+	public final Integer amount;
 	
-	public TechReceived(String key, Long at, TechType type, Integer sender) {
+	public CashReceived(String key, Long at, Integer sender, Integer amount){
 		super(key, at);
 		
 		this.sender = sender;
-		this.type = type;
+		this.amount = amount;
 	}
-
+	
 	public String toString(){
 		
 		JSONObject json = new JSONObject();
 		try{
 			json.put("sender", sender);
+			json.put("amount", amount);
 			json.put("key", key);
 			json.put("timestamp", at);
 			

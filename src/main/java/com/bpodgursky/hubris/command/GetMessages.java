@@ -1,6 +1,6 @@
 package com.bpodgursky.hubris.command;
 
-import com.bpodgursky.hubris.event.Message;
+import com.bpodgursky.hubris.notification.Message;
 
 import java.util.List;
 import java.util.Map;

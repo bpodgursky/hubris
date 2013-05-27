@@ -1,7 +1,6 @@
 package com.bpodgursky.hubris.response;
 
 import com.bpodgursky.hubris.command.GameRequest;
-import com.bpodgursky.hubris.command.GetEvents;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,13 +15,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.bpodgursky.hubris.event.*;
+import com.bpodgursky.hubris.notification.*;
 import com.bpodgursky.hubris.universe.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -408,7 +406,7 @@ public class ResponseTransformer {
     return commentList;
   }
 
-  public static List<GameEvent> parseEventList(String events) throws Exception {
+  public static List<GameNotification> parseEventList(String events) throws Exception {
     Document doc = docBuilder.parse(new ByteArrayInputStream(events.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -423,7 +421,7 @@ public class ResponseTransformer {
     Element eventsNode = (Element) root.getElementsByTagName("messages").item(0);
     NodeList eventNodeList = eventsNode.getElementsByTagName("message");
 
-    List<GameEvent> eventList = new ArrayList<GameEvent>();
+    List<GameNotification> eventList = new ArrayList<GameNotification>();
 
     for (int i = 0; i < eventNodeList.getLength(); i++) {
       Element eventNode = (Element) eventNodeList.item(i);

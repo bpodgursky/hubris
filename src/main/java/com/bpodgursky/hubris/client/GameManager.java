@@ -77,8 +77,12 @@ public class GameManager {
         System.out.printf("%2d. %s\n", i, game.getName());
       }
       GameMeta game = games.get(Integer.parseInt(reader.readLine("Enter game: ")));
-      SingleGameClient connection = new SingleGameClient(settings.getUsername(), game.getId(), new RemoteConnection(cookies));
-      System.out.println(connection.getState());
+
+      SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
+
+      GameState state = connection.getState();
+
+      state.getGameData();
     }
 
 //    SingleGameClient connection = new SingleGameClient(settings.getUsername(), 6, 28326395l, new RemoteConnection(cookies));
