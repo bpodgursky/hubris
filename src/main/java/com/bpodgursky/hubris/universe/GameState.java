@@ -53,37 +53,12 @@ public class GameState {
     this.gameData = gameData;
   }
 
-  public GameState apply(GameStateDelta delta) {
-
-    Map<Integer, Player> playersByID = new HashMap<Integer, Player>(this.playersByID);
-    Map<Integer, Star> starsByID = new HashMap<Integer, Star>(this.starsByID);
-    Map<Integer, Fleet> fleetsByID = new HashMap<Integer, Fleet>(this.fleetsByID);
-    Map<String, Tech> techStatesByName = new HashMap<String, Tech>(this.techStatesByName);
-
-    for (Player p : delta.getPlayers()) {
-      playersByID.put(p.id, p);
-    }
-
-    for (Star s : delta.getStars()) {
-      starsByID.put(s.id, s);
-    }
-
-    for (Fleet f : delta.getFleets()) {
-      fleetsByID.put(f.id, f);
-    }
-
-    for (Tech t : delta.getTechs()) {
-      techStatesByName.put(t.researchName, t);
-    }
-
-    Alliance alliance = delta.getAlliance();
-    Game gameData = this.gameData;
-
-    return new GameState(gameData, playersByID.values(), starsByID.values(), fleetsByID.values(), techStatesByName.values(), alliance);
-  }
-
   public String toString() {
     return new Gson().toJson(this);
+  }
+
+  public Map<Integer, Player> getPlayers(){
+    return playersByID;
   }
 
   private transient static final Map<Integer, String> colorsByID = new HashMap<Integer, String>();
