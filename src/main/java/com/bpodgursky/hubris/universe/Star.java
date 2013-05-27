@@ -64,4 +64,60 @@ public class Star {
 		
 		return json.toString();
 	}
+
+  public String getName() {
+    return name;
+  }
+
+  public Integer getEconomy() {
+    return economy;
+  }
+
+  public Integer getEconUpgrade() {
+    return econUpgrade;
+  }
+
+  public Integer getFleets() {
+    return fleets;
+  }
+
+  public Integer getIndustry() {
+    return industry;
+  }
+
+  public Integer getIndustryUpgrade() {
+    return industryUpgrade;
+  }
+
+  public Integer getScience() {
+    return science;
+  }
+
+  public Integer getScienceUpgrade() {
+    return scienceUpgrade;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public Integer getX() {
+    return x;
+  }
+
+  public Integer getY() {
+    return y;
+  }
+
+  public Integer getPlayerNumber() {
+    return playerNumber;
+  }
+
+  public Integer getGarrisonSize() {
+    return garrisonSize;
+  }
+
+  public Integer getResources() {
+    return resources;
+  }
 }

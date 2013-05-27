@@ -176,7 +176,7 @@ public class LoginClient {
       .getSubmitButton(HtmlQueryBuilder.byName(LoginConstants.CONFIRM_ACCESS_SUBMIT_BUTTON))
       .submit();
 
-    String landingUrl = confirmAccessResponse.getResponse().toString();
+    String landingUrl = confirmAccessResponse.getUri().toString();
     if (!landingUrl.contains(HubrisConstants.homepageUrl)) {
       throw new RuntimeException("Didn't get redirected to homepage after access confirmation. Instead, got: " + landingUrl);
     }

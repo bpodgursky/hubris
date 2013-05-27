@@ -23,4 +23,8 @@ public class Alliance {
 		
 		return json.toString();
 	}
+
+  public String getAlliances() {
+    return alliances;
+  }
 }

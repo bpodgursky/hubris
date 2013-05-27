@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 public class GameState {
@@ -84,30 +83,10 @@ public class GameState {
   }
 
   public String toString() {
-
-    JSONObject obj = new JSONObject();
-    try {
-      obj.put("game", gameData);
-      obj.put("alliance", alliance);
-      obj.put("players", playersByID);
-      obj.put("stars", starsByID);
-      obj.put("fleets", fleetsByID);
-      obj.put("tech", techStatesByName);
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-
-    try {
-      return obj.toString(1);
-    } catch (JSONException e) {
-      e.printStackTrace();
-
-      return "";
-    }
+    return new Gson().toJson(this);
   }
 
-  private static final Map<Integer, String> colorsByID = new HashMap<Integer, String>();
+  private transient static final Map<Integer, String> colorsByID = new HashMap<Integer, String>();
 
   static {
     colorsByID.put(-1, "#778899");

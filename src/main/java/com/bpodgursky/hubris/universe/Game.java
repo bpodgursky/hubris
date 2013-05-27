@@ -34,10 +34,6 @@ public class Game {
 		this.tt = tt;
 	}
 
-  public String getMid() {
-    return mid;
-  }
-
   public String toString(){
 		
 		JSONObject json = new JSONObject();
@@ -59,5 +55,48 @@ public class Game {
 		
 		return json.toString();
 	}
-	
+
+  public long getGameNumber() {
+    return gameNumber;
+  }
+
+  public String getGameName() {
+    return gameName;
+  }
+
+  public String getAa() {
+    return aa;
+  }
+
+  public String getGo() {
+    return go;
+  }
+
+  public String getHs() {
+    return hs;
+  }
+
+  public String getLt() {
+    return lt;
+  }
+
+  public String getMid() {
+    return mid;
+  }
+
+  public String getNp() {
+    return np;
+  }
+
+  public String getSfv() {
+    return sfv;
+  }
+
+  public String getTr() {
+    return tr;
+  }
+
+  public String getTt() {
+    return tt;
+  }
 }
