@@ -20,10 +20,11 @@ public class Fleet {
 	
 	//	dunno what this is
 	public final Integer rt;
+
+  private Star star;
 	
 	public Fleet(String name, Integer id, Integer player, Integer eta, Integer nextETA, Integer fleets, 
 			Integer victories, List<Integer> destinations, Integer x, Integer y, Integer rt){
-		
 		this.name = name;
 		this.id = id;
 		this.player = player;
@@ -35,6 +36,7 @@ public class Fleet {
 		this.x = x;
 		this.y = y;
 		this.rt = rt;
+    this.star = null;
 	}
 	
 	public String toString(){
@@ -46,7 +48,7 @@ public class Fleet {
 			json.put("player", player);
 			json.put("eta", eta);
 			json.put("nextETA", nextETA);
-			json.put("fleets", fleets);
+			json.put("ships", fleets);
 			json.put("victories", victories);
 			json.put("destinations", destinations);
 			json.put("x", x);
@@ -102,5 +104,17 @@ public class Fleet {
 
   public Integer getRt() {
     return rt;
+  }
+
+  public boolean isAtStar() {
+    return star != null;
+  }
+
+  public Star getStar() {
+    return star;
+  }
+
+  public void setStar(Star star) {
+    this.star = star;
   }
 }

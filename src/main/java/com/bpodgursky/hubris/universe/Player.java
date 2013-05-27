@@ -14,7 +14,7 @@ public class Player {
 	public final Double range;
 	public final Double speed;
 	public final Double scanning;
-	public final Integer id;
+	public final int id;
 	public final String name;
 	public final Integer economy;
 	public final Integer industry;
@@ -26,7 +26,7 @@ public class Player {
 	
 	public final Integer stars;
 	
-	public Player(String name, Integer id, Integer economy, Integer industry, Integer science, Integer stars, Integer carriers, Integer homeFleets, Integer shipFleets,
+	public Player(String name, int id, Integer economy, Integer industry, Integer science, Integer stars, Integer carriers, Integer homeFleets, Integer shipFleets,
 			boolean ai, String alliances, Integer cash, String currentResearch, String nextResearch, Integer weapons, Double range,
 			Double speed, Double scanning){
 		
@@ -119,7 +119,7 @@ public class Player {
     return scanning;
   }
 
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 

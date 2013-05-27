@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Range;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 
@@ -26,26 +30,22 @@ public class GameState {
 
   public GameState(Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
                    Collection<Tech> techs, Alliance alliance, int playerId) {
-    this.playersByID = new HashMap<Integer, Player>();
-
+    this.playersByID = Maps.newHashMap();
     for (Player p : players) {
       playersByID.put(p.id, p);
     }
 
-    this.starsByID = new HashMap<Integer, Star>();
-
+    this.starsByID = Maps.newHashMap();
     for (Star s : stars) {
       starsByID.put(s.id, s);
     }
 
-    this.fleetsByID = new HashMap<Integer, Fleet>();
-
+    this.fleetsByID = Maps.newHashMap();
     for (Fleet f : fleets) {
       fleetsByID.put(f.id, f);
     }
 
-    this.techStatesByName = new HashMap<String, Tech>();
-
+    this.techStatesByName = Maps.newHashMap();
     for (Tech t : techs) {
       techStatesByName.put(t.researchName, t);
     }
@@ -103,7 +103,7 @@ public class GameState {
     playerFleetFiles.put(-1, new FileWriter(tmpFleetRoot + "_none"));
 
     for (Star s : starsByID.values()) {
-      String label = (s.fleets == null ? "" : s.fleets + "-") + "[" +
+      String label = (s.ships == null ? "" : s.ships + "-") + "[" +
           (s.economy == null ? "" : s.economy + ",") +
           (s.industry == null ? "" : s.industry + ",") +
           (s.science == null ? "" : s.science) + "]" +

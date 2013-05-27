@@ -53,6 +53,8 @@ public class SendCash extends GameRequest {
     root.appendChild(fleet);
     root.appendChild(cash);
     root.appendChild(tech);
+
+    System.out.println(root);
     
     return asString(doc);
 	}

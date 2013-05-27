@@ -81,8 +81,7 @@ public class GameManager {
       SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
 
       GameState state = connection.getState();
-
-      state.getGameData();
+      System.out.println(state);
     }
 
 //    SingleGameClient connection = new SingleGameClient(settings.getUsername(), 6, 28326395l, new RemoteConnection(cookies));

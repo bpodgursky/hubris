@@ -1,15 +1,35 @@
 package com.bpodgursky.hubris.response;
 
 import com.bpodgursky.hubris.command.GameRequest;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.bpodgursky.hubris.notification.AIAdmin;
+import com.bpodgursky.hubris.notification.CapturedSystem;
+import com.bpodgursky.hubris.notification.CashReceived;
+import com.bpodgursky.hubris.notification.CashSent;
+import com.bpodgursky.hubris.notification.FleetCombat;
+import com.bpodgursky.hubris.notification.GameNotification;
+import com.bpodgursky.hubris.notification.Message;
+import com.bpodgursky.hubris.notification.NotAiAdmin;
+import com.bpodgursky.hubris.notification.Production;
+import com.bpodgursky.hubris.notification.TechReceived;
+import com.bpodgursky.hubris.notification.TechResearch;
+import com.bpodgursky.hubris.notification.TechSent;
+import com.bpodgursky.hubris.universe.Alliance;
+import com.bpodgursky.hubris.universe.Comment;
+import com.bpodgursky.hubris.universe.Fleet;
+import com.bpodgursky.hubris.universe.Game;
+import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
+import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.Tech;
+import com.bpodgursky.hubris.universe.TechType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,18 +39,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import com.bpodgursky.hubris.notification.*;
-import com.bpodgursky.hubris.universe.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ResponseTransformer {
-
+  public static final int NORMALIZED_SIZE = 1000;
   private static final DocumentBuilder docBuilder;
 
   static {
@@ -191,7 +209,9 @@ public class ResponseTransformer {
   private static List<Star> getStars(Node starsNode) {
     NodeList starsList = starsNode.getChildNodes();
 
-    List<Star> stars = new ArrayList<Star>();
+    List<Star> stars = Lists.newArrayList();
+    List<Integer> xvalues = Lists.newArrayList();
+    List<Integer> yvalues = Lists.newArrayList();
     for (int i = 0; i < starsList.getLength(); i++) {
       Node starNode = starsList.item(i);
       NamedNodeMap starAttributes = starNode.getAttributes();
@@ -207,7 +227,12 @@ public class ResponseTransformer {
       Node g = starAttributes.getNamedItem("g");
       Node resources = starAttributes.getNamedItem("r");
 
-      Star star = new Star(starAttributes.getNamedItem("n").getNodeValue(),
+      int x = Integer.parseInt(starAttributes.getNamedItem("x").getNodeValue());
+      int y = Integer.parseInt(starAttributes.getNamedItem("y").getNodeValue());
+      xvalues.add(x);
+      yvalues.add(y);
+
+      stars.add(new Star(starAttributes.getNamedItem("n").getNodeValue(),
           pn == null ? null : Integer.parseInt(pn.getNodeValue()),
           econ == null ? null : Integer.parseInt(econ.getNodeValue()),
           eup == null ? null : Integer.parseInt(eup.getNodeValue()),
@@ -217,12 +242,17 @@ public class ResponseTransformer {
           s == null ? null : Integer.parseInt(s.getNodeValue()),
           sup == null ? null : Integer.parseInt(sup.getNodeValue()),
           Integer.parseInt(starAttributes.getNamedItem("uid").getNodeValue()),
-          Integer.parseInt(starAttributes.getNamedItem("x").getNodeValue()),
-          Integer.parseInt(starAttributes.getNamedItem("y").getNodeValue()),
+          x,
+          y,
           g == null ? null : Integer.parseInt(g.getNodeValue()),
-          resources == null ? null : Integer.parseInt(resources.getNodeValue()));
+          resources == null ? null : Integer.parseInt(resources.getNodeValue())));
+    }
+    Range<Integer> xRange = Range.encloseAll(xvalues);
+    Range<Integer> yRange = Range.encloseAll(yvalues);
+    List<Star> normalizedStars = Lists.newArrayList();
 
-      stars.add(star);
+    for (Star star : stars) {
+      int normalizedX
     }
 
     return stars;

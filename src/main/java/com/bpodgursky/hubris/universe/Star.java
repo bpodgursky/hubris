@@ -1,14 +1,16 @@
 package com.bpodgursky.hubris.universe;
+import com.google.common.collect.Lists;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 
 public class Star {
-
 	public final String name;
 	public final Integer economy;
 	public final Integer econUpgrade;
-	public final Integer fleets;
+	public final Integer ships;
 	public final Integer industry;
 	public final Integer industryUpgrade;
 	public final Integer science;
@@ -19,15 +21,15 @@ public class Star {
 	public final Integer playerNumber;
 	public final Integer garrisonSize;
 	public final Integer resources;
-	
-	public Star(String name, Integer playerNumber, Integer economy, Integer econUpgrade, Integer fleets, Integer industry,
+  public final List<Fleet> fleets;
+
+	public Star(String name, Integer playerNumber, Integer economy, Integer econUpgrade, Integer ships, Integer industry,
 			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources){
-		
 		this.name = name;
 		this.playerNumber = playerNumber;
 		this.economy = economy;
 		this.econUpgrade = econUpgrade;
-		this.fleets = fleets;
+		this.ships = ships;
 		this.industry = industry;
 		this.industryUpgrade = industryUpgrade;
 		this.science = science;
@@ -37,8 +39,13 @@ public class Star {
 		this.y = y;
 		this.garrisonSize = g;
 		this.resources = resources;
-		
+		this.fleets = Lists.newArrayList();
 	}
+
+  public Star(Star old, int x, int y) {
+    this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
+      old.science, old.scienceUpgrade, old.id, x, y, old.garrisonSize, old.resources);
+  }
 	
 	public String toString(){
 		
@@ -48,7 +55,7 @@ public class Star {
 			json.put("playerNumber", playerNumber);
 			json.put("economy", economy);
 			json.put("econUpgrade", econUpgrade);
-			json.put("fleets", fleets);
+			json.put("ships", ships);
 			json.put("industry", industry);
 			json.put("industryUpgrade", industryUpgrade);
 			json.put("science", science);
@@ -77,8 +84,8 @@ public class Star {
     return econUpgrade;
   }
 
-  public Integer getFleets() {
-    return fleets;
+  public Integer getShips() {
+    return ships;
   }
 
   public Integer getIndustry() {
@@ -119,5 +126,9 @@ public class Star {
 
   public Integer getResources() {
     return resources;
+  }
+
+  public void addFleet(Fleet fleet) {
+    fleets.add(fleet);
   }
 }
