@@ -83,15 +83,9 @@ public class GameManager {
       GameState state = connection.getState();
 
       state.getGameData();
-    }
 
-//    SingleGameClient connection = new SingleGameClient(settings.getUsername(), 6, 28326395l, new RemoteConnection(cookies));
-//
-//    GameState state = connection.getState();
-//    System.out.println(state);
-//
-//    state.writeGnuPlot("current_state");
-//
-//    System.out.println(manager.getActiveGames());
+
+      System.out.println(state);
+    }
   }
 }
