@@ -84,12 +84,12 @@ public class ResponseTransformer {
     Game game = parseGameNode(children.item(1));
     Alliance alliances = getAlliances(children.item(3));
     List<Player> players = getPlayers(children.item(5));
-    List<Star> stars = getStars(children.item(7));
-    List<Fleet> fleets = getFleets(children.item(9));
+    StarClosure starClosure = getStars(children.item(7));
+    List<Fleet> fleets = getFleets(children.item(9), starClosure);
     List<Tech> techs = getTechs(children.item(11));
 
 
-    return new GameState(game, players, stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
+    return new GameState(game, players, starClosure.stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -145,7 +145,7 @@ public class ResponseTransformer {
     return players;
   }
 
-  private static List<Star> getStars(Node starsNode) {
+  private static StarClosure getStars(Node starsNode) {
     NodeList starsList = starsNode.getChildNodes();
 
     List<Star> stars = Lists.newArrayList();
@@ -189,15 +189,20 @@ public class ResponseTransformer {
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
     List<Star> normalizedStars = Lists.newArrayList();
+    double xSpan = (xRange.upperEndpoint() - xRange.lowerEndpoint());
+    double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
-      int normalizedX
+      int normalizedX = (int)(((star.getX() - xRange.lowerEndpoint()) / xSpan) * NORMALIZED_SIZE);
+      int normalizedY = (int)(((star.getY() - yRange.lowerEndpoint()) / ySpan) * NORMALIZED_SIZE);
+
+      normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
 
-    return stars;
+    return new StarClosure(normalizedStars, xRange, yRange, xSpan, ySpan);
   }
 
-  private static List<Fleet> getFleets(Node fleetsNode) {
+  private static List<Fleet> getFleets(Node fleetsNode, StarClosure starClosure) {
     NodeList fleetList = fleetsNode.getChildNodes();
 
     List<Fleet> fleets = new ArrayList<Fleet>();
@@ -214,17 +219,23 @@ public class ResponseTransformer {
         }
       }
 
+      int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
+      int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
+
+      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_SIZE);
+      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_SIZE);
+
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
-          Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
-          destStars,
-          Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
+        Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
+        destStars,
+        x,
+        y,
+        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
 
       fleets.add(fleet);
     }
@@ -462,5 +473,41 @@ public class ResponseTransformer {
     }
 
     return textValues;
+  }
+
+  private static class StarClosure {
+    private final List<Star> stars;
+    private final Range<Integer> xRange;
+    private final Range<Integer> yRange;
+    private final double xSpan;
+    private final double ySpan;
+
+    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange, double xSpan, double ySpan) {
+      this.stars = stars;
+      this.xRange = xRange;
+      this.yRange = yRange;
+      this.xSpan = xSpan;
+      this.ySpan = ySpan;
+    }
+
+    private List<Star> getStars() {
+      return stars;
+    }
+
+    private Range<Integer> getxRange() {
+      return xRange;
+    }
+
+    private Range<Integer> getyRange() {
+      return yRange;
+    }
+
+    private double getxSpan() {
+      return xSpan;
+    }
+
+    private double getySpan() {
+      return ySpan;
+    }
   }
 }
