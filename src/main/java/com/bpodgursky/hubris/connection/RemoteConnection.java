@@ -35,8 +35,8 @@ public class RemoteConnection implements GameConnection {
   }
 
   @Override
-  public GameState getState(GetState getState) throws Exception {
-    return ResponseTransformer.parseUniverse(getState, post(getState));
+  public GameState getState(GameState currentState, GetState getState) throws Exception {
+    return ResponseTransformer.parseUniverse(currentState, getState, post(getState));
   }
 
   @Override

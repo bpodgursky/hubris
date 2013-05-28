@@ -42,7 +42,7 @@ public class SingleGameClient {
     this.playerNumber = 0;
 
     // Fetch player number
-    playerNumber = Integer.parseInt(getState().gameData.getMid());
+    playerNumber = Integer.parseInt(getState(null).gameData.getMid());
   }
 
   public void sendTech(TechType tech, Integer to) throws Exception {
@@ -117,7 +117,7 @@ public class SingleGameClient {
     connection.setResearch(new SetResearch(playerNumber, userName, gameNumber, research.getGameId()));
   }
 
-  public GameState getState() throws TransformerFactoryConfigurationError, Exception {
-    return connection.getState(new GetState(playerNumber, userName, gameNumber));
+  public GameState getState(GameState currentState) throws TransformerFactoryConfigurationError, Exception {
+    return connection.getState(currentState, new GetState(playerNumber, userName, gameNumber));
   }
 }

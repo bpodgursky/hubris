@@ -45,6 +45,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,7 @@ public class ResponseTransformer {
     }
   }
 
-  public static GameState parseUniverse(GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
+  public static GameState parseUniverse(GameState prevState, GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -90,25 +92,35 @@ public class ResponseTransformer {
     List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
     List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
     Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
+
+    // Find fleets that are at stars. This isn't provided directly by the game and can be determined when a
+    // fleet doesn't have a star its destinations and is sufficiently close.
     for (Fleet fleet : fleets) {
       Star atStar = null;
 
       for (Star star : starClosure.stars) {
         double d = Math.sqrt(Math.pow(fleet.getX() - star.getX(), 2) + Math.pow(fleet.getY() - star.getY(), 2));
 
-        if (d < AT_STAR_THRESHOLD) {
+        if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
           atStar = star;
           break;
         }
       }
 
-      Fleet fleetWithStar;
-      if (atStar == null) {
-        fleetsWithStar = new Fleet(fleet,
+      Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
+      if (atStar != null) {
+        fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
       }
+      fleetsWithStars.add(fleetWithStar);
     }
 
-    return new GameState(game, players, starClosure.stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
+    // Create stars that have references to fleets located at them
+    for (Star star : starClosure.stars) {
+      Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
+      starsWithFleets.add(new Star(star, fleetsAtStar == null ? Lists.<Integer>newArrayList() : Lists.newArrayList(fleetsAtStar)));
+    }
+
+    return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {

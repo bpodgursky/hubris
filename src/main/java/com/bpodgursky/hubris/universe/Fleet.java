@@ -39,8 +39,9 @@ public class Fleet {
     this.starId = starId;
 	}
 
-  public Fleet(Fleet fleet) {
-    this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextETA,
+  public Fleet(Fleet fleet, Integer starId) {
+    this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextETA, fleet.fleets, fleet.victories, fleet.destinations,
+      fleet.x, fleet.y, fleet.rt, starId);
   }
 
 	public String toString(){

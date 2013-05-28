@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface GameConnection {
 
-  public GameState getState(GetState getState) throws Exception;
+  public GameState getState(GameState currentState, GetState getState) throws Exception;
 
   public void sendTech(SendTech tech) throws Exception;
 
