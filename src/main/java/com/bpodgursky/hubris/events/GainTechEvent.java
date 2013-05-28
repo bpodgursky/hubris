@@ -2,12 +2,12 @@ package com.bpodgursky.hubris.events;
 
 public class GainTechEvent {
   private final int playerId;
-  private final double gainedWeapons;
+  private final int gainedWeapons;
   private final double gainedRange;
   private final double gainedSpeed;
   private final double gainedScanning;
 
-  public GainTechEvent(int playerId, double gainedWeapons, double gainedRange, double gainedSpeed, double gainedScanning) {
+  public GainTechEvent(int playerId, int gainedWeapons, double gainedRange, double gainedSpeed, double gainedScanning) {
     this.playerId = playerId;
     this.gainedWeapons = gainedWeapons;
     this.gainedRange = gainedRange;
@@ -19,7 +19,7 @@ public class GainTechEvent {
     return playerId;
   }
 
-  public double getGainedWeapons() {
+  public int getGainedWeapons() {
     return gainedWeapons;
   }
 

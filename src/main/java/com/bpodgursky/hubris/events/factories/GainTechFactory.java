@@ -14,6 +14,15 @@ public class GainTechFactory implements EventFactory<GainTechEvent> {
     List<GainTechEvent> events = Lists.newArrayList();
 
     for (Player player : newState.getPlayers().values()) {
+      Player oldPlayer = oldState.getPlayer(player.getId());
+      int weapons = player.getWeapons() - oldPlayer.getWeapons();
+      double range = player.getRange() - oldPlayer.getRange();
+      double speed = player.getSpeed() - oldPlayer.getSpeed();
+      double scanning = player.getScanning() - oldPlayer.getScanning();
+
+      if (weapons > 0 || range > 0 || speed > 0 || scanning > 0) {
+        //events.add(new GainTechEvent(player.getId(), ))
+      }
     }
 
     return events;
