@@ -18,7 +18,18 @@ public class FleetArrivedFactory implements EventFactory<FleetArrivedEvent> {
       if (oldState.getFleet(fleet.getId()) != null
         && fleet.getStarId() != null
         && oldState.starIsVisible(fleet.getStarId())) {
-        events.add(new FleetArrivedEvent(fleet.getId()));
+        events.add(new FleetArrivedEvent(fleet.getId(), fleet.getStarId()));
+      }
+    }
+
+    // Handle fleets that were destroyed
+    for (Fleet fleet : oldState.getAllFleets()) {
+      if (newState.getFleet(fleet.getId()) == null && !fleet.getDestinations().isEmpty()) {
+        int destinationStar = fleet.getDestinations().get(0);
+
+        if (oldState.starIsVisible(destinationStar) && newState.starIsVisible(destinationStar)) {
+          events.add(new FleetArrivedEvent(fleet.getId(), destinationStar));
+        }
       }
     }
 

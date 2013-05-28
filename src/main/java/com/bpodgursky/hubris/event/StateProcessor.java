@@ -2,7 +2,18 @@ package com.bpodgursky.hubris.event;
 
 import com.bpodgursky.hubris.event_factory.StarUpgradeFactory;
 import com.bpodgursky.hubris.events.EventListener;
+<<<<<<< HEAD
 import com.bpodgursky.hubris.events.factories.*;
+=======
+import com.bpodgursky.hubris.events.factories.CashChangeFactory;
+import com.bpodgursky.hubris.events.factories.EventFactory;
+import com.bpodgursky.hubris.events.factories.FleetArrivedFactory;
+import com.bpodgursky.hubris.events.factories.FleetCreatedFactory;
+import com.bpodgursky.hubris.events.factories.FleetDestinationChangedFactory;
+import com.bpodgursky.hubris.events.factories.FleetSpottedFactory;
+import com.bpodgursky.hubris.events.factories.GainTechFactory;
+import com.bpodgursky.hubris.events.factories.StarRevealedFactory;
+>>>>>>> 802391d4f88d8b6fc54e6aff7a18dca8ec4d1cb6
 import com.bpodgursky.hubris.universe.GameState;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -21,7 +32,8 @@ public class StateProcessor {
       new StarUpgradeFactory(),
       new FleetDestinationChangedFactory(),
       new StarRevealedFactory(),
-      new ChangeResearchFactory()
+      new ChangeResearchFactory(),
+      new GainTechFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
