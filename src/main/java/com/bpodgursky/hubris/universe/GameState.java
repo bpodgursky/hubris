@@ -23,10 +23,12 @@ public class GameState {
   public final Alliance alliance;
   public final Game gameData;
   private final int playerId;
+  private final GameState previousState;
 
-  public GameState(Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
+  public GameState(GameState previousState, Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
                    Collection<Tech> techs, Alliance alliance, int playerId) {
     this.playersByID = new HashMap<Integer, Player>();
+    this.previousState = previousState;
 
     for (Player p : players) {
       playersByID.put(p.id, p);
@@ -53,6 +55,63 @@ public class GameState {
     this.alliance = alliance;
     this.gameData = gameData;
     this.playerId = playerId;
+  }
+
+  public Star getStar(int starId, boolean useHistoric){
+
+    if(!useHistoric){
+      return starsByID.get(starId);
+    }
+
+    Star currentInfo = starsByID.get(starId);
+
+    if(currentInfo.economy != null){
+      return currentInfo;
+    }
+
+    Star lastVisible = getLastVisible(starId);
+
+    return merge(currentInfo, lastVisible);
+  }
+
+  private boolean equal(Integer int1, Integer int2){
+    return int1 == null && int2 == null || int1 != null && int2 != null && int1.intValue() == int2.intValue();
+  }
+
+  private Star merge(Star visible, Star lastVisible){
+
+    Integer playerVisible = visible.getPlayerNumber();
+    Integer playerLast = lastVisible.getPlayerNumber();
+
+    //  if the same player controls it, last state is the best guess
+    if(equal(playerVisible, playerLast)){
+      return lastVisible;
+    } else {
+      return new Star(visible.getName(), visible.getPlayerNumber(),
+          null, null, null,
+          lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
+          lastVisible.getScience(), lastVisible.getScienceUpgrade(),
+          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources());
+
+    }
+  }
+
+  public GameState previousState(){
+    return previousState;
+  }
+
+  private Star getLastVisible(int starId){
+    GameState state = this;
+
+    while(state != null){
+      Star star = state.getStar(starId, false);
+      if(star.economy != null){
+        return star;
+      }
+      state = state.previousState();
+    }
+
+    return null;
   }
 
   public String toString() {

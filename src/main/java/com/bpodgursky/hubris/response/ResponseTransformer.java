@@ -36,7 +36,7 @@ public class ResponseTransformer {
     }
   }
 
-  public static GameState parseUniverse(GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
+  public static GameState parseUniverse(GameState prevState, GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
     Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -60,7 +60,7 @@ public class ResponseTransformer {
     List<Tech> techs = getTechs(children.item(11));
 
 
-    return new GameState(game, players, stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
+    return new GameState(prevState, game, players, stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {

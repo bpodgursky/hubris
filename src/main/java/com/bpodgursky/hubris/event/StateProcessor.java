@@ -18,12 +18,6 @@ public class StateProcessor {
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
   private final Multimap<Class, EventListener> listeners = HashMultimap.create();
 
-  private GameState currentState;
-
-  public StateProcessor(GameState initialState) {
-    this.currentState = initialState;
-  }
-
   public void addEventFactory(EventFactory factory) {
     this.eventFactories.add(factory);
   }
@@ -34,9 +28,14 @@ public class StateProcessor {
 
   public void update(GameState newState) {
 
+    //  skip the first time
+    if(newState.previousState() == null){
+      return;
+    }
+
     Multimap<Class, Object> events = HashMultimap.create();
     for (EventFactory eventFactory : eventFactories) {
-      events.putAll(eventFactory.getEventType(), eventFactory.getEvents(currentState, newState));
+      events.putAll(eventFactory.getEventType(), eventFactory.getEvents(newState.previousState(), newState));
     }
 
     for (Class aClass : events.keySet()) {
@@ -48,8 +47,6 @@ public class StateProcessor {
         }
       }
     }
-
-    currentState = newState;
   }
 
 
