@@ -13,12 +13,12 @@ public class CashChangeFactory implements EventFactory<CashChangeEvent> {
   @Override
   public List<CashChangeEvent> getEvents(GameState newState) {
     List<CashChangeEvent> events = Lists.newArrayList();
-    for (Map.Entry<Integer, Player> entry : newState.previousState().getPlayers().entrySet()) {
-      int oldCash = entry.getValue().getCash();
-      int newCash = newState.getPlayers().get(entry.getKey()).getCash();
+    for (Player player : newState.previousState().getAllPlayers()) {
+      int oldCash = player.getCash();
+      int newCash = newState.getPlayers().get(player.getId()).getCash();
 
       if(oldCash != newCash){
-        events.add(new CashChangeEvent(entry.getKey(), newCash - oldCash));
+        events.add(new CashChangeEvent(player.getId(), newCash - oldCash));
       }
     }
 

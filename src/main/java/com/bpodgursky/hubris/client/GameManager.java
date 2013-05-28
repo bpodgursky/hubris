@@ -5,6 +5,7 @@ import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 
@@ -80,6 +81,17 @@ public class GameManager {
       GameState state = connection.getState(null);
 
       System.out.println(state);
+
+
+//      System.out.println();
+//      for(Player p: state.getAllPlayers()){
+//        System.out.println();
+//        System.out.println(p.getName());
+//        System.out.println(p.getCurrentResearch());
+//      }
+//
+//      System.out.println();
+
     }
   }
 }

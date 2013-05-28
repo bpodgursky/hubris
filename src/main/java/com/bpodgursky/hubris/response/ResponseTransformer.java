@@ -163,7 +163,7 @@ public class ResponseTransformer {
           Boolean.parseBoolean(playerAttributes.getNamedItem("ai").getNodeValue()),
           playerAttributes.getNamedItem("al").getNodeValue(),
           Integer.parseInt(playerAttributes.getNamedItem("c").getNodeValue()),
-          playerAttributes.getNamedItem("cr").getNodeValue(),
+          TechType.fromGameId(playerAttributes.getNamedItem("cr").getNodeValue()),
           playerAttributes.getNamedItem("crn").getNodeValue(),
           Integer.parseInt(playerAttributes.getNamedItem("fc").getNodeValue()),
           Double.parseDouble(playerAttributes.getNamedItem("fr").getNodeValue()),

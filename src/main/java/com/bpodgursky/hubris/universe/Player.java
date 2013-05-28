@@ -8,7 +8,7 @@ public class Player {
 	public final boolean ai;
 	public final String alliances;
 	public final Integer cash;
-	public final String currentResearch;
+	public final TechType currentResearch;
 	public final String nextResearch;
 	public final Integer weapons;
 	public final Double range;
@@ -27,7 +27,7 @@ public class Player {
 	public final Integer stars;
 	
 	public Player(String name, int id, Integer economy, Integer industry, Integer science, Integer stars, Integer carriers, Integer homeFleets, Integer shipFleets,
-			boolean ai, String alliances, Integer cash, String currentResearch, String nextResearch, Integer weapons, Double range,
+			boolean ai, String alliances, Integer cash, TechType currentResearch, String nextResearch, Integer weapons, Double range,
 			Double speed, Double scanning){
 		
 		this.id = id;
@@ -95,7 +95,7 @@ public class Player {
     return cash;
   }
 
-  public String getCurrentResearch() {
+  public TechType getCurrentResearch() {
     return currentResearch;
   }
 
