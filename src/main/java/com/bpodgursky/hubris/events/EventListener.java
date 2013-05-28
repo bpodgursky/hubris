@@ -8,6 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 public interface EventListener<E> {
-  public List<GameRequest> process(Collection<E> events, GameState currentState, CommandFactory commandFactory);
+  public Collection<GameRequest> process(Collection<E> events, GameState currentState, CommandFactory commandFactory) throws Exception;
   public Class<E> getEventType();
 }

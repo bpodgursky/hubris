@@ -8,9 +8,10 @@ import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.event.StateProcessor;
-import com.bpodgursky.hubris.listeners.test.PrintNewCash;
-import com.bpodgursky.hubris.listeners.test.PrintResearchChange;
-import com.bpodgursky.hubris.listeners.test.PrintUpgrade;
+import com.bpodgursky.hubris.listeners.PrintNewCash;
+import com.bpodgursky.hubris.listeners.PrintResearchChange;
+import com.bpodgursky.hubris.listeners.PrintUpgrade;
+import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import jline.console.ConsoleReader;
@@ -52,13 +53,16 @@ public class HubrisProcessLoop {
     processsor.addEventListener(new PrintNewCash());
     processsor.addEventListener(new PrintUpgrade());
     processsor.addEventListener(new PrintResearchChange());
+    processsor.addEventListener(new SpendOnIncomeListener(150, 1.0, 1.0, .5));
 
     GameState currentState = null;
+
     while(true){
+
       currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));
       currentState = processsor.update(currentState);
 
-      Thread.sleep(10000);
+      Thread.sleep(5000);
     }
   }
 }

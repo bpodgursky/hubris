@@ -74,7 +74,7 @@ public class StateProcessor {
       Collection<EventListener> listenersForType = listeners.get(eventSet.getEventClass());
 
       for(EventListener listener: listenersForType){
-        List<GameRequest> requests = listener.process(eventSet.getEvents(), newState, commandFactory);
+        Collection<GameRequest> requests = listener.process(eventSet.getEvents(), newState, commandFactory);
 
         //  if something submits orders, we keep update the state, and continue processing events
         if(!requests.isEmpty()){
@@ -119,6 +119,4 @@ public class StateProcessor {
       return events;
     }
   }
-
-
 }

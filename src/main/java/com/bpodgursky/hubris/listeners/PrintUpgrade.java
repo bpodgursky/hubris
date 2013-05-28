@@ -1,4 +1,4 @@
-package com.bpodgursky.hubris.listeners.test;
+package com.bpodgursky.hubris.listeners;
 
 import com.bpodgursky.hubris.client.CommandFactory;
 import com.bpodgursky.hubris.command.GameRequest;
@@ -8,20 +8,20 @@ import com.bpodgursky.hubris.universe.GameState;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class PrintUpgrade implements EventListener<StarUpgradedEvent> {
 
   @Override
-  public List<GameRequest> process(Collection<StarUpgradedEvent> events, GameState currentState, CommandFactory factory) {
+  public Collection<GameRequest> process(Collection<StarUpgradedEvent> events, GameState currentState, CommandFactory factory) {
 
     for(StarUpgradedEvent event: events){
       System.out.println();
-      System.out.println("star upgraded!");
+      System.out.println("Star upgraded:");
       System.out.println("id: "+event.getStarId());
-      System.out.println("ind change: "+event.getIndustryChange());
-      System.out.println("econ change: "+event.getEconChange());
-      System.out.println("sci change: "+event.getScienceChange());
+      System.out.println("Name: "+currentState.getStar(event.getStarId(), false).getName());
+      System.out.println("Industry change: "+event.getIndustryChange());
+      System.out.println("Economy change: "+event.getEconChange());
+      System.out.println("Science change: "+event.getScienceChange());
     }
 
     return Collections.emptyList();
