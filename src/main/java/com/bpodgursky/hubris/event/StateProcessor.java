@@ -35,7 +35,7 @@ public class StateProcessor {
 
     Multimap<Class, Object> events = HashMultimap.create();
     for (EventFactory eventFactory : eventFactories) {
-      events.putAll(eventFactory.getEventType(), eventFactory.getEvents(newState.previousState(), newState));
+      events.putAll(eventFactory.getEventType(), eventFactory.getEvents(newState));
     }
 
     for (Class aClass : events.keySet()) {

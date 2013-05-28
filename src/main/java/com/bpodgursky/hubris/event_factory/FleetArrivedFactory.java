@@ -8,7 +8,7 @@ import java.util.List;
 
 public class FleetArrivedFactory implements EventFactory<FleetArrivedEvent> {
   @Override
-  public List<FleetArrivedEvent> getEvents(GameState oldState, GameState newState) {
+  public List<FleetArrivedEvent> getEvents(GameState newState) {
     return null;
   }
 
