@@ -1,5 +1,6 @@
 package com.bpodgursky.hubris.event;
 
+import com.bpodgursky.hubris.event_factory.StarUpgradeFactory;
 import com.bpodgursky.hubris.events.EventListener;
 import com.bpodgursky.hubris.events.factories.CashChangeFactory;
 import com.bpodgursky.hubris.events.factories.EventFactory;
@@ -16,7 +17,8 @@ public class StateProcessor {
 
   public static final List<EventFactory> DEFAULT_FACTORIES = Lists.<EventFactory>newArrayList(
       new CashChangeFactory(),
-      new FleetArrivedFactory()
+      new FleetArrivedFactory(),
+      new StarUpgradeFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
