@@ -21,7 +21,7 @@ public class GainTechFactory implements EventFactory<GainTechEvent> {
       double scanning = player.getScanning() - oldPlayer.getScanning();
 
       if (weapons > 0 || range > 0 || speed > 0 || scanning > 0) {
-        //events.add(new GainTechEvent(player.getId(), ))
+        events.add(new GainTechEvent(player.getId(), weapons, range, speed, scanning));
       }
     }
 
