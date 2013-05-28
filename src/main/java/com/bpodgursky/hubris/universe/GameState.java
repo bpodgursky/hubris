@@ -89,7 +89,11 @@ public class GameState {
     return merge(currentInfo, lastVisible);
   }
 
-  public List<Star> getStars(boolean useHistoric){
+  public List<Player> getAllPlayers(){
+    return Lists.newArrayList(playersByID.values());
+  }
+
+  public List<Star> getAllStars(boolean useHistoric){
     List<Star> stars = Lists.newArrayList();
     for(Integer star :starsByID.keySet()){
       stars.add(getStar(star, useHistoric));

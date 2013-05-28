@@ -15,7 +15,7 @@ public class StarUpgradeFactory implements EventFactory<StarUpgradedEvent> {
     GameState prevState = newState.previousState();
 
     List<StarUpgradedEvent> upgrades = Lists.newArrayList();
-    for (Star star : newState.getStars(false)) {
+    for (Star star : newState.getAllStars(false)) {
       if(prevState.starIsVisible(star.getId()) && newState.starIsVisible(star.getId())){
         Star prevStar = prevState.getStar(star.getId(), false);
 
