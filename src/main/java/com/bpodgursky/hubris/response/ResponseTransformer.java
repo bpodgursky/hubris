@@ -1,10 +1,34 @@
 package com.bpodgursky.hubris.response;
 
 import com.bpodgursky.hubris.command.GetState;
-import com.bpodgursky.hubris.notification.*;
-import com.bpodgursky.hubris.universe.*;
+import com.bpodgursky.hubris.notification.AIAdmin;
+import com.bpodgursky.hubris.notification.CapturedSystem;
+import com.bpodgursky.hubris.notification.CashReceived;
+import com.bpodgursky.hubris.notification.CashSent;
+import com.bpodgursky.hubris.notification.FleetCombat;
+import com.bpodgursky.hubris.notification.GameNotification;
+import com.bpodgursky.hubris.notification.Message;
+import com.bpodgursky.hubris.notification.NotAiAdmin;
+import com.bpodgursky.hubris.notification.Production;
+import com.bpodgursky.hubris.notification.TechReceived;
+import com.bpodgursky.hubris.notification.TechResearch;
+import com.bpodgursky.hubris.notification.TechSent;
+import com.bpodgursky.hubris.universe.Alliance;
 import com.bpodgursky.hubris.universe.Comment;
-import org.w3c.dom.*;
+import com.bpodgursky.hubris.universe.Fleet;
+import com.bpodgursky.hubris.universe.Game;
+import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
+import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.Tech;
+import com.bpodgursky.hubris.universe.TechType;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseTransformer {
-
+  public static final int NORMALIZED_SIZE = 1000;
   private static final DocumentBuilder docBuilder;
 
   static {
@@ -55,12 +79,11 @@ public class ResponseTransformer {
     Game game = parseGameNode(children.item(1));
     Alliance alliances = getAlliances(children.item(3));
     List<Player> players = getPlayers(children.item(5));
-    List<Star> stars = getStars(children.item(7));
-    List<Fleet> fleets = getFleets(children.item(9));
+    StarClosure starClosure = getStars(children.item(7));
+    List<Fleet> fleets = getFleets(children.item(9), starClosure);
     List<Tech> techs = getTechs(children.item(11));
 
-
-    return new GameState(prevState, game, players, stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
+    return new GameState(prevState, game, players, starClosure.stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -116,10 +139,12 @@ public class ResponseTransformer {
     return players;
   }
 
-  private static List<Star> getStars(Node starsNode) {
+  private static StarClosure getStars(Node starsNode) {
     NodeList starsList = starsNode.getChildNodes();
 
-    List<Star> stars = new ArrayList<Star>();
+    List<Star> stars = Lists.newArrayList();
+    List<Integer> xvalues = Lists.newArrayList();
+    List<Integer> yvalues = Lists.newArrayList();
     for (int i = 0; i < starsList.getLength(); i++) {
       Node starNode = starsList.item(i);
       NamedNodeMap starAttributes = starNode.getAttributes();
@@ -135,7 +160,12 @@ public class ResponseTransformer {
       Node g = starAttributes.getNamedItem("g");
       Node resources = starAttributes.getNamedItem("r");
 
-      Star star = new Star(starAttributes.getNamedItem("n").getNodeValue(),
+      int x = Integer.parseInt(starAttributes.getNamedItem("x").getNodeValue());
+      int y = Integer.parseInt(starAttributes.getNamedItem("y").getNodeValue());
+      xvalues.add(x);
+      yvalues.add(y);
+
+      stars.add(new Star(starAttributes.getNamedItem("n").getNodeValue(),
           pn == null ? null : Integer.parseInt(pn.getNodeValue()),
           econ == null ? null : Integer.parseInt(econ.getNodeValue()),
           eup == null ? null : Integer.parseInt(eup.getNodeValue()),
@@ -145,18 +175,28 @@ public class ResponseTransformer {
           s == null ? null : Integer.parseInt(s.getNodeValue()),
           sup == null ? null : Integer.parseInt(sup.getNodeValue()),
           Integer.parseInt(starAttributes.getNamedItem("uid").getNodeValue()),
-          Integer.parseInt(starAttributes.getNamedItem("x").getNodeValue()),
-          Integer.parseInt(starAttributes.getNamedItem("y").getNodeValue()),
+          x,
+          y,
           g == null ? null : Integer.parseInt(g.getNodeValue()),
-          resources == null ? null : Integer.parseInt(resources.getNodeValue()));
+          resources == null ? null : Integer.parseInt(resources.getNodeValue())));
+    }
+    Range<Integer> xRange = Range.encloseAll(xvalues);
+    Range<Integer> yRange = Range.encloseAll(yvalues);
+    List<Star> normalizedStars = Lists.newArrayList();
+    double xSpan = (xRange.upperEndpoint() - xRange.lowerEndpoint());
+    double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
-      stars.add(star);
+    for (Star star : stars) {
+      int normalizedX = (int)(((star.getX() - xRange.lowerEndpoint()) / xSpan) * NORMALIZED_SIZE);
+      int normalizedY = (int)(((star.getY() - yRange.lowerEndpoint()) / ySpan) * NORMALIZED_SIZE);
+
+      normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
 
-    return stars;
+    return new StarClosure(normalizedStars, xRange, yRange, xSpan, ySpan);
   }
 
-  private static List<Fleet> getFleets(Node fleetsNode) {
+  private static List<Fleet> getFleets(Node fleetsNode, StarClosure starClosure) {
     NodeList fleetList = fleetsNode.getChildNodes();
 
     List<Fleet> fleets = new ArrayList<Fleet>();
@@ -173,17 +213,23 @@ public class ResponseTransformer {
         }
       }
 
+      int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
+      int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
+
+      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_SIZE);
+      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_SIZE);
+
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
-          Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
-          destStars,
-          Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
+        Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
+        Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
+        destStars,
+        x,
+        y,
+        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
 
       fleets.add(fleet);
     }
@@ -421,5 +467,41 @@ public class ResponseTransformer {
     }
 
     return textValues;
+  }
+
+  private static class StarClosure {
+    private final List<Star> stars;
+    private final Range<Integer> xRange;
+    private final Range<Integer> yRange;
+    private final double xSpan;
+    private final double ySpan;
+
+    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange, double xSpan, double ySpan) {
+      this.stars = stars;
+      this.xRange = xRange;
+      this.yRange = yRange;
+      this.xSpan = xSpan;
+      this.ySpan = ySpan;
+    }
+
+    private List<Star> getStars() {
+      return stars;
+    }
+
+    private Range<Integer> getxRange() {
+      return xRange;
+    }
+
+    private Range<Integer> getyRange() {
+      return yRange;
+    }
+
+    private double getxSpan() {
+      return xSpan;
+    }
+
+    private double getySpan() {
+      return ySpan;
+    }
   }
 }

@@ -79,7 +79,6 @@ public class GameManager {
       GameMeta game = games.get(Integer.parseInt(reader.readLine("Enter game: ")));
 
       SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
-
       GameState state = connection.getState(null);
 
       System.out.println(state);

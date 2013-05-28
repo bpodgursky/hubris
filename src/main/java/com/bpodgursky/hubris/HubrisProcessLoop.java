@@ -38,9 +38,7 @@ public class HubrisProcessLoop {
     GameMeta game = games.get(gameNumber);
 
 
-    SingleGameClient gameClient = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
-    gameClient.sendCash(3, -1);
-
+    SingleGameClient gameClient = new SingleGameClient(settings.getUsername(), game.getId(), new RemoteConnection(cookies));
     SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
     StateProcessor processsor = new StateProcessor();
 
