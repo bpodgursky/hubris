@@ -8,12 +8,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 
@@ -22,7 +24,7 @@ public class GameState {
 
   public final Map<Integer, Player> playersByID;
   public final Map<Integer, Star> starsByID;
-  public final Map<Integer, Fleet> fleetsByID;
+  private final Map<Integer, Fleet> fleetsByID;
   public final Map<String, Tech> techStatesByName;
   public final Alliance alliance;
   public final Game gameData;
@@ -56,6 +58,14 @@ public class GameState {
     this.alliance = alliance;
     this.gameData = gameData;
     this.playerId = playerId;
+  }
+
+  public List<Fleet> getAllFleets() {
+    return Lists.newArrayList(fleetsByID.values());
+  }
+
+  public Fleet getFleet(int fleetId) {
+    return fleetsByID.get(fleetId);
   }
 
   public Star getStar(int starId, boolean useHistoric){
