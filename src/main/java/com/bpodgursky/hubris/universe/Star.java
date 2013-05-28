@@ -78,7 +78,7 @@ public class Star {
 	}
 
   public boolean isVisible(){
-    return economy != null;
+    return resources != null;
   }
 
   public String getName() {
