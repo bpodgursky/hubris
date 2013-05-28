@@ -22,7 +22,9 @@ import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import com.bpodgursky.hubris.universe.Tech;
 import com.bpodgursky.hubris.universe.TechType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,6 +51,8 @@ import java.util.Map;
 
 public class ResponseTransformer {
   public static final int NORMALIZED_SIZE = 1000;
+  public static final int AT_STAR_THRESHOLD = 1;
+
   private static final DocumentBuilder docBuilder;
 
   static {
@@ -83,6 +87,26 @@ public class ResponseTransformer {
     List<Fleet> fleets = getFleets(children.item(9), starClosure);
     List<Tech> techs = getTechs(children.item(11));
 
+    List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
+    List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
+    Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
+    for (Fleet fleet : fleets) {
+      Star atStar = null;
+
+      for (Star star : starClosure.stars) {
+        double d = Math.sqrt(Math.pow(fleet.getX() - star.getX(), 2) + Math.pow(fleet.getY() - star.getY(), 2));
+
+        if (d < AT_STAR_THRESHOLD) {
+          atStar = star;
+          break;
+        }
+      }
+
+      Fleet fleetWithStar;
+      if (atStar == null) {
+        fleetsWithStar = new Fleet(fleet,
+      }
+    }
 
     return new GameState(game, players, starClosure.stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
   }
@@ -179,7 +203,8 @@ public class ResponseTransformer {
           x,
           y,
           g == null ? null : Integer.parseInt(g.getNodeValue()),
-          resources == null ? null : Integer.parseInt(resources.getNodeValue())));
+          resources == null ? null : Integer.parseInt(resources.getNodeValue()),
+          Lists.<Integer>newArrayList()));
     }
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
@@ -230,7 +255,8 @@ public class ResponseTransformer {
         destStars,
         x,
         y,
-        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
+        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()),
+        null);
 
       fleets.add(fleet);
     }

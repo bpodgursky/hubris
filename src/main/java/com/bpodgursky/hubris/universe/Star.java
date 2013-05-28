@@ -21,10 +21,10 @@ public class Star {
 	public final Integer playerNumber;
 	public final Integer garrisonSize;
 	public final Integer resources;
-  public final List<Fleet> fleets;
+  public final List<Integer> fleets;
 
 	public Star(String name, Integer playerNumber, Integer economy, Integer econUpgrade, Integer ships, Integer industry,
-			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources){
+			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources, List<Integer> fleets){
 		this.name = name;
 		this.playerNumber = playerNumber;
 		this.economy = economy;
@@ -39,12 +39,17 @@ public class Star {
 		this.y = y;
 		this.garrisonSize = g;
 		this.resources = resources;
-		this.fleets = Lists.newArrayList();
+		this.fleets = fleets;
 	}
 
   public Star(Star old, int x, int y) {
     this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
-      old.science, old.scienceUpgrade, old.id, x, y, old.garrisonSize, old.resources);
+      old.science, old.scienceUpgrade, old.id, x, y, old.garrisonSize, old.resources, old.fleets);
+  }
+
+  public Star(Star old, List<Integer> fleets) {
+    this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
+      old.science, old.scienceUpgrade, old.id, old.x, old.y, old.garrisonSize, old.resources, fleets);
   }
 	
 	public String toString(){
@@ -126,9 +131,5 @@ public class Star {
 
   public Integer getResources() {
     return resources;
-  }
-
-  public void addFleet(Fleet fleet) {
-    fleets.add(fleet);
   }
 }
