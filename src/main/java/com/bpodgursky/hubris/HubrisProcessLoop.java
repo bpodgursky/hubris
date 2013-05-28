@@ -7,6 +7,7 @@ import com.bpodgursky.hubris.client.SingleGameClient;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.event.StateProcessor;
 import com.bpodgursky.hubris.listeners.test.PrintNewCash;
+import com.bpodgursky.hubris.listeners.test.PrintUpgrade;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import jline.console.ConsoleReader;
@@ -42,6 +43,7 @@ public class HubrisProcessLoop {
     StateProcessor processsor = new StateProcessor();
 
     processsor.addEventListener(new PrintNewCash());
+    processsor.addEventListener(new PrintUpgrade());
 
     GameState currentState = null;
     while(true){

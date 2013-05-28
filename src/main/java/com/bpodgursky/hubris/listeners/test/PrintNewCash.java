@@ -10,8 +10,7 @@ public class PrintNewCash implements EventListener<CashChangeEvent> {
     System.out.println();
     System.out.println("Hey, cash change!");
     System.out.println("player: "+event.getPlayer());
-    System.out.println("new cash: "+event.getNewCash());
-    System.out.println("used to have: "+event.getOldCash());
+    System.out.println("difference: "+event.getDifference());
   }
 
   @Override

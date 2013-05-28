@@ -1,5 +1,6 @@
 package com.bpodgursky.hubris.event;
 
+import com.bpodgursky.hubris.event_factory.StarUpgradeFactory;
 import com.bpodgursky.hubris.events.EventListener;
 import com.bpodgursky.hubris.events.factories.CashChangeFactory;
 import com.bpodgursky.hubris.events.factories.EventFactory;
@@ -18,11 +19,12 @@ import java.util.List;
 public class StateProcessor {
 
   public static final List<EventFactory> DEFAULT_FACTORIES = Lists.<EventFactory>newArrayList(
-    new CashChangeFactory(),
-    new FleetArrivedFactory(),
-    new FleetSpottedFactory(),
-    new FleetCreatedFactory(),
-    new FleetDestinationChangedFactory()
+      new CashChangeFactory(),
+      new FleetArrivedFactory(),
+      new FleetSpottedFactory(),
+      new FleetCreatedFactory(),
+      new StarUpgradeFactory(),
+      new FleetDestinationChangedFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
@@ -39,7 +41,7 @@ public class StateProcessor {
   public void update(GameState newState) {
 
     //  skip the first time
-    if(newState.previousState() == null){
+    if (newState.previousState() == null) {
       return;
     }
 
