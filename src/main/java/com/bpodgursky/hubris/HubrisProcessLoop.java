@@ -56,7 +56,7 @@ public class HubrisProcessLoop {
     GameState currentState = null;
     while(true){
       currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));
-      processsor.update(currentState);
+      currentState = processsor.update(currentState);
 
       Thread.sleep(10000);
     }
