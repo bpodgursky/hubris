@@ -13,7 +13,7 @@ public class StarRevealedFactory implements EventFactory<StarRevealedEvent> {
     GameState oldState = newState.previousState();
     List<StarRevealedEvent> events = Lists.newArrayList();
 
-    for (Star star : newState.getStars(false)) {
+    for (Star star : newState.getAllStars(false)) {
       boolean isVisible = newState.starIsVisible(star.getId());
 
       if (isVisible && !oldState.starIsVisible(star.getId())) {
