@@ -3,7 +3,6 @@ package com.bpodgursky.hubris.events.factories;
 import com.bpodgursky.hubris.events.FleetArrivedEvent;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Star;
 import com.google.common.collect.Lists;
 
 import java.util.List;
