@@ -54,9 +54,7 @@ public class StateProcessor {
       Collection<EventListener> eventListener = listeners.get(aClass);
 
       for (EventListener listener : eventListener) {
-        for (Object o : events.get(aClass)) {
-          listener.process(o, newState);
-        }
+        listener.process(Lists.newArrayList(events.get(aClass)), newState);
       }
     }
   }
