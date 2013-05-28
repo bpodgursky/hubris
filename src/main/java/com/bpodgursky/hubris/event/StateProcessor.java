@@ -21,7 +21,8 @@ public class StateProcessor {
       new CashChangeFactory(),
       new FleetArrivedFactory(),
       new FleetSpottedFactory(),
-      new FleetCreatedFactory()
+      new FleetCreatedFactory(),
+      new StarUpgradeFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
