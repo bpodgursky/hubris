@@ -98,6 +98,10 @@ public class GameState {
     return stars;
   }
 
+  public Player getPlayer(int playerId) {
+    return playersByID.get(playerId);
+  }
+
   private boolean equal(Integer int1, Integer int2){
     return int1 == null && int2 == null || int1 != null && int2 != null && int1.intValue() == int2.intValue();
   }
