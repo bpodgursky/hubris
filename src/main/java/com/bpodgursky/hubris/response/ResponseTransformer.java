@@ -22,7 +22,9 @@ import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import com.bpodgursky.hubris.universe.Tech;
 import com.bpodgursky.hubris.universe.TechType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,12 +45,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ResponseTransformer {
   public static final int NORMALIZED_SIZE = 1000;
+  public static final int AT_STAR_THRESHOLD = 1;
+
   private static final DocumentBuilder docBuilder;
 
   static {
@@ -83,7 +89,38 @@ public class ResponseTransformer {
     List<Fleet> fleets = getFleets(children.item(9), starClosure);
     List<Tech> techs = getTechs(children.item(11));
 
-    return new GameState(prevState, game, players, starClosure.stars, fleets, techs, alliances, originalRequest.getPlayerNumber());
+    List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
+    List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
+    Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
+
+    // Find fleets that are at stars. This isn't provided directly by the game and can be determined when a
+    // fleet doesn't have a star its destinations and is sufficiently close.
+    for (Fleet fleet : fleets) {
+      Star atStar = null;
+
+      for (Star star : starClosure.stars) {
+        double d = Math.sqrt(Math.pow(fleet.getX() - star.getX(), 2) + Math.pow(fleet.getY() - star.getY(), 2));
+
+        if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
+          atStar = star;
+          break;
+        }
+      }
+
+      Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
+      if (atStar != null) {
+        fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
+      }
+      fleetsWithStars.add(fleetWithStar);
+    }
+
+    // Create stars that have references to fleets located at them
+    for (Star star : starClosure.stars) {
+      Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
+      starsWithFleets.add(new Star(star, fleetsAtStar == null ? Lists.<Integer>newArrayList() : Lists.newArrayList(fleetsAtStar)));
+    }
+
+    return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, techs, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -178,7 +215,8 @@ public class ResponseTransformer {
           x,
           y,
           g == null ? null : Integer.parseInt(g.getNodeValue()),
-          resources == null ? null : Integer.parseInt(resources.getNodeValue())));
+          resources == null ? null : Integer.parseInt(resources.getNodeValue()),
+          Lists.<Integer>newArrayList()));
     }
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
@@ -229,7 +267,8 @@ public class ResponseTransformer {
         destStars,
         x,
         y,
-        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()));
+        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()),
+        null);
 
       fleets.add(fleet);
     }
