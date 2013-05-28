@@ -2,22 +2,16 @@ package com.bpodgursky.hubris.events;
 
 public class CashChangeEvent {
 
-  private final int oldCash;
-  private final int newCash;
   private final int player;
+  private final int change;
 
-  public CashChangeEvent(int player, int oldCash, int newCash){
-    this.oldCash = oldCash;
-    this.newCash = newCash;
+  public CashChangeEvent(int player, int change){
+    this.change = change;
     this.player = player;
   }
 
-  public int getOldCash() {
-    return oldCash;
-  }
-
-  public int getNewCash() {
-    return newCash;
+  public int getDifference(){
+    return change;
   }
 
   public int getPlayer(){

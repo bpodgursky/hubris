@@ -19,9 +19,8 @@ public class CashChangeFactory implements EventFactory<CashChangeEvent> {
       int newCash = newState.getPlayers().get(entry.getKey()).getCash();
 
       if(oldCash != newCash){
-        events.add(new CashChangeEvent(entry.getKey(), oldCash, newCash));
+        events.add(new CashChangeEvent(entry.getKey(), newCash - oldCash));
       }
-
     }
 
     return events;
