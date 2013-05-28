@@ -8,6 +8,7 @@ import com.bpodgursky.hubris.events.factories.FleetArrivedFactory;
 import com.bpodgursky.hubris.events.factories.FleetCreatedFactory;
 import com.bpodgursky.hubris.events.factories.FleetDestinationChangedFactory;
 import com.bpodgursky.hubris.events.factories.FleetSpottedFactory;
+import com.bpodgursky.hubris.events.factories.StarRevealedFactory;
 import com.bpodgursky.hubris.universe.GameState;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -24,7 +25,8 @@ public class StateProcessor {
       new FleetSpottedFactory(),
       new FleetCreatedFactory(),
       new StarUpgradeFactory(),
-      new FleetDestinationChangedFactory()
+      new FleetDestinationChangedFactory(),
+      new StarRevealedFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);

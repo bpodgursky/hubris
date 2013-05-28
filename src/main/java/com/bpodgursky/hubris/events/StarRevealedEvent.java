@@ -1,9 +1,9 @@
 package com.bpodgursky.hubris.events;
 
-public class StarSpottedEvent {
+public class StarRevealedEvent {
   private final int starId;
 
-  public StarSpottedEvent(int starId) {
+  public StarRevealedEvent(int starId) {
     this.starId = starId;
   }
 
