@@ -5,6 +5,7 @@ import com.bpodgursky.hubris.events.factories.CashChangeFactory;
 import com.bpodgursky.hubris.events.factories.EventFactory;
 import com.bpodgursky.hubris.events.factories.FleetArrivedFactory;
 import com.bpodgursky.hubris.events.factories.FleetCreatedFactory;
+import com.bpodgursky.hubris.events.factories.FleetDestinationChangedFactory;
 import com.bpodgursky.hubris.events.factories.FleetSpottedFactory;
 import com.bpodgursky.hubris.universe.GameState;
 import com.google.common.collect.HashMultimap;
@@ -20,7 +21,8 @@ public class StateProcessor {
     new CashChangeFactory(),
     new FleetArrivedFactory(),
     new FleetSpottedFactory(),
-    new FleetCreatedFactory()
+    new FleetCreatedFactory(),
+    new FleetDestinationChangedFactory()
   );
 
   private final List<EventFactory> eventFactories = Lists.newArrayList(DEFAULT_FACTORIES);
