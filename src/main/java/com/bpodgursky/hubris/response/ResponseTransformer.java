@@ -1,6 +1,6 @@
 package com.bpodgursky.hubris.response;
 
-import com.bpodgursky.hubris.command.GameRequest;
+import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.notification.AIAdmin;
 import com.bpodgursky.hubris.notification.CapturedSystem;
 import com.bpodgursky.hubris.notification.CashReceived;
@@ -29,11 +29,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import com.bpodgursky.hubris.command.GetState;
-import com.bpodgursky.hubris.notification.*;
-import com.bpodgursky.hubris.universe.*;
-import com.bpodgursky.hubris.universe.Comment;
-import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
