@@ -132,4 +132,8 @@ public class Star {
   public Integer getResources() {
     return resources;
   }
+
+  public List<Integer> getFleets() {
+    return fleets;
+  }
 }

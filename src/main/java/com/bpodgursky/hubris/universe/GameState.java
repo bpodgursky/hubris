@@ -92,7 +92,7 @@ public class GameState {
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources());
+          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), lastVisible.getFleets());
 
     }
   }
