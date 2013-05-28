@@ -68,6 +68,10 @@ public class GameState {
     return fleetsByID.get(fleetId);
   }
 
+  public boolean starIsVisible(int starId) {
+    return getStar(starId, false).getResources() != null;
+  }
+
   public Star getStar(int starId, boolean useHistoric){
 
     if(!useHistoric){
@@ -76,13 +80,22 @@ public class GameState {
 
     Star currentInfo = starsByID.get(starId);
 
-    if(currentInfo.economy != null){
+    if(starIsVisible(starId)) {
       return currentInfo;
     }
 
     Star lastVisible = getLastVisible(starId);
 
     return merge(currentInfo, lastVisible);
+  }
+
+  public List<Star> getStars(boolean useHistoric){
+    List<Star> stars = Lists.newArrayList();
+    for(Integer star :starsByID.keySet()){
+      stars.add(getStar(star, useHistoric));
+    }
+
+    return stars;
   }
 
   private boolean equal(Integer int1, Integer int2){
@@ -102,7 +115,7 @@ public class GameState {
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), lastVisible.getFleets());
+          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Lists.<Integer>newArrayList());
 
     }
   }
@@ -116,7 +129,7 @@ public class GameState {
 
     while(state != null){
       Star star = state.getStar(starId, false);
-      if(star.economy != null){
+      if(starIsVisible(starId)) {
         return star;
       }
       state = state.previousState();

@@ -1,22 +1,13 @@
 package com.bpodgursky.hubris.events;
 
-import com.bpodgursky.hubris.universe.Fleet;
-import com.bpodgursky.hubris.universe.Star;
-
 public class FleetArrivedEvent {
-  private final Star star;
-  private final Fleet fleet;
+  private final int fleetId;
 
-  public FleetArrivedEvent(Star star, Fleet fleet) {
-    this.star = star;
-    this.fleet = fleet;
+  public FleetArrivedEvent(int fleetId) {
+    this.fleetId = fleetId;
   }
 
-  public Fleet getFleet() {
-    return fleet;
-  }
-
-  public Star getStar() {
-    return star;
+  public int getFleetId() {
+    return fleetId;
   }
 }

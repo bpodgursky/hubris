@@ -6,6 +6,7 @@ import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 
 import java.io.FileNotFoundException;
@@ -80,6 +81,11 @@ public class GameManager {
 
       SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
       GameState state = connection.getState(null);
+
+      System.out.println();
+      for(Star star: state.getStars(false)){
+        System.out.println(star.getName()+": "+star.isVisible());
+      }
 
       System.out.println(state);
     }
