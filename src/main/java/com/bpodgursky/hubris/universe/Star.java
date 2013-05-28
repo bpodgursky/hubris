@@ -77,10 +77,6 @@ public class Star {
 		return json.toString();
 	}
 
-  public boolean isVisible(){
-    return resources != null;
-  }
-
   public String getName() {
     return name;
   }

@@ -1,4 +1,4 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.events.factories;
 
 import com.bpodgursky.hubris.universe.GameState;
 import com.google.common.collect.Lists;
