@@ -1,6 +1,6 @@
 package com.bpodgursky.hubris.listeners.test;
 
-import com.bpodgursky.hubris.event.EventListener;
+import com.bpodgursky.hubris.events.EventListener;
 import com.bpodgursky.hubris.events.CashChangeEvent;
 import com.bpodgursky.hubris.universe.GameState;
 

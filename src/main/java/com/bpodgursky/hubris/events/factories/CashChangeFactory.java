@@ -1,6 +1,5 @@
-package com.bpodgursky.hubris.event_factory;
+package com.bpodgursky.hubris.events.factories;
 
-import com.bpodgursky.hubris.event.EventFactory;
 import com.bpodgursky.hubris.events.CashChangeEvent;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;

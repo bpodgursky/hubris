@@ -1,4 +1,4 @@
-package com.bpodgursky.hubris.event;
+package com.bpodgursky.hubris.events;
 
 import com.bpodgursky.hubris.universe.GameState;
 

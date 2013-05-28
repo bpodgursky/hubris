@@ -1,6 +1,5 @@
-package com.bpodgursky.hubris.event_factory;
+package com.bpodgursky.hubris.events.factories;
 
-import com.bpodgursky.hubris.event.EventFactory;
 import com.bpodgursky.hubris.events.FleetArrivedEvent;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
