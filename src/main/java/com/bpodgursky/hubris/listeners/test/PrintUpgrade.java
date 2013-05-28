@@ -1,15 +1,19 @@
 package com.bpodgursky.hubris.listeners.test;
 
+import com.bpodgursky.hubris.client.CommandFactory;
+import com.bpodgursky.hubris.command.GameRequest;
 import com.bpodgursky.hubris.events.EventListener;
 import com.bpodgursky.hubris.events.StarUpgradedEvent;
 import com.bpodgursky.hubris.universe.GameState;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class PrintUpgrade implements EventListener<StarUpgradedEvent> {
 
   @Override
-  public void process(List<StarUpgradedEvent> events, GameState currentState) {
+  public List<GameRequest> process(Collection<StarUpgradedEvent> events, GameState currentState, CommandFactory factory) {
 
     for(StarUpgradedEvent event: events){
       System.out.println();
@@ -20,6 +24,7 @@ public class PrintUpgrade implements EventListener<StarUpgradedEvent> {
       System.out.println("sci change: "+event.getScienceChange());
     }
 
+    return Collections.emptyList();
   }
 
   @Override

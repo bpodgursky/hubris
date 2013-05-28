@@ -40,21 +40,6 @@ public class RemoteConnection implements GameConnection {
   }
 
   @Override
-  public void sendTech(SendTech tech) throws Exception {
-    client.post(HubrisConstants.gameRequestUrl, tech.toRequestParams());
-  }
-
-  @Override
-  public void sendMessage(SendMessage message) throws Exception {
-    post(message);
-  }
-
-  @Override
-  public void sendMessageComment(SendMessageComment comment) throws Exception {
-    post(comment);
-  }
-
-  @Override
   public List<GameNotification> getNotifications(GetEvents events) throws Exception {
     return ResponseTransformer.parseEventList(post(events));
   }
@@ -70,62 +55,8 @@ public class RemoteConnection implements GameConnection {
   }
 
   @Override
-  public void sendCash(SendCash cash) throws Exception {
-    post(cash);
+  public void submit(GameRequest request) throws Exception {
+    post(request);
   }
 
-  @Override
-  public void transferShips(TransferShips transfer) throws Exception {
-    post(transfer);
-  }
-
-  @Override
-  public void createCarrier(CreateCarrier createCarrier) throws Exception {
-    post(createCarrier);
-  }
-
-  @Override
-  public void clearAllPaths(ClearAllFleetPaths clear) throws Exception {
-    post(clear);
-  }
-
-  @Override
-  public void clearFleetLast(ClearFleetLastPath clear) throws Exception {
-    post(clear);
-  }
-
-  @Override
-  public void setWaypoint(SetWaypoint waypoint) throws Exception {
-    post(waypoint);
-  }
-
-  @Override
-  public void setGarrison(SetGarrison garrison) throws Exception {
-    post(garrison);
-  }
-
-  @Override
-  public void buyEconomy(UpgradeEconomy upgrade) throws Exception {
-    post(upgrade);
-  }
-
-  @Override
-  public void buyIndustry(UpgradeIndustry upgrade) throws Exception {
-    post(upgrade);
-  }
-
-  @Override
-  public void buyScience(UpgradeScience science) throws Exception {
-    post(science);
-  }
-
-  @Override
-  public void setNextResearch(SetNextResearch research) throws Exception {
-    post(research);
-  }
-
-  @Override
-  public void setResearch(SetResearch research) throws Exception {
-    post(research);
-  }
 }

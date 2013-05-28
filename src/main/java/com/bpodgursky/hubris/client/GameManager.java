@@ -1,12 +1,13 @@
 package com.bpodgursky.hubris.client;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.account.GameMeta;
+import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.common.HubrisConstants;
+import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Player;
-import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 
 import java.util.ArrayList;
@@ -77,20 +78,15 @@ public class GameManager {
       }
       GameMeta game = games.get(Integer.parseInt(reader.readLine("Enter game: ")));
 
-      SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
-      GameState state = connection.getState(null);
+      GameConnection connection = new RemoteConnection(cookies);
+      String npUsername = settings.getNpUsername();
+      long id = game.getId();
+      int player = HubrisUtil.getPlayerNumber(connection, npUsername, id);
+
+      CommandFactory factory = new CommandFactory(npUsername, id, player);
+      GameState state = connection.getState(null, factory.getState());
 
       System.out.println(state);
-
-
-//      System.out.println();
-//      for(Player p: state.getAllPlayers()){
-//        System.out.println();
-//        System.out.println(p.getName());
-//        System.out.println(p.getCurrentResearch());
-//      }
-//
-//      System.out.println();
 
     }
   }
