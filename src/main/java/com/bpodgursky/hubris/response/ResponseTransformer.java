@@ -52,7 +52,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseTransformer {
-  public static final int NORMALIZED_SIZE = 1000;
+  public static final int NORMALIZED_WIDTH = 800;
+  public static final int NORMALIZED_HEIGHT = 600;
   public static final int AT_STAR_THRESHOLD = 1;
 
   private static final DocumentBuilder docBuilder;
@@ -225,8 +226,8 @@ public class ResponseTransformer {
     double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
-      int normalizedX = (int)(((star.getX() - xRange.lowerEndpoint()) / xSpan) * NORMALIZED_SIZE);
-      int normalizedY = (int)(((star.getY() - yRange.lowerEndpoint()) / ySpan) * NORMALIZED_SIZE);
+      int normalizedX = (int)(((star.getX() - xRange.lowerEndpoint()) / xSpan) * NORMALIZED_WIDTH);
+      int normalizedY = (int)(((star.getY() - yRange.lowerEndpoint()) / ySpan) * NORMALIZED_HEIGHT);
 
       normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
@@ -254,8 +255,8 @@ public class ResponseTransformer {
       int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
       int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
 
-      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_SIZE);
-      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_SIZE);
+      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_WIDTH);
+      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_HEIGHT);
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
         Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
