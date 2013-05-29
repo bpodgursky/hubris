@@ -10,11 +10,6 @@ import org.w3c.dom.Element;
 
 public class TransferShips extends GameRequest {
 
-  @Override
-  protected void addRequestParams(Map<String, String> params) throws Exception {
-    //To change body of implemented methods use File | Settings | File Templates.
-  }
-
   public final Integer loc1;
 	public final Integer loc2;
 	public final Integer loc1Final;
@@ -29,10 +24,10 @@ public class TransferShips extends GameRequest {
 		this.loc2Final = loc2Final;
 	}
 
-//	@Override
-//	protected void addRequestParams(Map<String, String> params) throws Exception {
-//		params.put("order", transferShipsOrder(loc1, loc2, loc1Final, loc2Final));
-//	}
+	@Override
+	protected void addRequestParams(Map<String, String> params) throws Exception {
+		params.put("order", transferShipsOrder(loc1, loc2, loc1Final, loc2Final));
+	}
 	
 	private final String transferShipsOrder(Integer loc1, Integer loc2, Integer loc1Final, Integer loc2Final) throws TransformerFactoryConfigurationError, TransformerException{
     Document doc = docBuilder.newDocument();

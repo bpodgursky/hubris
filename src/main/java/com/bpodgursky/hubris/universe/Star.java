@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Set;
 
 
 public class Star {
@@ -21,10 +22,10 @@ public class Star {
 	public final Integer playerNumber;
 	public final Integer garrisonSize;
 	public final Integer resources;
-  public final List<Integer> fleets;
+  public final Set<Integer> fleets;
 
 	public Star(String name, Integer playerNumber, Integer economy, Integer econUpgrade, Integer ships, Integer industry,
-			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources, List<Integer> fleets){
+			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources, Set<Integer> fleets){
 		this.name = name;
 		this.playerNumber = playerNumber;
 		this.economy = economy;
@@ -47,7 +48,7 @@ public class Star {
       old.science, old.scienceUpgrade, old.id, x, y, old.garrisonSize, old.resources, old.fleets);
   }
 
-  public Star(Star old, List<Integer> fleets) {
+  public Star(Star old, Set<Integer> fleets) {
     this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
       old.science, old.scienceUpgrade, old.id, old.x, old.y, old.garrisonSize, old.resources, fleets);
   }
@@ -133,7 +134,7 @@ public class Star {
     return resources;
   }
 
-  public List<Integer> getFleets() {
+  public Set<Integer> getFleets() {
     return fleets;
   }
 }

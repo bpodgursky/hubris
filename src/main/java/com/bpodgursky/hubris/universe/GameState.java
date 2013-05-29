@@ -127,7 +127,7 @@ public class GameState {
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Lists.<Integer>newArrayList());
+          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Sets.<Integer>newHashSet());
 
     }
   }

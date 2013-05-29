@@ -63,6 +63,9 @@ public class HubrisProcessLoop {
       currentState = processsor.update(currentState);
 
       Thread.sleep(5000);
+
+      connection.submit(factory.sendCash(3, 1));
+
     }
   }
 }
