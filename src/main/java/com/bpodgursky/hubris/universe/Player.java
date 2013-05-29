@@ -1,4 +1,5 @@
 package com.bpodgursky.hubris.universe;
+import com.bpodgursky.hubris.HubrisUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -121,6 +122,16 @@ public class Player {
     return scanning;
   }
 
+  public Double getTechLevel(TechType type) {
+    switch (type) {
+      case RANGE: return getRange();
+      case SCANNING: return getScanning();
+      case SPEED: return getSpeed();
+      case WEAPONS: return Double.valueOf(getWeapons());
+    }
+    throw new IllegalArgumentException("Unknown tech type: " + type);
+  }
+
   public int getId() {
     return id;
   }
@@ -161,6 +172,10 @@ public class Player {
     return stars;
   }
 
+  public int getUpgradePointsPerHour() {
+    return getScience() * HubrisUtil.SCIENCE_TO_RESEARCH_PER_HOUR;
+  }
+
   public Tech getTech(TechType type) {
     if (techState == null) {
       throw new IllegalStateException("Tried to access tech for player with unset tech state");
@@ -168,5 +183,31 @@ public class Player {
     return techState.get(type);
   }
 
+  public boolean isWithinJumpRange(Star star1, Star star2) {
+    double distance = star1.distanceFrom(star2);
 
+    return getRange() >= distance;
+  }
+
+  /**
+   * Returns the value of the provided tech type N minutes in the future. If tech for this player isn't
+   * known, it just returns the current value. Conditionally adds a +1 bonus if research will compute
+   * within N minutes for the provided tech type.
+   *
+   * @param tech
+   * @param minutes
+   * @return
+   */
+  public <T> T getFutureTechValue(TechType tech, int minutes) {
+    if (this.getCurrentResearch() != tech || techState == null) {
+      return (T)this.getTechLevel(tech);
+    }
+
+    int requiredUpgradePoints = this.getTech(tech).getRequiredUpgradePoints();
+    int upgradePointsAvailable = (int)Math.floor((minutes / 60.0) * this.getUpgradePointsPerHour());
+    int bonus = upgradePointsAvailable >= requiredUpgradePoints ? 1 : 0;
+
+    // TODO: consider next research too
+    return (T)this.getTechLevel(tech);
+  }
 }
