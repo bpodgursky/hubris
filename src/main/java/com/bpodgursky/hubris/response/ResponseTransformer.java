@@ -226,8 +226,11 @@ public class ResponseTransformer {
     double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
-      int normalizedX = (int)(((star.getX() - xRange.lowerEndpoint()) / xSpan) * NORMALIZED_WIDTH);
-      int normalizedY = (int)(((star.getY() - yRange.lowerEndpoint()) / ySpan) * NORMALIZED_HEIGHT);
+      int shiftX = Math.max(0, xRange.lowerEndpoint());
+      int shiftY = Math.max(0, yRange.lowerEndpoint());
+
+      int normalizedX = (star.getX() - shiftX);
+      int normalizedY = (star.getY() - shiftY);
 
       normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
