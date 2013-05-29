@@ -168,4 +168,16 @@ public class Star {
   public double distanceFrom(Fleet fleet) {
     return HubrisUtil.getDistanceInLightYears(getX(), getY(), fleet.getX(), fleet.getY());
   }
+
+  /**
+   *
+   * @return the number of ships at this star including any ships in fleets
+   */
+  public int getShipsIncludingFleets(GameState state) {
+    int fleetShips = 0;
+    for (Integer fleet : fleets) {
+      fleetShips += state.getFleet(fleet).getShips();
+    }
+    return getShips() + fleetShips;
+  }
 }
