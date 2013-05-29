@@ -1,4 +1,5 @@
 package com.bpodgursky.hubris.universe;
+import com.bpodgursky.hubris.HubrisUtil;
 import com.google.common.collect.Lists;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -136,5 +137,23 @@ public class Star {
 
   public Set<Integer> getFleets() {
     return fleets;
+  }
+
+  /**
+   *
+   * @param other
+   * @return the distance from this star to other, measured in light-years.
+   */
+  public double distanceFrom(Star other) {
+    return HubrisUtil.getDistanceInLightYears(getX(), getY(), other.getX(), other.getY());
+  }
+
+  /**
+   *
+   * @param fleet
+   * @return the distance from this star to the provided fleet, measured in light-years.
+   */
+  public double distanceFrom(Fleet fleet) {
+    return HubrisUtil.getDistanceInLightYears(getX(), getY(), fleet.getX(), fleet.getY());
   }
 }

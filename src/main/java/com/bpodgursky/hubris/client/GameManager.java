@@ -11,6 +11,7 @@ import com.bpodgursky.hubris.helpers.SpendHelper;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.TechType;
 import jline.console.ConsoleReader;
 
 import java.util.ArrayList;
@@ -98,11 +99,14 @@ public class GameManager {
         }
       }
 
-      System.out.println(state.gameData.toString());
+//      System.out.println(state.gameData.toString());
+//
+//      Collection<GameRequest> spendRequests = SpendHelper.planSpend(state, 1.0, 1.0, .5, 100, factory);
+//
+//      System.out.println(spendRequests);
 
-      Collection<GameRequest> spendRequests = SpendHelper.planSpend(state, 1.0, 1.0, .5, 100, factory);
 
-      System.out.println(spendRequests);
+      System.out.println(state.getPlayer(state.getPlayerId()).getTech(TechType.RANGE));
     }
   }
 }

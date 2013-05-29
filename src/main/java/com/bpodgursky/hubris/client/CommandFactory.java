@@ -45,7 +45,7 @@ public class CommandFactory {
   }
 
   public SendTech sendTech(TechType tech, Integer to) throws Exception {
-    return new SendTech(playerNumber, userName, gameNumber, tech.getGameId(), to);
+    return new SendTech(playerNumber, userName, gameNumber, tech.getStringValue(), to);
   }
 
   public SendMessage sendMessage(String subject, String body, List<Integer> to) throws Exception {
@@ -105,6 +105,6 @@ public class CommandFactory {
   }
 
   public SetResearch setResearch(TechType research) throws Exception {
-    return new SetResearch(playerNumber, userName, gameNumber, research.getGameId());
+    return new SetResearch(playerNumber, userName, gameNumber, research.getStringValue());
   }
 }

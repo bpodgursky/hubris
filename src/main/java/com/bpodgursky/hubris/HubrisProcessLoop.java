@@ -15,7 +15,9 @@ import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import jline.console.ConsoleReader;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.util.List;
 
 public class HubrisProcessLoop {
@@ -58,14 +60,16 @@ public class HubrisProcessLoop {
     GameState currentState = null;
 
     while(true){
-
       currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));
-      currentState = processsor.update(currentState);
+      processsor.update(currentState);
+      File stateFile = new File(game.getId() + ".js");
+      FileUtils.writeStringToFile(stateFile, "var data = " + currentState.toString() + ";");
 
       Thread.sleep(5000);
 
       connection.submit(factory.sendCash(3, 1));
 
+      Thread.sleep(1000*60*5);
     }
   }
 }

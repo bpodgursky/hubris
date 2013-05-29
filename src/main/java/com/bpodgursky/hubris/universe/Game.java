@@ -13,13 +13,13 @@ public class Game {
 	public final String go;
 	public final String hs;
 	public final String lt;
-	public final String mid;
+	public final Integer mid;
 	public final String np;
 	public final String sfv;
 	public final String tr;
 	public final String tt;
 	
-	public Game(long gameNumber, String gameName, String aa, String go, String hs, String lt, String mid, String np, String sfv, String tr, String tt){
+	public Game(long gameNumber, String gameName, String aa, String go, String hs, String lt, Integer mid, String np, String sfv, String tr, String tt){
 	
 		this.gameNumber = gameNumber;
 		this.gameName = gameName;
@@ -80,7 +80,7 @@ public class Game {
     return lt;
   }
 
-  public String getMid() {
+  public Integer getMid() {
     return mid;
   }
 

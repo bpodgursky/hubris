@@ -2,33 +2,35 @@ package com.bpodgursky.hubris.universe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 
 public class Player {
 	
-	public final boolean ai;
-	public final String alliances;
-	public final Integer cash;
-	public final TechType currentResearch;
-	public final String nextResearch;
-	public final Integer weapons;
-	public final Double range;
-	public final Double speed;
-	public final Double scanning;
-	public final int id;
-	public final String name;
-	public final Integer economy;
-	public final Integer industry;
-	public final Integer carriers;
-	public final Integer homeFleets;
-	public final Integer science;
-	public final Integer shipFleets;
-	public final Integer allFleets;
-	
-	public final Integer stars;
+	private final boolean ai;
+	private final String alliances;
+	private final Integer cash;
+	private final TechType currentResearch;
+	private final String nextResearch;
+	private final Integer weapons;
+	private final Double range;
+	private final Double speed;
+	private final Double scanning;
+	private final int id;
+	private final String name;
+	private final Integer economy;
+	private final Integer industry;
+	private final Integer carriers;
+	private final Integer homeFleets;
+	private final Integer science;
+	private final Integer shipFleets;
+	private final Integer allFleets;
+	private final Integer stars;
+  private final Map<TechType, Tech> techState;
 	
 	public Player(String name, int id, Integer economy, Integer industry, Integer science, Integer stars, Integer carriers, Integer homeFleets, Integer shipFleets,
 			boolean ai, String alliances, Integer cash, TechType currentResearch, String nextResearch, Integer weapons, Double range,
-			Double speed, Double scanning){
+			Double speed, Double scanning, Map<TechType, Tech> techState){
 		
 		this.id = id;
 		this.ai = ai;
@@ -49,7 +51,7 @@ public class Player {
 		this.shipFleets = shipFleets;
 		this.science = science;
 		this.stars = stars;
-		
+		this.techState = techState;
 	}
 	
 	public String toString(){
@@ -158,4 +160,13 @@ public class Player {
   public Integer getStars() {
     return stars;
   }
+
+  public Tech getTech(TechType type) {
+    if (techState == null) {
+      throw new IllegalStateException("Tried to access tech for player with unset tech state");
+    }
+    return techState.get(type);
+  }
+
+
 }

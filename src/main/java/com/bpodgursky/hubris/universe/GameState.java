@@ -1,5 +1,11 @@
 package com.bpodgursky.hubris.universe;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,16 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Range;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import org.apache.commons.lang.StringUtils;
 
 
 public class GameState {
@@ -25,19 +22,22 @@ public class GameState {
   public final Map<Integer, Player> playersByID;
   public final Map<Integer, Star> starsByID;
   private final Map<Integer, Fleet> fleetsByID;
-  public final Map<String, Tech> techStatesByName;
   public final Alliance alliance;
   public final Game gameData;
   private final int playerId;
   private final GameState previousState;
 
-  public GameState(GameState previousState, Game gameData, Collection<Player> players, Collection<Star> stars, Collection<Fleet> fleets,
-                   Collection<Tech> techs, Alliance alliance, int playerId) {
+  public GameState(GameState previousState,
+                   Game gameData,
+                   Collection<Player> players,
+                   Collection<Star> stars,
+                   Collection<Fleet> fleets,
+                   Alliance alliance, int playerId) {
 
     this.previousState = previousState;
     this.playersByID = Maps.newHashMap();
     for (Player p : players) {
-      playersByID.put(p.id, p);
+      playersByID.put(p.getId(), p);
     }
 
     this.starsByID = Maps.newHashMap();
@@ -48,11 +48,6 @@ public class GameState {
     this.fleetsByID = Maps.newHashMap();
     for (Fleet f : fleets) {
       fleetsByID.put(f.id, f);
-    }
-
-    this.techStatesByName = Maps.newHashMap();
-    for (Tech t : techs) {
-      techStatesByName.put(t.researchName, t);
     }
 
     this.alliance = alliance;

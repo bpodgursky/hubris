@@ -1,6 +1,7 @@
 package com.bpodgursky.hubris.universe;
 import java.util.List;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,9 +11,18 @@ public class Fleet {
 	public final String name;
 	public final Integer id;
 	public final Integer player;
+
+  /**
+   * The estimated time of arrival at the last destination.
+   */
 	public final Integer eta;
-	public final Integer nextETA;
-	public final Integer fleets;
+
+  /**
+   * The time this fleet has before arriving at its next destination. Note that this can indicate "jump
+   * prep" time when its at a star.
+   */
+	public final Integer nextEta;
+	public final Integer ships;
 	public final Integer victories;
 	public final List<Integer> destinations;
 	public final Integer x;
@@ -29,8 +39,8 @@ public class Fleet {
 		this.id = id;
 		this.player = player;
 		this.eta = eta;
-		this.nextETA = nextETA;
-		this.fleets = fleets;
+		this.nextEta = nextETA;
+		this.ships = fleets;
 		this.victories = victories;
 		this.destinations = destinations;
 		this.x = x;
@@ -40,7 +50,7 @@ public class Fleet {
 	}
 
   public Fleet(Fleet fleet, Integer starId) {
-    this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextETA, fleet.fleets, fleet.victories, fleet.destinations,
+    this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextEta, fleet.ships, fleet.victories, fleet.destinations,
       fleet.x, fleet.y, fleet.rt, starId);
   }
 
@@ -52,8 +62,8 @@ public class Fleet {
 			json.put("id", id);
 			json.put("player", player);
 			json.put("eta", eta);
-			json.put("nextETA", nextETA);
-			json.put("ships", fleets);
+			json.put("nextEta", nextEta);
+			json.put("ships", ships);
 			json.put("victories", victories);
 			json.put("destinations", destinations);
 			json.put("x", x);
@@ -83,12 +93,12 @@ public class Fleet {
     return eta;
   }
 
-  public Integer getNextETA() {
-    return nextETA;
+  public Integer getNextEta() {
+    return nextEta;
   }
 
-  public Integer getFleets() {
-    return fleets;
+  public Integer getShips() {
+    return ships;
   }
 
   public Integer getVictories() {
@@ -117,5 +127,23 @@ public class Fleet {
 
   public Integer getStarId() {
     return starId;
+  }
+
+  /**
+   *
+   * @param other
+   * @return the distance from this fleet to the other fleet, measured in light-years.
+   */
+  public double distanceFrom(Fleet other) {
+    return HubrisUtil.getDistanceInLightYears(getX(), getY(), other.getX(), other.getY());
+  }
+
+  /**
+   *
+   * @param star
+   * @return the distance to the provided star, measured in light-years.
+   */
+  public double distanceFrom(Star star) {
+    return HubrisUtil.getDistanceInLightYears(getX(), getY(), star.getX(), star.getY());
   }
 }
