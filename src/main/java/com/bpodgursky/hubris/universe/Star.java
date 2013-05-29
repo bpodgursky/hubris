@@ -1,5 +1,6 @@
 package com.bpodgursky.hubris.universe;
 import com.bpodgursky.hubris.HubrisUtil;
+import com.bpodgursky.hubris.util.BattleOutcome;
 import com.google.common.collect.Lists;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -136,6 +137,18 @@ public class Star {
 
   public List<Integer> getFleets() {
     return fleets;
+  }
+
+  /**
+   * Approximates the ship production of this star after N minutes. It doesn't consider when the timer will tick,
+   * so this could be an underestimate. Assumes that 1 ship per 12 hours per point of industry are produced.
+   *
+   * @param minutes
+   * @return the number of ships that will be produced at this star after waiting N minutes
+   */
+  public int getNumShipsProduced(int minutes) {
+    int industryPeriods = (int)Math.floor(minutes / (60.0 * 12));
+    return getIndustry()*industryPeriods;
   }
 
   /**
