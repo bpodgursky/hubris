@@ -64,6 +64,10 @@ public class GameState {
     return Lists.newArrayList(fleetsByID.values());
   }
 
+  public int getPlayerId(){
+    return playerId;
+  }
+
   public Fleet getFleet(int fleetId) {
     return fleetsByID.get(fleetId);
   }

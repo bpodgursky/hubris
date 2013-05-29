@@ -1,15 +1,20 @@
 package com.bpodgursky.hubris.client;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.account.GameMeta;
+import com.bpodgursky.hubris.command.GameRequest;
+import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.common.HubrisConstants;
+import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
+import com.bpodgursky.hubris.helpers.SpendHelper;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -77,21 +82,27 @@ public class GameManager {
       }
       GameMeta game = games.get(Integer.parseInt(reader.readLine("Enter game: ")));
 
-      SingleGameClient connection = new SingleGameClient(settings.getNpUsername(), game.getId(), new RemoteConnection(cookies));
-      GameState state = connection.getState(null);
+      GameConnection connection = new RemoteConnection(cookies);
+      String npUsername = settings.getNpUsername();
+      long id = game.getId();
+      int player = HubrisUtil.getPlayerNumber(connection, npUsername, id);
+
+      CommandFactory factory = new CommandFactory(npUsername, id, player);
+      GameState state = connection.getState(null, factory.getState());
 
       System.out.println(state);
 
+      for (Star star : state.getAllStars(false)) {
+        if(star.getPlayerNumber() == player){
+          System.out.println(star.getResources()+"\t"+star.science+"\t"+star.scienceUpgrade);
+        }
+      }
 
-//      System.out.println();
-//      for(Player p: state.getAllPlayers()){
-//        System.out.println();
-//        System.out.println(p.getName());
-//        System.out.println(p.getCurrentResearch());
-//      }
-//
-//      System.out.println();
+      System.out.println(state.gameData.toString());
 
+      Collection<GameRequest> spendRequests = SpendHelper.planSpend(state, 1.0, 1.0, .5, 100, factory);
+
+      System.out.println(spendRequests);
     }
   }
 }

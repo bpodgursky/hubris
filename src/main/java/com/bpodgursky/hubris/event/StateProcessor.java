@@ -1,5 +1,8 @@
 package com.bpodgursky.hubris.event;
 
+import com.bpodgursky.hubris.client.CommandFactory;
+import com.bpodgursky.hubris.command.GameRequest;
+import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.event_factory.StarUpgradeFactory;
 import com.bpodgursky.hubris.events.EventListener;
 import com.bpodgursky.hubris.events.factories.*;
@@ -18,6 +21,7 @@ import com.google.common.collect.Multimap;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 
 public class StateProcessor {
 
@@ -44,26 +48,75 @@ public class StateProcessor {
     listeners.put(listener.getEventType(), listener);
   }
 
-  public void update(GameState newState) {
+  private final GameConnection connection;
+  private final CommandFactory commandFactory;
+
+  public StateProcessor(GameConnection connection, CommandFactory factory){
+    this.connection = connection;
+    this.commandFactory = factory;
+  }
+
+  public GameState update(GameState newState) throws Exception {
 
     //  skip the first time
     if (newState.previousState() == null) {
-      return;
+      return newState;
     }
 
-    Multimap<Class, Object> events = HashMultimap.create();
-    for (EventFactory eventFactory : eventFactories) {
-      events.putAll(eventFactory.getEventType(), eventFactory.getEvents(newState));
-    }
+    Queue<EventSet> toProcess = Lists.newLinkedList();
 
-    for (Class aClass : events.keySet()) {
-      Collection<EventListener> eventListener = listeners.get(aClass);
+    //  produce events for the initial new state
+    toProcess.addAll(getNewEvents(newState));
 
-      for (EventListener listener : eventListener) {
-        listener.process(Lists.newArrayList(events.get(aClass)), newState);
+    //  process until something submits a command
+    while(!toProcess.isEmpty()){
+      EventSet eventSet = toProcess.poll();
+      Collection<EventListener> listenersForType = listeners.get(eventSet.getEventClass());
+
+      for(EventListener listener: listenersForType){
+        Collection<GameRequest> requests = listener.process(eventSet.getEvents(), newState, commandFactory);
+
+        //  if something submits orders, we keep update the state, and continue processing events
+        if(!requests.isEmpty()){
+
+          //  execute each of the relevant events
+          for(GameRequest request: requests){
+            connection.submit(request);
+          }
+
+          newState = connection.getState(newState, commandFactory.getState());
+          toProcess.addAll(getNewEvents(newState));
+        }
       }
     }
+
+    return newState;
   }
 
+  private Collection<EventSet> getNewEvents(GameState state){
+    List<EventSet> toProcess = Lists.newArrayList();
+    for (EventFactory<?> eventFactory : eventFactories) {
+      toProcess.add(new EventSet(eventFactory.getEvents(state), eventFactory.getEventType()));
+    }
+    return toProcess;
+  }
 
+  private static class EventSet {
+
+    private final Class eventClass;
+    private final Collection events;
+
+    private EventSet(Collection events, Class eventClass) {
+      this.events = events;
+      this.eventClass = eventClass;
+    }
+
+    private Class getEventClass() {
+      return eventClass;
+    }
+
+    private Collection getEvents() {
+      return events;
+    }
+  }
 }
