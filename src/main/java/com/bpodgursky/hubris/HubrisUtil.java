@@ -7,6 +7,7 @@ import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import com.bpodgursky.hubris.universe.TechType;
+import com.bpodgursky.hubris.util.BattleOutcome;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -15,7 +16,16 @@ public class HubrisUtil {
   /**
    * To convert from Euclidean distance to lightyears, it looks like we divide by 1000.
    */
-  public static int LY_TO_DISTANCE_CONVERSION_FACTOR = 1000;
+  public static final int LY_TO_DISTANCE_CONVERSION_FACTOR = 1000;
+
+  /**
+   * Number of research points gained each hour per level of science a player has.
+   */
+  public static final int SCIENCE_TO_RESEARCH_PER_HOUR = 6;
+
+  public static final int DEFENDER_WEAPONS_BONUS = 1;
+
+  public static final int INDUSTRY_PRODUCTION_PERIOD = 12;
 
   /**
    * For some really brilliant reason, <i>you</i> have to tell the game what your player ID is, even though the
@@ -73,18 +83,6 @@ public class HubrisUtil {
     return fleetsInRange;
   }
 
-  private static List<Star> getStarsInRange(GameState state, int x, int y, double lightYears) {
-    List<Star> starsInRange = Lists.newArrayList();
-
-    for (Star candidate : state.getAllStars(false)) {
-      if (getDistanceInLightYears(x, y, candidate.getX(), candidate.getY()) <= lightYears) {
-        starsInRange.add(candidate);
-      }
-    }
-
-    return starsInRange;
-  }
-
   /**
    *
    * @param x1
@@ -97,7 +95,35 @@ public class HubrisUtil {
     return Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2), 2)) / LY_TO_DISTANCE_CONVERSION_FACTOR;
   }
 
-  public static int getFutureTechLevel(GameState state, Player player, TechType tech, int minutes) {
-    return 0;//player.g
+  public static BattleOutcome getBattleOutcome(int defenderWeapons, int attackerWeapons, int defenderShips, int attackerShips) {
+    defenderWeapons += DEFENDER_WEAPONS_BONUS;
+
+    while (attackerShips > 0 && defenderShips > 0) {
+      attackerShips -= defenderWeapons;
+      if (attackerShips <= 0) {
+        break;
+      }
+      defenderShips -= attackerWeapons;
+    }
+
+    if (defenderShips > 0) {
+      return new BattleOutcome(true, defenderShips);
+    }
+    else {
+      return new BattleOutcome(false, attackerShips);
+    }
   }
+
+  private static List<Star> getStarsInRange(GameState state, int x, int y, double lightYears) {
+    List<Star> starsInRange = Lists.newArrayList();
+
+    for (Star candidate : state.getAllStars(false)) {
+      if (getDistanceInLightYears(x, y, candidate.getX(), candidate.getY()) <= lightYears) {
+        starsInRange.add(candidate);
+      }
+    }
+
+    return starsInRange;
+  }
+
 }
