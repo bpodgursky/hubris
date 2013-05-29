@@ -84,17 +84,20 @@ public class ResponseTransformer {
     NodeList children = universe.getChildNodes();
 
     Game game = parseGameNode(children.item(1));
+
+    // Get techs before players so that we can set our player's tech state
+    List<Tech> techs = getTechs(children.item(11));
+
     Alliance alliances = getAlliances(children.item(3));
-    List<Player> players = getPlayers(children.item(5));
+    List<Player> players = getPlayers(children.item(5), game.getMid(), techs);
     StarClosure starClosure = getStars(children.item(7));
     List<Fleet> fleets = getFleets(children.item(9), starClosure);
-    List<Tech> techs = getTechs(children.item(11));
 
     List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
     List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
     Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
 
-    // Find fleets that are at stars. This isn't provided directly by the game and can be determined when a
+    // Find ships that are at stars. This isn't provided directly by the game and can be determined when a
     // fleet doesn't have a star its destinations and is sufficiently close.
     for (Fleet fleet : fleets) {
       Star atStar = null;
@@ -115,13 +118,13 @@ public class ResponseTransformer {
       fleetsWithStars.add(fleetWithStar);
     }
 
-    // Create stars that have references to fleets located at them
+    // Create stars that have references to ships located at them
     for (Star star : starClosure.stars) {
       Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
       starsWithFleets.add(new Star(star, fleetsAtStar == null ? Lists.<Integer>newArrayList() : Lists.newArrayList(fleetsAtStar)));
     }
 
-    return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, techs, alliances, originalRequest.getPlayerNumber());
+    return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -132,7 +135,7 @@ public class ResponseTransformer {
         gameAttributes.getNamedItem("go").getNodeValue(),
         gameAttributes.getNamedItem("hs").getNodeValue(),
         gameAttributes.getNamedItem("lt").getNodeValue(),
-        gameAttributes.getNamedItem("mid").getNodeValue(),
+        Integer.parseInt(gameAttributes.getNamedItem("mid").getNodeValue()),
         gameAttributes.getNamedItem("np").getNodeValue(),
         gameAttributes.getNamedItem("sfv").getNodeValue(),
         gameAttributes.getNamedItem("tr").getNodeValue(),
@@ -144,13 +147,15 @@ public class ResponseTransformer {
     return new Alliance(allianceAttributes.getNamedItem("a").getNodeValue());
   }
 
-  private static List<Player> getPlayers(Node playerNodes) {
+  private static List<Player> getPlayers(Node playerNodes, int playerId, List<Tech> techs) {
     NodeList playerList = playerNodes.getChildNodes();
 
     List<Player> players = new ArrayList<Player>();
     for (int i = 0; i < playerList.getLength(); i++) {
       Node playerNode = playerList.item(i);
       NamedNodeMap playerAttributes = playerNode.getAttributes();
+      int id = Integer.parseInt(playerAttributes.getNamedItem("id").getNodeValue());
+      Map<TechType, Tech> techMap = (playerId == id) ? Tech.asMap(techs) : null;
 
       Player player = new Player(playerAttributes.getNamedItem("n").getNodeValue(),
           Integer.parseInt(playerAttributes.getNamedItem("id").getNodeValue()),
@@ -164,12 +169,13 @@ public class ResponseTransformer {
           Boolean.parseBoolean(playerAttributes.getNamedItem("ai").getNodeValue()),
           playerAttributes.getNamedItem("al").getNodeValue(),
           Integer.parseInt(playerAttributes.getNamedItem("c").getNodeValue()),
-          TechType.fromGameId(playerAttributes.getNamedItem("cr").getNodeValue()),
+          TechType.fromStringValue(playerAttributes.getNamedItem("cr").getNodeValue()),
           playerAttributes.getNamedItem("crn").getNodeValue(),
           Integer.parseInt(playerAttributes.getNamedItem("fc").getNodeValue()),
           Double.parseDouble(playerAttributes.getNamedItem("fr").getNodeValue()),
           Double.parseDouble(playerAttributes.getNamedItem("fs").getNodeValue()),
-          Double.parseDouble(playerAttributes.getNamedItem("sr").getNodeValue()));
+          Double.parseDouble(playerAttributes.getNamedItem("sr").getNodeValue()),
+          techMap);
 
       players.add(player);
     }
@@ -296,7 +302,7 @@ public class ResponseTransformer {
       Double sv = Double.parseDouble(techAttributes.getNamedItem("sv").getNodeValue());
 
       Tech tech = new Tech(
-          techAttributes.getNamedItem("n").getNodeValue(),
+          TechType.fromStringValue(techAttributes.getNamedItem("n").getNodeValue()),
           level, level * increment, currentPoints, v, bv, sv);
 
       techs.add(tech);
@@ -438,7 +444,7 @@ public class ResponseTransformer {
               Integer.parseInt(bodyNodeMap.get("cash").getTextContent())));
         } else {
           eventList.add(new TechSent(key, time,
-              TechType.fromGameId(tech),
+              TechType.fromStringValue(tech),
               Integer.parseInt(bodyNodeMap.get("recip").getTextContent())));
         }
 
@@ -451,14 +457,14 @@ public class ResponseTransformer {
               Integer.parseInt(bodyNodeMap.get("cash").getTextContent())));
         } else {
           eventList.add(new TechReceived(key, time,
-              TechType.fromGameId(tech),
+              TechType.fromStringValue(tech),
               Integer.parseInt(bodyNodeMap.get("sender").getTextContent())));
         }
 
       } else if (subject.equals("research level")) {
 
         eventList.add(new TechResearch(key, time,
-            TechType.fromGameId(bodyNodeMap.get("n").getTextContent()),
+            TechType.fromStringValue(bodyNodeMap.get("n").getTextContent()),
             Integer.parseInt(bodyNodeMap.get("l").getTextContent())));
 
       } else if (subject.equals("production")) {

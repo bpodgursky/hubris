@@ -4,7 +4,9 @@ import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.TechType;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class HubrisUtil {
    */
   public static int getPlayerNumber(GameConnection connection, String npUsername, long gameId) throws Exception {
     GameState state1 = connection.getState(null, new GetState(0, npUsername, gameId));
-    return Integer.parseInt(state1.gameData.getMid());
+    return state1.gameData.getMid();
   }
 
   /**
@@ -93,5 +95,9 @@ public class HubrisUtil {
    */
   public static double getDistanceInLightYears(int x1, int y1, int x2, int y2) {
     return Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2), 2)) / LY_TO_DISTANCE_CONVERSION_FACTOR;
+  }
+
+  public static int getFutureTechLevel(GameState state, Player player, TechType tech, int minutes) {
+    return 0;//player.g
   }
 }

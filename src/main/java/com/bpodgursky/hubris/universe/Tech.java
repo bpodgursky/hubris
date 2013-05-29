@@ -1,24 +1,27 @@
 package com.bpodgursky.hubris.universe;
 
+import com.google.common.collect.Maps;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+import java.util.Map;
+
 
 public class Tech {
+  private final Integer requiredUpgradePoints;
+  private final Integer currentResearchPoints;
+  private final Integer currentLevel;
+  private final TechType type;
 
-  public final Integer requiredUpgradePoints;
-  public final Integer currentResearchPoints;
-  public final Integer currentLevel;
-  public final String researchName;
+  private final Double v;
+  private final Double bv;
+  private final Double sv;
 
-  public final Double v;
-  public final Double bv;
-  public final Double sv;
-
-  public Tech(String researchName, Integer currentLevel, Integer requiredUpgradePoints, Integer currentResearchPoints,
+  public Tech(TechType type, Integer currentLevel, Integer requiredUpgradePoints, Integer currentResearchPoints,
               Double v, Double bv, Double sv) {
 
-    this.researchName = researchName;
+    this.type = type;
     this.v = v;
     this.bv = bv;
     this.sv = sv;
@@ -32,11 +35,10 @@ public class Tech {
 
     JSONObject json = new JSONObject();
     try {
-      json.put("researchName", researchName);
+      json.put("type", type);
       json.put("currentResearchPoints", currentResearchPoints);
       json.put("requiredUpgradePoints", requiredUpgradePoints);
       json.put("currentLevel", currentLevel);
-      json.put("researchName", researchName);
       json.put("v", v);
       json.put("bv", bv);
       json.put("sv", sv);
@@ -60,8 +62,8 @@ public class Tech {
     return v;
   }
 
-  public String getResearchName() {
-    return researchName;
+  public TechType getType() {
+    return type;
   }
 
   public Integer getCurrentLevel() {
@@ -74,5 +76,13 @@ public class Tech {
 
   public Integer getRequiredUpgradePoints() {
     return requiredUpgradePoints;
+  }
+
+  public static Map<TechType, Tech> asMap(List<Tech> techs) {
+    Map<TechType, Tech> map = Maps.newHashMap();
+    for (Tech tech : techs) {
+      map.put(tech.getType(), tech);
+    }
+    return map;
   }
 }
