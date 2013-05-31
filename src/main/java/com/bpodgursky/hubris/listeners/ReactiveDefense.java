@@ -35,9 +35,13 @@ public class ReactiveDefense implements EventListener<FleetDestinationChangedEve
         Integer myWeapons = me.getFutureTechValue(TechType.WEAPONS, attackingFleet.getEta());
         Integer enemyWeapons = enemy.getWeapons();
         Integer newShipsProduced = starUnderThreat.getNumShipsProduced(attackingFleet.getEta());
-        Integer shipsWhenAttackerArrives = starUnderThreat.getShips() ;
+        Integer shipsWhenAttackerArrives = starUnderThreat.getShipsIncludingFleets(currentState) + newShipsProduced;
 
-//        BattleOutcome outcomeIfDoNothing = HubrisUtil.getBattleOutcome(myWeapons, enemyWeapons,  )
+        // Find any currently dispatched fleets that will arrive before the attacker does
+
+        BattleOutcome outcomeIfDoNothing = HubrisUtil.getBattleOutcome(myWeapons, enemyWeapons, shipsWhenAttackerArrives, attackingFleet.getShips());
+
+        // If outcome is loss, try to rally ships at starUnderThreat
       }
     }
 
