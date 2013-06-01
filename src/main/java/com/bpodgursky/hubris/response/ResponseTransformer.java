@@ -22,10 +22,7 @@ import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import com.bpodgursky.hubris.universe.Tech;
 import com.bpodgursky.hubris.universe.TechType;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Range;
+import com.google.common.collect.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -121,7 +118,7 @@ public class ResponseTransformer {
     // Create stars that have references to ships located at them
     for (Star star : starClosure.stars) {
       Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
-      starsWithFleets.add(new Star(star, fleetsAtStar == null ? Lists.<Integer>newArrayList() : Lists.newArrayList(fleetsAtStar)));
+      starsWithFleets.add(new Star(star, fleetsAtStar == null ? Sets.<Integer>newHashSet() : Sets.newHashSet(fleetsAtStar)));
     }
 
     return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
@@ -223,15 +220,18 @@ public class ResponseTransformer {
           y,
           g == null ? null : Integer.parseInt(g.getNodeValue()),
           resources == null ? null : Integer.parseInt(resources.getNodeValue()),
-          Lists.<Integer>newArrayList()));
+          Sets.<Integer>newHashSet()));
     }
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
     List<Star> normalizedStars = Lists.newArrayList();
 
     for (Star star : stars) {
-      int normalizedX = (star.getX() - xRange.lowerEndpoint());
-      int normalizedY = (star.getY() - yRange.lowerEndpoint());
+      int shiftX = xRange.lowerEndpoint();
+      int shiftY = yRange.lowerEndpoint();
+
+      int normalizedX = (star.getX() - shiftX);
+      int normalizedY = (star.getY() - shiftY);
 
       normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
@@ -259,8 +259,8 @@ public class ResponseTransformer {
       int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
       int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
 
-      x = (x - starClosure.xRange.lowerEndpoint());
-      y = (y - starClosure.yRange.lowerEndpoint());
+      x = x - starClosure.xRange.lowerEndpoint();
+      y = y - starClosure.yRange.lowerEndpoint();
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
         Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),

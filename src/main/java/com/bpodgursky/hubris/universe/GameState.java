@@ -2,6 +2,7 @@ package com.bpodgursky.hubris.universe;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 
@@ -20,7 +21,11 @@ public class GameState {
 
   public final Map<Integer, Player> playersByID;
   public final Map<Integer, Star> starsByID;
+  public final Map<String, Star> starsByName;
+
   private final Map<Integer, Fleet> fleetsByID;
+  private final Map<String, Fleet> fleetsByName;
+
   public final Alliance alliance;
   public final Game gameData;
   private final int playerId;
@@ -40,14 +45,20 @@ public class GameState {
     }
 
     this.starsByID = Maps.newHashMap();
+    this.starsByName = Maps.newHashMap();
     for (Star s : stars) {
       starsByID.put(s.id, s);
+      starsByName.put(s.getName(), s);
     }
 
     this.fleetsByID = Maps.newHashMap();
+    this.fleetsByName = Maps.newHashMap();
+
     for (Fleet f : fleets) {
       fleetsByID.put(f.id, f);
+      fleetsByName.put(f.getName(), f);
     }
+
 
     this.alliance = alliance;
     this.gameData = gameData;
@@ -66,23 +77,40 @@ public class GameState {
     return fleetsByID.get(fleetId);
   }
 
+  public Fleet getFleet(String name){
+    return fleetsByName.get(name);
+  }
+
   public boolean starIsVisible(int starId) {
     return getStar(starId, false).getResources() != null;
   }
 
-  public Star getStar(int starId, boolean useHistoric){
-
+  public Star getStar(String starName, boolean useHistoric){
+    Star star = starsByName.get(starName);
     if(!useHistoric){
-      return starsByID.get(starId);
+      return star;
     }
 
-    Star currentInfo = starsByID.get(starId);
+    return mergeHistoric(star);
+  }
 
-    if(starIsVisible(starId)) {
+  public Star getStar(int starId, boolean useHistoric){
+    Star star = starsByID.get(starId);
+
+    if(!useHistoric){
+      return star;
+    }
+
+    return mergeHistoric(star);
+  }
+
+  private Star mergeHistoric(Star currentInfo){
+
+    if(starIsVisible(currentInfo.getId())) {
       return currentInfo;
     }
 
-    Star lastVisible = getLastVisible(starId);
+    Star lastVisible = getLastVisible(currentInfo.getId());
 
     return merge(currentInfo, lastVisible);
   }
@@ -121,7 +149,7 @@ public class GameState {
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Lists.<Integer>newArrayList());
+          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Sets.<Integer>newHashSet());
 
     }
   }

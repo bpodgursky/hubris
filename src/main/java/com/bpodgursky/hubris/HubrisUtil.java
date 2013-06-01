@@ -9,14 +9,17 @@ import com.bpodgursky.hubris.universe.Star;
 import com.bpodgursky.hubris.universe.TechType;
 import com.bpodgursky.hubris.util.BattleOutcome;
 import com.google.common.collect.Lists;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
 
 import java.util.List;
 
 public class HubrisUtil {
   /**
-   * To convert from Euclidean distance to lightyears, it looks like we divide by 1000.
+   * To convert from Euclidean distance to lightyears, it looks like we divide by 10000.
    */
-  public static final int LY_TO_DISTANCE_CONVERSION_FACTOR = 1000;
+  public static final int LY_TO_DISTANCE_CONVERSION_FACTOR = 10000;
 
   /**
    * Number of research points gained each hour per level of science a player has.
@@ -126,4 +129,10 @@ public class HubrisUtil {
     return starsInRange;
   }
 
+  public static void startLogging(){
+    BasicConfigurator.resetConfiguration();
+    final ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n"), ConsoleAppender.SYSTEM_ERR);
+    consoleAppender.setFollow(true);
+    BasicConfigurator.configure(consoleAppender);
+  }
 }
