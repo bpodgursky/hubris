@@ -2,26 +2,30 @@ package com.bpodgursky.hubris.client;
 
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.account.GameMeta;
-import com.bpodgursky.hubris.command.GameRequest;
-import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
-import com.bpodgursky.hubris.helpers.SpendHelper;
+import com.bpodgursky.hubris.plan.Order;
+import com.bpodgursky.hubris.plan.Plan;
+import com.bpodgursky.hubris.plan.orders.BalanceFleets;
+import com.bpodgursky.hubris.plan.orders.FleetDistPlan;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Star;
-import com.bpodgursky.hubris.universe.TechType;
 import jline.console.ConsoleReader;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameManager {
+
+  static{
+    HubrisUtil.startLogging();
+  }
+
   private final NpHttpClient client;
 
   private static final Pattern GAME_PATTERN
@@ -91,22 +95,7 @@ public class GameManager {
       CommandFactory factory = new CommandFactory(npUsername, id, player);
       GameState state = connection.getState(null, factory.getState());
 
-      System.out.println(state);
 
-      for (Star star : state.getAllStars(false)) {
-        if(star.getPlayerNumber() == player){
-          System.out.println(star.getResources()+"\t"+star.science+"\t"+star.scienceUpgrade);
-        }
-      }
-
-//      System.out.println(state.gameData.toString());
-//
-//      Collection<GameRequest> spendRequests = SpendHelper.planSpend(state, 1.0, 1.0, .5, 100, factory);
-//
-//      System.out.println(spendRequests);
-
-
-      System.out.println(state.getPlayer(state.getPlayerId()).getTech(TechType.RANGE));
     }
   }
 }

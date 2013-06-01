@@ -34,8 +34,6 @@ public class NpHttpClient {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     int code = post(url, data, out);
 
-    System.out.println(data);
-
     if (code == HttpURLConnection.HTTP_OK) {
       return out.toString();
     } else {

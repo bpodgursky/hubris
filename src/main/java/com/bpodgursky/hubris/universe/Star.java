@@ -72,6 +72,7 @@ public class Star {
 			json.put("x", x);
 			json.put("y", y);
 			json.put("g", garrisonSize);
+      json.put("fleets", fleets);
 			
 		}catch(JSONException e){
 			e.printStackTrace();

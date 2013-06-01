@@ -229,8 +229,8 @@ public class ResponseTransformer {
     double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
-      int shiftX = Math.max(0, xRange.lowerEndpoint());
-      int shiftY = Math.max(0, yRange.lowerEndpoint());
+      int shiftX = xRange.lowerEndpoint();
+      int shiftY = yRange.lowerEndpoint();
 
       int normalizedX = (star.getX() - shiftX);
       int normalizedY = (star.getY() - shiftY);
@@ -261,8 +261,8 @@ public class ResponseTransformer {
       int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
       int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
 
-      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_WIDTH);
-      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_HEIGHT);
+      x = x - starClosure.xRange.lowerEndpoint();
+      y = y - starClosure.yRange.lowerEndpoint();
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
         Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
