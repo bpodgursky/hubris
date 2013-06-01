@@ -228,20 +228,15 @@ public class ResponseTransformer {
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
     List<Star> normalizedStars = Lists.newArrayList();
-    double xSpan = (xRange.upperEndpoint() - xRange.lowerEndpoint());
-    double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
-      int shiftX = Math.max(0, xRange.lowerEndpoint());
-      int shiftY = Math.max(0, yRange.lowerEndpoint());
-
-      int normalizedX = (star.getX() - shiftX);
-      int normalizedY = (star.getY() - shiftY);
+      int normalizedX = (star.getX() - xRange.lowerEndpoint());
+      int normalizedY = (star.getY() - yRange.lowerEndpoint());
 
       normalizedStars.add(new Star(star, normalizedX, normalizedY));
     }
 
-    return new StarClosure(normalizedStars, xRange, yRange, xSpan, ySpan);
+    return new StarClosure(normalizedStars, xRange, yRange);
   }
 
   private static List<Fleet> getFleets(Node fleetsNode, StarClosure starClosure) {
@@ -264,8 +259,8 @@ public class ResponseTransformer {
       int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
       int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
 
-      x = (int)(((x - starClosure.xRange.lowerEndpoint()) / starClosure.xSpan)*NORMALIZED_WIDTH);
-      y = (int)(((y - starClosure.yRange.lowerEndpoint()) / starClosure.ySpan)*NORMALIZED_HEIGHT);
+      x = (x - starClosure.xRange.lowerEndpoint());
+      y = (y - starClosure.yRange.lowerEndpoint());
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
         Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
@@ -522,15 +517,11 @@ public class ResponseTransformer {
     private final List<Star> stars;
     private final Range<Integer> xRange;
     private final Range<Integer> yRange;
-    private final double xSpan;
-    private final double ySpan;
 
-    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange, double xSpan, double ySpan) {
+    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange) {
       this.stars = stars;
       this.xRange = xRange;
       this.yRange = yRange;
-      this.xSpan = xSpan;
-      this.ySpan = ySpan;
     }
 
     private List<Star> getStars() {
@@ -543,14 +534,6 @@ public class ResponseTransformer {
 
     private Range<Integer> getyRange() {
       return yRange;
-    }
-
-    private double getxSpan() {
-      return xSpan;
-    }
-
-    private double getySpan() {
-      return ySpan;
     }
   }
 }

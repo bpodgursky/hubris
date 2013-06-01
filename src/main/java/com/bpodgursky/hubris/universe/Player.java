@@ -122,12 +122,12 @@ public class Player {
     return scanning;
   }
 
-  public Double getTechLevel(TechType type) {
+  public double getTechLevel(TechType type) {
     switch (type) {
       case RANGE: return getRange();
       case SCANNING: return getScanning();
       case SPEED: return getSpeed();
-      case WEAPONS: return Double.valueOf(getWeapons());
+      case WEAPONS: return getWeapons();
     }
     throw new IllegalArgumentException("Unknown tech type: " + type);
   }
@@ -198,16 +198,16 @@ public class Player {
    * @param minutes
    * @return
    */
-  public <T> T getFutureTechValue(TechType tech, int minutes) {
+  public double getFutureTechValue(TechType tech, int minutes) {
     if (this.getCurrentResearch() != tech || techState == null) {
-      return (T)this.getTechLevel(tech);
+      return this.getTechLevel(tech);
     }
 
     int requiredUpgradePoints = this.getTech(tech).getRequiredUpgradePoints();
     int upgradePointsAvailable = (int)Math.floor((minutes / 60.0) * this.getUpgradePointsPerHour());
-    int bonus = upgradePointsAvailable >= requiredUpgradePoints ? 1 : 0;
+    double bonus = upgradePointsAvailable >= requiredUpgradePoints ? tech.getUpgradePoints() : 0;
 
     // TODO: consider next research too
-    return (T)this.getTechLevel(tech);
+    return this.getTechLevel(tech) + bonus;
   }
 }

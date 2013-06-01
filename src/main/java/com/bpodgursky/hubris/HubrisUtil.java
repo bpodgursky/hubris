@@ -71,7 +71,7 @@ public class HubrisUtil {
    * @param lightYears
    * @return
    */
-  private static List<Fleet> getFleetsInRange(GameState state, Star star, double lightYears) {
+  public static List<Fleet> getFleetsInRange(GameState state, Star star, double lightYears) {
     List<Fleet> fleetsInRange = Lists.newArrayList();
 
     for (Fleet candidate : state.getAllFleets()) {

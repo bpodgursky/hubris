@@ -11,6 +11,7 @@ import com.bpodgursky.hubris.event.StateProcessor;
 import com.bpodgursky.hubris.listeners.PrintNewCash;
 import com.bpodgursky.hubris.listeners.PrintResearchChange;
 import com.bpodgursky.hubris.listeners.PrintUpgrade;
+import com.bpodgursky.hubris.listeners.ReactiveDefense;
 import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
@@ -56,7 +57,7 @@ public class HubrisProcessLoop {
     processsor.addEventListener(new PrintUpgrade());
     processsor.addEventListener(new PrintResearchChange());
     processsor.addEventListener(new SpendOnIncomeListener(150, 1.0, 1.0, .5));
-
+    processsor.addEventListener(new ReactiveDefense());
     GameState currentState = null;
 
     while(true){
