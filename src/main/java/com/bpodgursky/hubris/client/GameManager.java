@@ -113,13 +113,15 @@ public class GameManager {
         connection.submit(request);
       }
 
+      System.out.println(currentState);
+
       while (true) {
         try {
           currentState = connection.getState(currentState, new GetState(player, npUsername, id));
           plan.tick(currentState);
           processsor.update(currentState);
 
-          List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState);
+          List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
           LOG.info("Found idle fleets:" +idleFleets);
 
           Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0);
