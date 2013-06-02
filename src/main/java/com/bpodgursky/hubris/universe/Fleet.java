@@ -13,13 +13,14 @@ public class Fleet {
 	public final Integer player;
 
   /**
-   * The estimated time of arrival at the last destination.
+   * The estimated time of arrival at the last destination. Note that this will ONLY  be set for fleets
+   * you have complete knowledge of (e.g., your fleets) since you can only know the first destination of
+   * a fleet.
    */
 	public final Integer eta;
 
   /**
-   * The time this fleet has before arriving at its next destination. Note that this can indicate "jump
-   * prep" time when its at a star.
+   * The time this fleet has before arriving at its next destination.
    */
 	public final Integer nextEta;
 	public final Integer ships;
@@ -27,14 +28,20 @@ public class Fleet {
 	public final List<Integer> destinations;
 
   private final Coordinate coords;
-	
-	//	dunno what this is
-	public final Integer rt;
 
+
+  /**
+   * "Jump Prep" -- number of minutes a fleet must remain at a star before launching.
+   */
+	public final Integer jumpPrepTime;
+
+  /**
+   * The star that this fleet is orbiting
+   */
   private Integer starId;
 	
 	public Fleet(String name, Integer id, Integer player, Integer eta, Integer nextETA, Integer fleets, 
-			Integer victories, List<Integer> destinations, Coordinate coords, Integer rt, Integer starId){
+			Integer victories, List<Integer> destinations, Coordinate coords, Integer jumpPrepTime, Integer starId){
 		this.name = name;
 		this.id = id;
 		this.player = player;
@@ -44,13 +51,13 @@ public class Fleet {
 		this.victories = victories;
 		this.destinations = destinations;
     this.coords = coords;
-		this.rt = rt;
+		this.jumpPrepTime = jumpPrepTime;
     this.starId = starId;
 	}
 
   public Fleet(Fleet fleet, Integer starId) {
     this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextEta, fleet.ships, fleet.victories, fleet.destinations,
-      fleet.getCoords(), fleet.rt, starId);
+      fleet.getCoords(), fleet.jumpPrepTime, starId);
   }
 
 
@@ -71,8 +78,8 @@ public class Fleet {
 			json.put("victories", victories);
 			json.put("destinations", destinations);
 			json.put("coords", coords);
-			json.put("rt", rt);
-			
+			json.put("jumpPrepTime", jumpPrepTime);
+
 		}catch (JSONException e){
 			e.printStackTrace();
 		}
@@ -112,8 +119,8 @@ public class Fleet {
     return destinations;
   }
 
-  public Integer getRt() {
-    return rt;
+  public Integer getJumpPrepTime() {
+    return jumpPrepTime;
   }
 
   public boolean isAtStar() {

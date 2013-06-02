@@ -18,6 +18,7 @@ import com.bpodgursky.hubris.universe.GameState;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.sun.jdi.event.EventSet;
 
 import java.util.Collection;
 import java.util.List;
@@ -74,18 +75,20 @@ public class StateProcessor {
       Collection<EventListener> listenersForType = listeners.get(eventSet.getEventClass());
 
       for(EventListener listener: listenersForType){
-        Collection<GameRequest> requests = listener.process(eventSet.getEvents(), newState, commandFactory);
+        if (!eventSet.getEvents().isEmpty()) {
+          Collection< GameRequest > requests = listener.process(eventSet.getEvents(), newState, commandFactory);
 
-        //  if something submits orders, we keep update the state, and continue processing events
-        if(!requests.isEmpty()){
+          //  if something submits orders, we keep update the state, and continue processing events
+          if(!requests.isEmpty()){
 
-          //  execute each of the relevant events
-          for(GameRequest request: requests){
-            connection.submit(request);
+            //  execute each of the relevant events
+            for(GameRequest request: requests){
+              connection.submit(request);
+            }
+
+            newState = connection.getState(newState, commandFactory.getState());
+            toProcess.addAll(getNewEvents(newState));
           }
-
-          newState = connection.getState(newState, commandFactory.getState());
-          toProcess.addAll(getNewEvents(newState));
         }
       }
     }

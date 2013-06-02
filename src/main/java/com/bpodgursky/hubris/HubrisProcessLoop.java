@@ -11,6 +11,7 @@ import com.bpodgursky.hubris.event.StateProcessor;
 import com.bpodgursky.hubris.listeners.PrintNewCash;
 import com.bpodgursky.hubris.listeners.PrintResearchChange;
 import com.bpodgursky.hubris.listeners.PrintUpgrade;
+import com.bpodgursky.hubris.listeners.ReactiveDefense;
 import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.metric.SimpleShipProximityMetric;
 import com.bpodgursky.hubris.plan.Order;
@@ -57,10 +58,11 @@ public class HubrisProcessLoop {
     CommandFactory factory = new CommandFactory(npUsername, gameId, player);
     StateProcessor processsor = new StateProcessor(connection, factory);
 
+    processsor.addEventListener(new SpendOnIncomeListener(400, 1.0, 1.0, .5));
+    processsor.addEventListener(new ReactiveDefense());
     processsor.addEventListener(new PrintNewCash());
     processsor.addEventListener(new PrintUpgrade());
     processsor.addEventListener(new PrintResearchChange());
-    processsor.addEventListener(new SpendOnIncomeListener(150, 1.0, 1.0, .5));
 
     GameState currentState = null;
     currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));

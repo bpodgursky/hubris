@@ -4,14 +4,16 @@ package com.bpodgursky.hubris.universe;
  * 
  */
 public enum TechType {
-	WEAPONS("fleet_combat"),
-	SPEED("fleet_speed"),
-	RANGE("fleet_range"),
-	SCANNING("scanning_range");
+	WEAPONS("fleet_combat", 1d),
+	SPEED("fleet_speed", 0.24),
+	RANGE("fleet_range", 0.25),
+	SCANNING("scanning_range", 0.10);
 
   private final String stringValue;
-  TechType(String stringValue) {
+  private final double upgradePoints;
+  TechType(String stringValue, double upgradePoints) {
     this.stringValue = stringValue;
+    this.upgradePoints = upgradePoints;
   }
 
   /**
@@ -22,8 +24,17 @@ public enum TechType {
 	public String getStringValue() {
     return stringValue;
 	}
-	
-	/**
+
+  /**
+   * Gets the number of points per level you gain when upgrading this tech
+   *
+   * @return
+   */
+  public double getUpgradePoints() {
+    return upgradePoints;
+  }
+
+  /**
 	 * 
 	 * @param id
 	 * @return

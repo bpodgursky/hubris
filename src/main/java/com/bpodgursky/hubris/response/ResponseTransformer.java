@@ -1,5 +1,6 @@
 package com.bpodgursky.hubris.response;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.notification.AIAdmin;
 import com.bpodgursky.hubris.notification.CapturedSystem;
@@ -41,8 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseTransformer {
-  public static final int NORMALIZED_WIDTH = 800;
-  public static final int NORMALIZED_HEIGHT = 600;
   public static final int AT_STAR_THRESHOLD = 1;
 
   private static final DocumentBuilder docBuilder;
@@ -216,8 +215,6 @@ public class ResponseTransformer {
     Range<Integer> xRange = Range.encloseAll(xvalues);
     Range<Integer> yRange = Range.encloseAll(yvalues);
     List<Star> normalizedStars = Lists.newArrayList();
-    double xSpan = (xRange.upperEndpoint() - xRange.lowerEndpoint());
-    double ySpan = (yRange.upperEndpoint() - yRange.lowerEndpoint());
 
     for (Star star : stars) {
       int shiftX = xRange.lowerEndpoint();
@@ -228,7 +225,7 @@ public class ResponseTransformer {
       normalizedStars.add(new Star(star, Coordinate.from((coords.getX() - shiftX), (coords.getY() - shiftY))));
     }
 
-    return new StarClosure(normalizedStars, xRange, yRange, xSpan, ySpan);
+    return new StarClosure(normalizedStars, xRange, yRange);
   }
 
   private static List<Fleet> getFleets(Node fleetsNode, StarClosure starClosure) {
@@ -250,20 +247,29 @@ public class ResponseTransformer {
 
       int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
       int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
+      int eta = Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue());
+      int neta = Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue());
+      int jumpPrep = Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue());
 
+      // Normalize coordinate system so all points are >= 0.
       x = x - starClosure.xRange.lowerEndpoint();
       y = y - starClosure.yRange.lowerEndpoint();
+
+      // The data model measures eta, neta, and jumpPrepTime in 10 minute ticks. Normalize these to minutes.
+      eta *= HubrisUtil.MINUTES_IN_TICK;
+      neta *= HubrisUtil.MINUTES_IN_TICK;
+      jumpPrep *= HubrisUtil.MINUTES_IN_TICK;
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
         Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
         Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
-        Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue()),
-        Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue()),
+        eta,
+        neta,
         Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
         Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
         destStars,
         Coordinate.from(x, y),
-        Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()),
+        jumpPrep,
         null);
 
       fleets.add(fleet);
@@ -508,15 +514,11 @@ public class ResponseTransformer {
     private final List<Star> stars;
     private final Range<Integer> xRange;
     private final Range<Integer> yRange;
-    private final double xSpan;
-    private final double ySpan;
 
-    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange, double xSpan, double ySpan) {
+    private StarClosure(List<Star> stars, Range<Integer> xRange, Range<Integer> yRange) {
       this.stars = stars;
       this.xRange = xRange;
       this.yRange = yRange;
-      this.xSpan = xSpan;
-      this.ySpan = ySpan;
     }
 
     private List<Star> getStars() {
@@ -529,14 +531,6 @@ public class ResponseTransformer {
 
     private Range<Integer> getyRange() {
       return yRange;
-    }
-
-    private double getxSpan() {
-      return xSpan;
-    }
-
-    private double getySpan() {
-      return ySpan;
     }
   }
 }
