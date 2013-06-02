@@ -214,4 +214,13 @@ public class HubrisUtil {
     consoleAppender.setFollow(true);
     BasicConfigurator.configure(consoleAppender);
   }
+
+  public static int totalControlledResources(GameState state){
+    int sum = 0;
+    for (Star star : getFriendlyStars(state, state.getPlayerId())) {
+      sum+= star.getResources();
+    }
+
+    return sum;
+  }
 }

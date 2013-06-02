@@ -2,6 +2,7 @@ package com.bpodgursky.hubris.helpers;
 
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.functions.NameFromStar;
+import com.bpodgursky.hubris.metric.DangerMetric;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
 import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
@@ -10,7 +11,6 @@ import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -22,15 +22,20 @@ import java.util.*;
 public class ExploreHelper {
   private static final Logger LOG = LoggerFactory.getLogger(ExploreHelper.class);
 
-  public static Collection<Order> planExplore(List<Fleet> fleets, GameState state, double maxDistance, FleetDistStrat distStrat){
-    LOG.info("Planning exploration for fleets: "+fleets);
+  //  TODO should be params
+  private static final double EXPAND_WEIGHT = 1.0;
+  private static final double REINFORCE_WEIGHT = 1.0;
+  private static final double PICKUP_WEIGHT = .5;
+
+  public static Collection<Order> planExplore(List<Fleet> fleets, GameState state, double maxDistance, FleetDistStrat distStrat) {
+    LOG.info("Planning exploration for fleets: " + fleets);
 
     Player player = state.getPlayer(state.getPlayerId());
 
     Set<Integer> queuedStars = Sets.newHashSet();
 
     Map<String, TailOrder> fleetToLastOrder = Maps.newHashMap();
-    for(Fleet fleet: fleets){
+    for (Fleet fleet : fleets) {
       Star currentStar = state.getStar(fleet.getStarId(), false);
       List<Star> stars = HubrisUtil.getConquerableStarsInRange(state,
           currentStar.getCoords(),
@@ -38,13 +43,13 @@ public class ExploreHelper {
           player.getRange()
       );
 
-      LOG.info("Fleet "+fleet.getName()+" has conquerable stars in range: "+ Collections2.transform(stars, new NameFromStar()));
+      LOG.info("Fleet " + fleet.getName() + " has conquerable stars in range: " + Collections2.transform(stars, new NameFromStar()));
 
-      Star target = getHighestValue(stars, queuedStars, player.getId());
+      Star target = getHighestValue(state, fleet, stars, queuedStars, player);
 
       //  TODO diff strat depending on whether it's moving towards or away from the enemy threat vector
       //  TODO also, if you have more ships, vector should count for more
-      if(target != null){
+      if (target != null) {
         queuedStars.add(target.getId());
         fleetToLastOrder.put(fleet.getName(), new TailOrder(take(fleet.getName(), currentStar, target, distStrat), currentStar.distanceFrom(target)));
       }
@@ -52,27 +57,29 @@ public class ExploreHelper {
 
     Map<String, TailOrder> finalTails = Maps.newHashMap();
 
-    while(!fleetToLastOrder.isEmpty()){
+    while (!fleetToLastOrder.isEmpty()) {
 
       Map<String, TailOrder> newTails = Maps.newHashMap();
-      for(Map.Entry<String, TailOrder> tail: fleetToLastOrder.entrySet()){
+      for (Map.Entry<String, TailOrder> tail : fleetToLastOrder.entrySet()) {
 
-        String starName = tail.getValue().order.getToStar();
+        String starName = tail.getValue().order.getStarName();
         String fleetName = tail.getValue().order.getFleetName();
         Star star = state.getStar(starName, false);
 
-        List<Star> stars = HubrisUtil.getStarsInRange(state, star, player.getRange());
-        Star target = getHighestValue(stars, queuedStars, player.getId());
+        Fleet fleet = state.getFleet(fleetName);
 
-        if(target != null){
+        List<Star> stars = HubrisUtil.getStarsInRange(state, star, player.getRange());
+        Star target = getHighestValue(state, fleet, stars, queuedStars, player);
+
+        if (target != null) {
           double cumCost = tail.getValue().cost + star.distanceFrom(target);
-          if(cumCost <= maxDistance){
+          if (cumCost <= maxDistance) {
             queuedStars.add(target.getId());
             newTails.put(fleetName, new TailOrder(take(fleetName, star, target, distStrat, tail.getValue().order), cumCost));
-          }else{
+          } else {
             finalTails.put(fleetName, tail.getValue());
           }
-        }else{
+        } else {
           finalTails.put(fleetName, tail.getValue());
         }
       }
@@ -80,24 +87,25 @@ public class ExploreHelper {
     }
 
     Set<Order> lastOrders = Sets.newHashSet();
-    for(TailOrder order: finalTails.values()){
+    for (TailOrder order : finalTails.values()) {
       lastOrders.add(order.order);
     }
 
     return lastOrders;
   }
 
-  private static MoveFleet take(String fleetName, Star from, Star to, FleetDistStrat distPlan, Order ... previous){
+  private static BalanceFleets take(String fleetName, Star from, Star to, FleetDistStrat distPlan, Order... previous) {
     Order balanceCurrent = new BalanceFleets(from.getName(), fleetName, distPlan, Sets.newHashSet(previous));
-    return new MoveFleet(fleetName, from.getName(), to.getName(), Sets.newHashSet(balanceCurrent));
+    MoveFleet move = new MoveFleet(fleetName, from.getName(), to.getName(), Sets.newHashSet(balanceCurrent));
+    return new BalanceFleets(to.getName(), fleetName, distPlan, Sets.<Order>newHashSet(move));
   }
 
   public static class TailOrder {
 
     private final double cost;
-    private final MoveFleet order;
+    private final BalanceFleets order;
 
-    public TailOrder(MoveFleet order, double cost) {
+    public TailOrder(BalanceFleets order, double cost) {
       this.order = order;
       this.cost = cost;
     }
@@ -105,21 +113,20 @@ public class ExploreHelper {
   }
 
 
-
-  public static Star getHighestValue(List<Star> stars, Set<Integer> skip, Integer currentPlayer){
+  public static Star getHighestValue(GameState state, Fleet fleet, List<Star> stars, Set<Integer> skip, Player currentPlayer) {
 
     double highestValue = Double.NEGATIVE_INFINITY;
     Star selected = null;
 
-    for(Star s: stars){
+    for (Star s : stars) {
 
-      if(skip.contains(s.getId())){
+      if (skip.contains(s.getId())) {
         continue;
       }
 
-      double value = getValue(s, currentPlayer);
+      double value = getTargetValue(state, fleet, s, currentPlayer);
 
-      if(value > highestValue){
+      if (value > highestValue) {
         highestValue = value;
         selected = s;
       }
@@ -128,15 +135,45 @@ public class ExploreHelper {
     return selected;
   }
 
-  private static double getValue(Star star, int currentPlayer){
-    if(star.getResources() == null){
+  private static int estimateResources(Star star) {
+    if (star.getResources() == null) {
       return 20;
-    }
-
-    if(star.getPlayerNumber() == currentPlayer){
-      return -1000 + star.getShips();
     }
 
     return star.getResources();
   }
+
+
+  private static double getTargetValue(GameState state, Fleet fleet, Star star, Player currentPlayer) {
+    int resources = estimateResources(star);
+
+    //  valuable if it isn't yours and there are resources on it
+    if (star.getPlayerNumber() != currentPlayer.getId()) {
+      return EXPAND_WEIGHT * ( (resources*1.0) / HubrisUtil.totalControlledResources(state));
+    }
+
+    double currentCombatValue = DangerMetric.getCombatValue(state, fleet.getCoords());
+    double targetCombatValue = DangerMetric.getCombatValue(state, star.getCoords());
+
+    double moveDiff = targetCombatValue - currentCombatValue;
+
+    double fleetPercentOfShips = fleet.getShips() / (currentPlayer.getAllFleets() * 1.0);
+    double targetPercentOfShips = star.getShips() / (currentPlayer.getAllFleets() * 1.0);
+
+    double bestCombatValue = DangerMetric.getBestCombatValue(state);
+
+    double pickupDiff = bestCombatValue - targetCombatValue;
+
+    return
+        REINFORCE_WEIGHT * (fleetPercentOfShips * moveDiff) +
+        PICKUP_WEIGHT * (targetPercentOfShips * pickupDiff);
+
+
+    //  valuable if this fleet has a bunch of ships on it and star is closer to the enemy
+
+    //  valuable if you can pick up ships from the star  (more valuable the farther from danger it is)
+
+
+  }
 }
+

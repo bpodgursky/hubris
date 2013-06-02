@@ -33,4 +33,12 @@ public class Vector {
 
     return new Vector(xSum/mag, ySum/mag);
   }
+
+  @Override
+  public String toString() {
+    return "Vector{" +
+        "xdir=" + xdir +
+        ", ydir=" + ydir +
+        '}';
+  }
 }
