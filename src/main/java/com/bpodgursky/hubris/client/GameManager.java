@@ -106,7 +106,7 @@ public class GameManager {
 
       GameState currentState = null;
       StateProcessor processsor = new StateProcessor(connection, factory);
-      processsor.addEventListener(new SpendOnIncomeListener(150, 1.0, 1.0, .5));
+      processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, .5, .5));
 
       currentState = connection.getState(currentState, new GetState(player, npUsername, id));
       for(GameRequest request: SpendHelper.planSpend(currentState, 1.0, 1.0, 0.5, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, 0, factory)){
