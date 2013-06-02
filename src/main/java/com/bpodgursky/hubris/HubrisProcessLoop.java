@@ -13,18 +13,16 @@ import com.bpodgursky.hubris.listeners.PrintResearchChange;
 import com.bpodgursky.hubris.listeners.PrintUpgrade;
 import com.bpodgursky.hubris.listeners.ReactiveDefense;
 import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
+import com.bpodgursky.hubris.metric.SimpleShipProximityMetric;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
-import com.bpodgursky.hubris.plan.orders.FleetDistPlan;
+import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
 import com.bpodgursky.hubris.plan.orders.MoveFleet;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,12 +58,19 @@ public class HubrisProcessLoop {
     CommandFactory factory = new CommandFactory(npUsername, gameId, player);
     StateProcessor processsor = new StateProcessor(connection, factory);
 
-//    processsor.addEventListener(new PrintNewCash());
-//    processsor.addEventListener(new PrintUpgrade());
-//    processsor.addEventListener(new PrintResearchChange());
     processsor.addEventListener(new SpendOnIncomeListener(400, 1.0, 1.0, .5));
     processsor.addEventListener(new ReactiveDefense());
+    processsor.addEventListener(new PrintNewCash());
+    processsor.addEventListener(new PrintUpgrade());
+    processsor.addEventListener(new PrintResearchChange());
+
     GameState currentState = null;
+    currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));
+
+    double evaluate = SimpleShipProximityMetric.evaluate(currentState);
+
+    System.out.println("total:");
+    System.out.println(evaluate);
 
     while(true){
       currentState = connection.getState(currentState, new GetState(player, npUsername, gameId));

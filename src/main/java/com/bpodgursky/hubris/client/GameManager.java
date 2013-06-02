@@ -14,12 +14,10 @@ import com.bpodgursky.hubris.helpers.SpendHelper;
 import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
-import com.bpodgursky.hubris.plan.orders.BalanceFleets;
-import com.bpodgursky.hubris.plan.orders.FleetDistPlan;
+import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +122,7 @@ public class GameManager {
           List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
           LOG.info("Found idle fleets:" +idleFleets);
 
-          Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0);
+          Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0, FleetDistStrat.defensiveDist());
 
           LOG.info("New orders: "+orders);
 

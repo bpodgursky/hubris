@@ -12,15 +12,15 @@ import java.util.Set;
 
 public class BalanceFleets extends Order {
 
-  public final FleetDistPlan plan;
+  public final FleetDistStrat plan;
   private final String starName;
   private final String fleetName;
 
-  public BalanceFleets(String starName, String fleetName, FleetDistPlan plan) {
+  public BalanceFleets(String starName, String fleetName, FleetDistStrat plan) {
     this(starName, fleetName, plan, Collections.<Order>emptySet());
   }
 
-  public BalanceFleets(String starName, String fleetName, FleetDistPlan plan, Set<Order> prereqs) {
+  public BalanceFleets(String starName, String fleetName, FleetDistStrat plan, Set<Order> prereqs) {
     super(prereqs);
 
     this.starName = starName;

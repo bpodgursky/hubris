@@ -3,7 +3,7 @@ package com.bpodgursky.hubris.helpers;
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
-import com.bpodgursky.hubris.plan.orders.FleetDistPlan;
+import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
 import com.bpodgursky.hubris.plan.orders.MoveFleet;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
@@ -19,7 +19,7 @@ import java.util.*;
 public class ExploreHelper {
   private static final Logger LOG = LoggerFactory.getLogger(ExploreHelper.class);
 
-  public static Collection<Order> planExplore(List<Fleet> fleets, GameState state, double maxDistance){
+  public static Collection<Order> planExplore(List<Fleet> fleets, GameState state, double maxDistance, FleetDistStrat distStrat){
     LOG.info("Planning exploration for fleets: "+fleets);
 
     Player player = state.getPlayer(state.getPlayerId());
@@ -32,9 +32,10 @@ public class ExploreHelper {
       List<Star> stars = HubrisUtil.getStarsInRange(state, currentStar, player.getRange());
 
       Star target = getHighestValue(stars, queuedStars, player.getId());
+
       if(target != null){
         queuedStars.add(target.getId());
-        fleetToLastOrder.put(fleet.getName(), new TailOrder(take(fleet.getName(), currentStar, target), currentStar.distanceFrom(target)));
+        fleetToLastOrder.put(fleet.getName(), new TailOrder(take(fleet.getName(), currentStar, target, distStrat), currentStar.distanceFrom(target)));
       }
     }
 
@@ -56,7 +57,7 @@ public class ExploreHelper {
           double cumCost = tail.getValue().cost + star.distanceFrom(target);
           if(cumCost <= maxDistance){
             queuedStars.add(target.getId());
-            newTails.put(fleetName, new TailOrder(take(fleetName, star, target, tail.getValue().order), cumCost));
+            newTails.put(fleetName, new TailOrder(take(fleetName, star, target, distStrat, tail.getValue().order), cumCost));
           }else{
             finalTails.put(fleetName, tail.getValue());
           }
@@ -75,8 +76,8 @@ public class ExploreHelper {
     return lastOrders;
   }
 
-  private static MoveFleet take(String fleetName, Star from, Star to, Order ... previous){
-    Order balanceCurrent = new BalanceFleets(from.getName(), fleetName, FleetDistPlan.leaveOnStar(1), Sets.newHashSet(previous));
+  private static MoveFleet take(String fleetName, Star from, Star to, FleetDistStrat distPlan, Order ... previous){
+    Order balanceCurrent = new BalanceFleets(from.getName(), fleetName, distPlan, Sets.newHashSet(previous));
     return new MoveFleet(fleetName, from.getName(), to.getName(), Sets.newHashSet(balanceCurrent));
   }
 
@@ -94,7 +95,7 @@ public class ExploreHelper {
 
   public static Star getHighestValue(List<Star> stars, Set<Integer> skip, Integer currentPlayer){
 
-    double highestValue = Double.MIN_VALUE;
+    double highestValue = Double.NEGATIVE_INFINITY;
     Star selected = null;
 
     for(Star s: stars){
@@ -104,6 +105,7 @@ public class ExploreHelper {
       }
 
       double value = getValue(s, currentPlayer);
+
       if(value > highestValue){
         highestValue = value;
         selected = s;
