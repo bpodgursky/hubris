@@ -143,7 +143,6 @@ public class ExploreHelper {
     return star.getResources();
   }
 
-
   private static double getTargetValue(GameState state, Fleet fleet, Star star, Player currentPlayer) {
     int resources = estimateResources(star);
 
@@ -155,25 +154,15 @@ public class ExploreHelper {
     double currentCombatValue = DangerMetric.getCombatValue(state, fleet.getCoords());
     double targetCombatValue = DangerMetric.getCombatValue(state, star.getCoords());
 
-    double moveDiff = targetCombatValue - currentCombatValue;
-
     double fleetPercentOfShips = fleet.getShips() / (currentPlayer.getAllFleets() * 1.0);
     double targetPercentOfShips = star.getShips() / (currentPlayer.getAllFleets() * 1.0);
 
     double bestCombatValue = DangerMetric.getBestCombatValue(state);
 
-    double pickupDiff = bestCombatValue - targetCombatValue;
-
     return
-        REINFORCE_WEIGHT * (fleetPercentOfShips * moveDiff) +
-        PICKUP_WEIGHT * (targetPercentOfShips * pickupDiff);
-
-
-    //  valuable if this fleet has a bunch of ships on it and star is closer to the enemy
-
-    //  valuable if you can pick up ships from the star  (more valuable the farther from danger it is)
-
-
+        //  valuable if this fleet has a bunch of ships on it and target star is closer to the enemy
+        REINFORCE_WEIGHT * (fleetPercentOfShips * (targetCombatValue - currentCombatValue)) +
+         //  valuable if you can pick up ships from the star  (more valuable the farther from danger it is)
+        PICKUP_WEIGHT * (targetPercentOfShips * (bestCombatValue - targetCombatValue));
   }
 }
-
