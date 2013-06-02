@@ -92,9 +92,9 @@ public class ExploreHelper {
 
   }
 
-  public static Star getHighestValue(List<Star> stars, Set<Integer> skip, Integer skipPlayer){
+  public static Star getHighestValue(List<Star> stars, Set<Integer> skip, Integer currentPlayer){
 
-    int highestResource = Integer.MIN_VALUE;
+    double highestValue = Double.MIN_VALUE;
     Star selected = null;
 
     for(Star s: stars){
@@ -103,13 +103,9 @@ public class ExploreHelper {
         continue;
       }
 
-      if(s.getPlayerNumber() == null || s.getPlayerNumber().intValue() == skipPlayer){
-        continue;
-      }
-
-      int resources = getResources(s);
-      if(resources > highestResource){
-        highestResource = resources;
+      double value = getValue(s, currentPlayer);
+      if(value > highestValue){
+        highestValue = value;
         selected = s;
       }
     }
@@ -117,9 +113,13 @@ public class ExploreHelper {
     return selected;
   }
 
-  private static int getResources(Star star){
+  private static double getValue(Star star, int currentPlayer){
     if(star.getResources() == null){
       return 20;
+    }
+
+    if(star.getPlayerNumber() == currentPlayer){
+      return -1000 + star.getShips();
     }
 
     return star.getResources();
