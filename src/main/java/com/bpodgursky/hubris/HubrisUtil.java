@@ -101,35 +101,52 @@ public class HubrisUtil {
 
 
   public static List<Star> getStarsInRange(GameState state, Star star, double lightYears) {
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new StarInRange(star.getCoords(), lightYears)));
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new StarInRange(star.getCoords(), lightYears)
+    ));
   }
 
   public static List<Star> getFriendlyStars(GameState state, int player){
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new FriendlyStars(player)));
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new FriendlyStars(player)
+    ));
   }
 
   public static List<Star> getEnemyStars(GameState state, int player){
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new EnemyStars(player)));
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new EnemyStars(player)
+    ));
   }
 
   public static List<Star> getEnemyStarsInRange(GameState state, int player, Coordinate coords, double lightYears){
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new EnemyStars(player),new StarInRange(coords, lightYears)));
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new EnemyStars(player),
+        new StarInRange(coords, lightYears)
+    ));
   }
 
   public static List<Fleet> getFleetsInRange(GameState state, Star star, double lightYears) {
-    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FleetInRange(star.getCoords(), lightYears)));
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(
+        new FleetInRange(star.getCoords(), lightYears)
+    ));
   }
 
   public static List<Fleet> getEnemyFleets(GameState state, int player){
-    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new EnemyShips(player)));
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(
+        new EnemyShips(player)
+    ));
   }
 
   public static List<Fleet> getFriendlyFleets(GameState state, int player){
-    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FriendlyFleets(player)));
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(
+        new FriendlyFleets(player)
+    ));
   }
 
   public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new StarInRange(fleet.getCoords(), lightYears)));
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new StarInRange(fleet.getCoords(), lightYears)
+    ));
   }
 
 
