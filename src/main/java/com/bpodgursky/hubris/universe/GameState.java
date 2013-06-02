@@ -65,6 +65,19 @@ public class GameState {
     this.playerId = playerId;
   }
 
+  public List<Star> getReachableStars(Star source, Player player){
+    double jumpDistance = player.getRange();
+
+    List<Star> reachable = Lists.newArrayList();
+    for(Star otherStar: starsByID.values()){
+      if(source.distanceFrom(otherStar) >= jumpDistance){
+        reachable.add(otherStar);
+      }
+    }
+
+    return reachable;
+  }
+
   public List<Fleet> getAllFleets() {
     return Lists.newArrayList(fleetsByID.values());
   }

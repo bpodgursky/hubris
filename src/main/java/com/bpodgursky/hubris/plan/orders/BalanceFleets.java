@@ -28,6 +28,14 @@ public class BalanceFleets extends Order {
     this.plan = plan;
   }
 
+  public String getStarName() {
+    return starName;
+  }
+
+  public String getFleetName() {
+    return fleetName;
+  }
+
   @Override
   public ExecuteResult execute(GameState state, CommandFactory factory, GameConnection connection) throws Exception {
 

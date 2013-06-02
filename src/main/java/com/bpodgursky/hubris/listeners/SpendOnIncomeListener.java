@@ -26,9 +26,9 @@ public class SpendOnIncomeListener implements EventListener<CashChangeEvent> {
 
   @Override
   public Collection<GameRequest> process(Collection<CashChangeEvent> events, GameState currentState, CommandFactory commandFactory) throws Exception {
-    for(CashChangeEvent event: events){// event.getDifference() > 0
-      if(event.getPlayer() == currentState.getPlayerId()){
-        return SpendHelper.planSpend(currentState, econWeight, indWeight, sciWeight, escrow, commandFactory);
+    for(CashChangeEvent event: events){
+      if(event.getPlayer() == currentState.getPlayerId() && event.getDifference() > 0){
+        return SpendHelper.planSpend(currentState, econWeight, indWeight, sciWeight, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, escrow, commandFactory);
       }
     }
 

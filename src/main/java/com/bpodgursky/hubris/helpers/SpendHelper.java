@@ -1,25 +1,35 @@
 package com.bpodgursky.hubris.helpers;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.client.CommandFactory;
 import com.bpodgursky.hubris.command.GameRequest;
 import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.PriorityQueue;
 
 public class SpendHelper {
+  private static final Logger LOG = LoggerFactory.getLogger(SpendHelper.class);
 
   private static final double ECON_NORM = 1.0;
   private static final double IND_NORM = 1.0;
   private static final double SCI_NORM = .1;
 
+  public static final double DEFAULT_STAR_CARRIER_RATIO = 4.0;
+
+  private static final int FLEET_COST = 25;
+
   public static Collection<GameRequest> planSpend(GameState state,
                                                   double econWeight,
                                                   double industryWeight,
                                                   double scienceWeight,
+                                                  double maxStarCarrierRatio,
                                                   int escrow,
                                                   CommandFactory factory) throws Exception {
 
@@ -31,6 +41,42 @@ public class SpendHelper {
     int sumCost = 0;
 
     List<GameRequest> requests = Lists.newArrayList();
+
+
+    Player p = state.getPlayer(state.getPlayerId());
+    int carriers = p.getCarriers();
+    int stars = p.getStars();
+
+    int carriersToBuy = (int) ((stars - carriers * maxStarCarrierRatio) / maxStarCarrierRatio);
+
+    LOG.info("Number of carriers to buy: "+carriersToBuy);
+
+    List<Star> starsForFleets = HubrisUtil.getStars(state, new HubrisUtil.SortByShips(),
+        Lists.newArrayList(new HubrisUtil.FriendlyStars(state.getPlayerId()), new HubrisUtil.StarsWithoutCarriers()));
+
+    int boughtCarriers = 0;
+    for(Star toPurchase: Lists.reverse(starsForFleets)){
+
+      if(sumCost + FLEET_COST > totalCash - escrow){
+        break;
+      }
+
+      if(toPurchase.getShips() == 0){
+        break;
+      }
+
+      if(boughtCarriers >= carriersToBuy){
+        break;
+      }
+
+      sumCost+=FLEET_COST;
+      boughtCarriers++;
+
+      requests.add(factory.createCarrier(toPurchase.getId(), toPurchase.getShips()));
+
+      LOG.info("Buying a carrier on star " + toPurchase.getName());
+
+    }
 
     PriorityQueue<StarUpgrade> queue = new PriorityQueue<StarUpgrade>();
     for (Star star : state.getAllStars(false)) {
@@ -83,12 +129,11 @@ public class SpendHelper {
         continue;
       }
 
-      System.out.println();
-      System.out.println("Buying "+upgrade.type+" on star " + upgrade.star.getName());
-      System.out.println("Real cost " + upgrade.realCost);
-      System.out.println("Adusted cost " + upgrade.adjustedCost);
-      System.out.println("Buying level " + upgrade.level);
-      System.out.println("Total cost so far of " + sumCost);
+      LOG.info("Buying "+upgrade.type+" on star " + upgrade.star.getName());
+      LOG.info("\tReal cost " + upgrade.realCost);
+      LOG.info("\tAdusted cost " + upgrade.adjustedCost);
+      LOG.info("\tBuying level " + upgrade.level);
+      LOG.info("\tTotal cost so far of " + sumCost);
 
       sumCost += upgrade.realCost;
       int realNextCost = upgradeCost(upgrade.type, upgrade.star.getResources(), upgrade.level + 1);

@@ -9,10 +9,13 @@ import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class MoveFleet extends Order {
+  private static final Logger LOG = LoggerFactory.getLogger(MoveFleet.class);
 
   private final String fleetName;
   private final String fromStar;
@@ -26,17 +29,30 @@ public class MoveFleet extends Order {
     this.toStar = toStar;
   }
 
+  public String getFleetName() {
+    return fleetName;
+  }
+
+  public String getFromStar() {
+    return fromStar;
+  }
+
+  public String getToStar() {
+    return toStar;
+  }
+
   @Override
   public boolean isComplete(GameState state) {
 
     Fleet fleet = state.getFleet(fleetName);
     Star starEnd = state.getStar(toStar, false);
 
-    if(fleet != null && fleet.getDestinations().contains(starEnd.getId())){
-      return false;
+    if(fleet == null || fleet.getStarId() != null && fleet.getStarId().intValue() == starEnd.getId()){
+      LOG.info("Completed order: "+toString());
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   @Override
