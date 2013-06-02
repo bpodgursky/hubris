@@ -46,15 +46,6 @@ public class HubrisUtil {
     return state1.gameData.getMid();
   }
 
-  /**
-   *
-   * @param state
-   * @param star
-   * @param lightYears
-   */
-  public static List<Star> getStarsInRange(GameState state, Star star, double lightYears) {
-    return getStarsInRange(state, star.getCoords(), lightYears);
-  }
 
   public static double getLongestJumpRange(GameState state){
 
@@ -67,16 +58,6 @@ public class HubrisUtil {
     return range;
   }
 
-  /**
-   *
-   * @param state
-   * @param fleet
-   * @param lightYears
-   * @return
-   */
-  public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
-    return getStarsInRange(state, fleet.getCoords(), lightYears);
-  }
 
   public static boolean canReach(Integer fromId, Integer toId, GameState state){
 
@@ -92,26 +73,6 @@ public class HubrisUtil {
     double range = player.getRange();
 
     return range >= from.distanceFrom(to);
-  }
-  /**
-
-  /**
-   *
-   * @param state
-   * @param star
-   * @param lightYears
-   * @return
-   */
-  public static List<Fleet> getFleetsInRange(GameState state, Star star, double lightYears) {
-    List<Fleet> fleetsInRange = Lists.newArrayList();
-
-    for (Fleet candidate : state.getAllFleets()) {
-      if (getDistanceInLightYears(star.getCoords(), candidate.getCoords()) <= lightYears) {
-        fleetsInRange.add(candidate);
-      }
-    }
-
-    return fleetsInRange;
   }
 
   public static double getDistanceInLightYears(Coordinate coord1, Coordinate coord2) {
@@ -138,6 +99,11 @@ public class HubrisUtil {
     }
   }
 
+
+  public static List<Star> getStarsInRange(GameState state, Star star, double lightYears) {
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new StarInRange(star.getCoords(), lightYears)));
+  }
+
   public static List<Star> getFriendlyStars(GameState state, int player){
     return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new FriendlyStars(player)));
   }
@@ -146,17 +112,28 @@ public class HubrisUtil {
     return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new EnemyStars(player)));
   }
 
-  public static List<Fleet> getEnemyShips(GameState state, int player){
+  public static List<Star> getEnemyStarsInRange(GameState state, int player, Coordinate coords, double lightYears){
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new EnemyStars(player),new StarInRange(coords, lightYears)));
+  }
+
+  public static List<Fleet> getFleetsInRange(GameState state, Star star, double lightYears) {
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FleetInRange(star.getCoords(), lightYears)));
+  }
+
+  public static List<Fleet> getEnemyFleets(GameState state, int player){
     return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new EnemyShips(player)));
   }
 
-  public static List<Fleet> getFriendlyShips(GameState state, int player){
-    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FriendlyShips(player)));
+  public static List<Fleet> getFriendlyFleets(GameState state, int player){
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FriendlyFleets(player)));
+  }
+
+  public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new StarInRange(fleet.getCoords(), lightYears)));
   }
 
 
-
-  public static List<Fleet> getFleets(GameState state, List<Filter<Fleet>> filters){
+  private static List<Fleet> getFleets(GameState state, List<Filter<Fleet>> filters){
     List<Fleet> fleets = Lists.newArrayList();
 
     for (Fleet candidate : state.getAllFleets()) {
@@ -176,7 +153,7 @@ public class HubrisUtil {
     return fleets;
   }
 
-  public static List<Star> getStars(GameState state, Comparator<Star> sortOrder, List<Filter<Star>> filters){
+  private static List<Star> getStars(GameState state, Comparator<Star> sortOrder, List<Filter<Star>> filters){
 
     List<Star> stars = Lists.newArrayList();
     for (Star candidate : state.getAllStars(false)) {
@@ -201,26 +178,6 @@ public class HubrisUtil {
 //  public static boolean canTake(int ships, Star target){
 //
 //  }
-
-  public static List<Star> getEnemyStarsInRange(GameState state, int player, Coordinate coords, double lightYears){
-    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
-        new EnemyStars(player),
-        new StarInRange(coords, lightYears)
-    ));
-  }
-
-  private static List<Star> getStarsInRange(GameState state, Coordinate coords, double lightYears) {
-    List<Star> starsInRange = Lists.newArrayList();
-
-    for (Star candidate : state.getAllStars(false)) {
-      double distanceInLightYears = getDistanceInLightYears(coords, candidate.getCoords());
-      if (distanceInLightYears != 0.0 && distanceInLightYears <= lightYears) {
-        starsInRange.add(candidate);
-      }
-    }
-
-    return starsInRange;
-  }
 
   public static void startLogging(){
     BasicConfigurator.resetConfiguration();

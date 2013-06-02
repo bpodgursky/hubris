@@ -2,20 +2,20 @@ package com.bpodgursky.hubris.util;
 
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.universe.Coordinate;
-import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.Fleet;
 
-public class StarInRange implements Filter<Star> {
+public class FleetInRange implements Filter<Fleet> {
 
   private final Coordinate coords;
   private final double lightYears;
 
-  public StarInRange(Coordinate coords, double lightYears){
+  public FleetInRange(Coordinate coords, double lightYears){
     this.coords = coords;
     this.lightYears = lightYears;
   }
 
   @Override
-  public boolean isAccept(Star item) {
+  public boolean isAccept(Fleet item) {
     double distance = HubrisUtil.getDistanceInLightYears(coords, item.getCoords());
 
     return distance != 0.0 && distance <= lightYears;
