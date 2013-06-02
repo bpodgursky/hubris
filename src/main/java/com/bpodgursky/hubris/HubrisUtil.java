@@ -99,6 +99,12 @@ public class HubrisUtil {
     }
   }
 
+  public static List<Star> getConquerableStarsInRange(GameState state, Coordinate source, int ships, double lightYears) {
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new StarInRange(source, lightYears),
+        new StarCapturable(state, ships, state.getPlayer(state.getPlayerId()).getWeapons())
+    ));
+  }
 
   public static List<Star> getStarsInRange(GameState state, Star star, double lightYears) {
     return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
@@ -146,6 +152,12 @@ public class HubrisUtil {
   public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
     return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
         new StarInRange(fleet.getCoords(), lightYears)
+    ));
+  }
+
+  public static List<Star> getFriendlyStarsWithoutCarriers(GameState state){
+    return getStars(state, new SortByShips(), Lists.newArrayList(
+        new FriendlyStars(state.getPlayerId()), new StarsWithoutCarriers()
     ));
   }
 

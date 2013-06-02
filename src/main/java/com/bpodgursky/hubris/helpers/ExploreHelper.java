@@ -1,6 +1,7 @@
 package com.bpodgursky.hubris.helpers;
 
 import com.bpodgursky.hubris.HubrisUtil;
+import com.bpodgursky.hubris.functions.NameFromStar;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
 import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
@@ -9,6 +10,8 @@ import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -29,7 +32,13 @@ public class ExploreHelper {
     Map<String, TailOrder> fleetToLastOrder = Maps.newHashMap();
     for(Fleet fleet: fleets){
       Star currentStar = state.getStar(fleet.getStarId(), false);
-      List<Star> stars = HubrisUtil.getStarsInRange(state, currentStar, player.getRange());
+      List<Star> stars = HubrisUtil.getConquerableStarsInRange(state,
+          currentStar.getCoords(),
+          currentStar.getShipsIncludingFleets(state),
+          player.getRange()
+      );
+
+      LOG.info("Fleet "+fleet.getName()+" has conquerable stars in range: "+ Collections2.transform(stars, new NameFromStar()));
 
       Star target = getHighestValue(stars, queuedStars, player.getId());
 

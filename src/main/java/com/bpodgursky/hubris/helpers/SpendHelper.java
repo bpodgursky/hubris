@@ -54,8 +54,7 @@ public class SpendHelper {
 
     LOG.info("Number of carriers to buy: "+carriersToBuy);
 
-    List<Star> starsForFleets = HubrisUtil.getStars(state, new SortByShips(),
-        Lists.newArrayList(new FriendlyStars(state.getPlayerId()), new StarsWithoutCarriers()));
+    List<Star> starsForFleets = HubrisUtil.getFriendlyStarsWithoutCarriers(state);
 
     int boughtCarriers = 0;
     for(Star toPurchase: Lists.reverse(starsForFleets)){
