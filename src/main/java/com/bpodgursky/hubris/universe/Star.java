@@ -19,15 +19,14 @@ public class Star {
 	public final Integer science;
 	public final Integer scienceUpgrade;
 	public final Integer id;
-	public final Integer x;
-	public final Integer y;
+  private final Coordinate coords;
 	public final Integer playerNumber;
 	public final Integer garrisonSize;
 	public final Integer resources;
   public final Set<Integer> fleets;
 
 	public Star(String name, Integer playerNumber, Integer economy, Integer econUpgrade, Integer ships, Integer industry,
-			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Integer x, Integer y, Integer g, Integer resources, Set<Integer> fleets){
+			Integer industryUpgrade, Integer science, Integer scienceUpgrade, Integer id, Coordinate coords, Integer g, Integer resources, Set<Integer> fleets){
 		this.name = name;
 		this.playerNumber = playerNumber;
 		this.economy = economy;
@@ -38,21 +37,20 @@ public class Star {
 		this.science = science;
 		this.scienceUpgrade = scienceUpgrade;
 		this.id = id;
-		this.x = x;
-		this.y = y;
+    this.coords = coords;
 		this.garrisonSize = g;
 		this.resources = resources;
 		this.fleets = fleets;
 	}
 
-  public Star(Star old, int x, int y) {
+  public Star(Star old, Coordinate coords) {
     this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
-      old.science, old.scienceUpgrade, old.id, x, y, old.garrisonSize, old.resources, old.fleets);
+      old.science, old.scienceUpgrade, old.id, coords, old.garrisonSize, old.resources, old.fleets);
   }
 
   public Star(Star old, Set<Integer> fleets) {
     this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
-      old.science, old.scienceUpgrade, old.id, old.x, old.y, old.garrisonSize, old.resources, fleets);
+      old.science, old.scienceUpgrade, old.id, old.coords, old.garrisonSize, old.resources, fleets);
   }
 	
 	public String toString(){
@@ -69,8 +67,7 @@ public class Star {
 			json.put("science", science);
 			json.put("scienceUpgrade", scienceUpgrade);
 			json.put("id", id);
-			json.put("x", x);
-			json.put("y", y);
+      json.put("coords", coords);
 			json.put("g", garrisonSize);
       json.put("fleets", fleets);
 			
@@ -117,12 +114,8 @@ public class Star {
     return id;
   }
 
-  public Integer getX() {
-    return x;
-  }
-
-  public Integer getY() {
-    return y;
+  public Coordinate getCoords(){
+    return coords;
   }
 
   public Integer getPlayerNumber() {
@@ -159,7 +152,7 @@ public class Star {
    * @return the distance from this star to other, measured in light-years.
    */
   public double distanceFrom(Star other) {
-    return HubrisUtil.getDistanceInLightYears(getX(), getY(), other.getX(), other.getY());
+    return HubrisUtil.getDistanceInLightYears(coords, other.getCoords());
   }
 
   /**
@@ -168,14 +161,18 @@ public class Star {
    * @return the distance from this star to the provided fleet, measured in light-years.
    */
   public double distanceFrom(Fleet fleet) {
-    return HubrisUtil.getDistanceInLightYears(getX(), getY(), fleet.getX(), fleet.getY());
+    return HubrisUtil.getDistanceInLightYears(coords, fleet.getCoords());
   }
 
   /**
    *
    * @return the number of ships at this star including any ships in fleets
    */
-  public int getShipsIncludingFleets(GameState state) {
+  public Integer getShipsIncludingFleets(GameState state) {
+    if(getShips() == null){
+      return null;
+    }
+
     int fleetShips = 0;
     for (Integer fleet : fleets) {
       fleetShips += state.getFleet(fleet).getShips();

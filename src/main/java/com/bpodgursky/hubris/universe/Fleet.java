@@ -25,8 +25,8 @@ public class Fleet {
 	public final Integer ships;
 	public final Integer victories;
 	public final List<Integer> destinations;
-	public final Integer x;
-	public final Integer y;
+
+  private final Coordinate coords;
 	
 	//	dunno what this is
 	public final Integer rt;
@@ -34,7 +34,7 @@ public class Fleet {
   private Integer starId;
 	
 	public Fleet(String name, Integer id, Integer player, Integer eta, Integer nextETA, Integer fleets, 
-			Integer victories, List<Integer> destinations, Integer x, Integer y, Integer rt, Integer starId){
+			Integer victories, List<Integer> destinations, Coordinate coords, Integer rt, Integer starId){
 		this.name = name;
 		this.id = id;
 		this.player = player;
@@ -43,15 +43,19 @@ public class Fleet {
 		this.ships = fleets;
 		this.victories = victories;
 		this.destinations = destinations;
-		this.x = x;
-		this.y = y;
+    this.coords = coords;
 		this.rt = rt;
     this.starId = starId;
 	}
 
   public Fleet(Fleet fleet, Integer starId) {
     this(fleet.name, fleet.id, fleet.player, fleet.eta, fleet.nextEta, fleet.ships, fleet.victories, fleet.destinations,
-      fleet.x, fleet.y, fleet.rt, starId);
+      fleet.getCoords(), fleet.rt, starId);
+  }
+
+
+  public Coordinate getCoords(){
+    return coords;
   }
 
 	public String toString(){
@@ -66,8 +70,7 @@ public class Fleet {
 			json.put("ships", ships);
 			json.put("victories", victories);
 			json.put("destinations", destinations);
-			json.put("x", x);
-			json.put("y", y);
+			json.put("coords", coords);
 			json.put("rt", rt);
 			
 		}catch (JSONException e){
@@ -109,14 +112,6 @@ public class Fleet {
     return destinations;
   }
 
-  public Integer getX() {
-    return x;
-  }
-
-  public Integer getY() {
-    return y;
-  }
-
   public Integer getRt() {
     return rt;
   }
@@ -135,7 +130,7 @@ public class Fleet {
    * @return the distance from this fleet to the other fleet, measured in light-years.
    */
   public double distanceFrom(Fleet other) {
-    return HubrisUtil.getDistanceInLightYears(getX(), getY(), other.getX(), other.getY());
+    return HubrisUtil.getDistanceInLightYears(getCoords(), other.getCoords());
   }
 
   /**
@@ -144,6 +139,6 @@ public class Fleet {
    * @return the distance to the provided star, measured in light-years.
    */
   public double distanceFrom(Star star) {
-    return HubrisUtil.getDistanceInLightYears(getX(), getY(), star.getX(), star.getY());
+    return HubrisUtil.getDistanceInLightYears(getCoords(), star.getCoords());
   }
 }

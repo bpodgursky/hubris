@@ -51,7 +51,7 @@ public class HubrisUtil {
    * @param lightYears
    */
   public static List<Star> getStarsInRange(GameState state, Star star, double lightYears) {
-    return getStarsInRange(state, star.getX(), star.getY(), lightYears);
+    return getStarsInRange(state, star.getCoords(), lightYears);
   }
 
   public static double getLongestJumpRange(GameState state){
@@ -73,7 +73,7 @@ public class HubrisUtil {
    * @return
    */
   public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
-    return getStarsInRange(state, fleet.getX(), fleet.getY(), lightYears);
+    return getStarsInRange(state, fleet.getCoords(), lightYears);
   }
 
   public static boolean canReach(Integer fromId, Integer toId, GameState state){
@@ -104,24 +104,12 @@ public class HubrisUtil {
     List<Fleet> fleetsInRange = Lists.newArrayList();
 
     for (Fleet candidate : state.getAllFleets()) {
-      if (getDistanceInLightYears(star.getX(), star.getY(), candidate.getX(), candidate.getY()) <= lightYears) {
+      if (getDistanceInLightYears(star.getCoords(), candidate.getCoords()) <= lightYears) {
         fleetsInRange.add(candidate);
       }
     }
 
     return fleetsInRange;
-  }
-
-  /**
-   *
-   * @param x1
-   * @param y1
-   * @param x2
-   * @param y2
-   * @return
-   */
-  public static double getDistanceInLightYears(int x1, int y1, int x2, int y2) {
-    return Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2), 2)) / LY_TO_DISTANCE_CONVERSION_FACTOR;
   }
 
   public static double getDistanceInLightYears(Coordinate coord1, Coordinate coord2) {
@@ -208,11 +196,22 @@ public class HubrisUtil {
     return stars;
   }
 
-  private static List<Star> getStarsInRange(GameState state, int x, int y, double lightYears) {
+//  public static boolean canTake(int ships, Star target){
+//
+//  }
+
+  public static List<Star> getEnemyStarsInRange(GameState state, int player, Coordinate coords, double lightYears){
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(
+        new EnemyStars(player),
+        new StarInRange(coords, lightYears)
+    ));
+  }
+
+  private static List<Star> getStarsInRange(GameState state, Coordinate coords, double lightYears) {
     List<Star> starsInRange = Lists.newArrayList();
 
     for (Star candidate : state.getAllStars(false)) {
-      double distanceInLightYears = getDistanceInLightYears(x, y, candidate.getX(), candidate.getY());
+      double distanceInLightYears = getDistanceInLightYears(coords, candidate.getCoords());
       if (distanceInLightYears != 0.0 && distanceInLightYears <= lightYears) {
         starsInRange.add(candidate);
       }

@@ -18,20 +18,20 @@ public class SimpleShipProximityMetric {
     List<Coordinate> enemyCoordinates = Lists.newArrayList();
 
     for(Fleet fleet: HubrisUtil.getEnemyShips(state, state.getPlayerId())){
-      enemyCoordinates.add(new Coordinate(fleet.getX(), fleet.getY()));
+      enemyCoordinates.add(fleet.getCoords());
     }
 
     for(Star star: HubrisUtil.getEnemyStars(state, state.getPlayerId())){
-      enemyCoordinates.add(new Coordinate(star.getX(), star.getY()));
+      enemyCoordinates.add(star.getCoords());
     }
 
     for(Fleet fleet: HubrisUtil.getFriendlyShips(state, state.getPlayerId())){
-      double v = fleet.getShips() / (1.0 + getMinDistanceLightYears(new Coordinate(fleet.getX(), fleet.getY()), enemyCoordinates));
+      double v = fleet.getShips() / (1.0 + getMinDistanceLightYears(fleet.getCoords(), enemyCoordinates));
       value += v;
     }
 
     for(Star star:  HubrisUtil.getFriendlyStars(state, state.getPlayerId())){
-      double v = star.getShips() / (1.0 + getMinDistanceLightYears(new Coordinate(star.getX(), star.getY()), enemyCoordinates));
+      double v = star.getShips() / (1.0 + getMinDistanceLightYears(star.getCoords(), enemyCoordinates));
       value += v;
     }
 

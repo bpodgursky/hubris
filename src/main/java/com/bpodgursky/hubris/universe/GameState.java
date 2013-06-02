@@ -162,7 +162,7 @@ public class GameState {
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(), visible.getX(), visible.getY(), null, visible.getResources(), Sets.<Integer>newHashSet());
+          visible.getId(),visible.getCoords(), null, visible.getResources(), Sets.<Integer>newHashSet());
 
     }
   }
@@ -239,7 +239,9 @@ public class GameState {
           (s.science == null ? "" : s.science) + "]" +
           (s.resources == null ? "" : "-" + s.resources);
 
-      playerStarFiles.get(s.playerNumber).append(s.x + "\t" + (-s.y) + "\t" + label + "\n");
+      Coordinate coords = s.getCoords();
+
+      playerStarFiles.get(s.playerNumber).append(coords.getX() + "\t" + (-coords.getY()) + "\t" + label + "\n");
     }
 
     for (Map.Entry<Integer, FileWriter> entry : playerStarFiles.entrySet()) {

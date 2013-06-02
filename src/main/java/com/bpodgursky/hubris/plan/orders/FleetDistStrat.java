@@ -20,13 +20,16 @@ public abstract class FleetDistStrat {
         double maxRange = HubrisUtil.getLongestJumpRange(state);
         Star star = state.getStar(starName, false);
 
-        List<Star> stars = HubrisUtil.getStarsInRange(state, star, maxRange);
+        List<Star> stars = HubrisUtil.getEnemyStarsInRange(state, state.getPlayerId(), star.getCoords(), maxRange);
 
         int defense = 0;
         for(Star otherStar: stars){
           if(otherStar.getPlayerNumber() != null){
             if(HubrisUtil.canReach(otherStar.getId(), star.getId(), state)){
-              defense += otherStar.getShipsIncludingFleets(state);
+              Integer extra = otherStar.getShipsIncludingFleets(state);
+              if(extra != null){
+                defense += extra;
+              }
             }
           }
         }
@@ -35,6 +38,11 @@ public abstract class FleetDistStrat {
 
         return leaveOnStar(defense, inFleet, onStar);
       }
+
+      public String toString(){
+        return "[FleetDistStrat: defensive strategy]";
+      }
+
     };
   }
 

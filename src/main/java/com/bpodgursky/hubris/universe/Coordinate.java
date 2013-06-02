@@ -17,7 +17,19 @@ public class Coordinate {
     return y;
   }
 
+  public static Coordinate from(int x, int y){
+    return new Coordinate(x, y);
+  }
+
   public double distance(Coordinate other){
     return Math.sqrt(Math.pow(x-other.x, 2) + Math.pow(y-other.y, 2));
+  }
+
+  @Override
+  public String toString() {
+    return "Coordinate{" +
+        "x=" + x +
+        ", y=" + y +
+        '}';
   }
 }

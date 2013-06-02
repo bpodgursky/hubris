@@ -13,15 +13,7 @@ import com.bpodgursky.hubris.notification.Production;
 import com.bpodgursky.hubris.notification.TechReceived;
 import com.bpodgursky.hubris.notification.TechResearch;
 import com.bpodgursky.hubris.notification.TechSent;
-import com.bpodgursky.hubris.universe.Alliance;
-import com.bpodgursky.hubris.universe.Comment;
-import com.bpodgursky.hubris.universe.Fleet;
-import com.bpodgursky.hubris.universe.Game;
-import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Player;
-import com.bpodgursky.hubris.universe.Star;
-import com.bpodgursky.hubris.universe.Tech;
-import com.bpodgursky.hubris.universe.TechType;
+import com.bpodgursky.hubris.universe.*;
 import com.google.common.collect.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -100,7 +92,7 @@ public class ResponseTransformer {
       Star atStar = null;
 
       for (Star star : starClosure.stars) {
-        double d = Math.sqrt(Math.pow(fleet.getX() - star.getX(), 2) + Math.pow(fleet.getY() - star.getY(), 2));
+        double d = fleet.getCoords().distance(star.getCoords());
 
         if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
           atStar = star;
@@ -216,8 +208,7 @@ public class ResponseTransformer {
           s == null ? null : Integer.parseInt(s.getNodeValue()),
           sup == null ? null : Integer.parseInt(sup.getNodeValue()),
           Integer.parseInt(starAttributes.getNamedItem("uid").getNodeValue()),
-          x,
-          y,
+          Coordinate.from(x, y),
           g == null ? null : Integer.parseInt(g.getNodeValue()),
           resources == null ? null : Integer.parseInt(resources.getNodeValue()),
           Sets.<Integer>newHashSet()));
@@ -232,10 +223,9 @@ public class ResponseTransformer {
       int shiftX = xRange.lowerEndpoint();
       int shiftY = yRange.lowerEndpoint();
 
-      int normalizedX = (star.getX() - shiftX);
-      int normalizedY = (star.getY() - shiftY);
+      Coordinate coords = star.getCoords();
 
-      normalizedStars.add(new Star(star, normalizedX, normalizedY));
+      normalizedStars.add(new Star(star, Coordinate.from((coords.getX() - shiftX), (coords.getY() - shiftY))));
     }
 
     return new StarClosure(normalizedStars, xRange, yRange, xSpan, ySpan);
@@ -272,8 +262,7 @@ public class ResponseTransformer {
         Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
         Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
         destStars,
-        x,
-        y,
+        Coordinate.from(x, y),
         Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue()),
         null);
 
