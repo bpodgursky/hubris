@@ -2,9 +2,12 @@ package com.bpodgursky.hubris.client;
 
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.account.GameMeta;
+import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
+import com.bpodgursky.hubris.helpers.ExploreHelper;
+import com.bpodgursky.hubris.helpers.FleetHelper;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
@@ -14,15 +17,13 @@ import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameManager {
 
-  static{
+  static {
     HubrisUtil.startLogging();
   }
 
@@ -94,6 +95,45 @@ public class GameManager {
 
       CommandFactory factory = new CommandFactory(npUsername, id, player);
       GameState state = connection.getState(null, factory.getState());
+
+      Plan plan = new Plan(factory, connection);
+
+      Collection<Order> orders = ExploreHelper.planExplore(FleetHelper.getIdleFleets(state), state, 5.0);
+
+      plan.schedule(orders);
+
+      for (Order order : orders) {
+        System.out.println();
+        System.out.println("------ ");
+        System.out.println();
+
+        Order head = order;
+        while (head != null) {
+          System.out.println(head);
+          System.out.println();
+
+          Iterator<Order> iterator = head.getPrereqs().iterator();
+          if (iterator.hasNext()) {
+            head = head.getPrereqs().iterator().next();
+          } else {
+            head = null;
+          }
+        }
+      }
+
+
+      GameState currentState = null;
+
+      while (true) {
+        try {
+          currentState = connection.getState(currentState, new GetState(player, npUsername, id));
+          plan.tick(currentState);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+        Thread.sleep(20000);
+      }
 
 
     }

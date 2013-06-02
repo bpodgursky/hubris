@@ -28,6 +28,7 @@ public class Plan {
   public void tick(GameState current) throws Exception {
 
     Iterator<Order> orderIter = nextOrders.iterator();
+    Set<Order> toAdd = Sets.newHashSet();
 
     while(orderIter.hasNext()){
       Order currentOrder = orderIter.next();
@@ -48,13 +49,14 @@ public class Plan {
 
         if(result == Order.ExecuteResult.EXECUTED){
           LOG.info("Order was submitted: "+currentOrder);
-
-          nextOrders.addAll(currentOrder.getChildren());
+          toAdd.addAll(currentOrder.getChildren());
         } else{
           LOG.info("Order is no longer valid: "+currentOrder);
         }
       }
     }
+
+    nextOrders.addAll(toAdd);
   }
 
   private boolean isCancel(Order order){

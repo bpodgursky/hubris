@@ -26,6 +26,18 @@ public class MoveFleet extends Order {
     this.toStar = toStar;
   }
 
+  public String getFleetName() {
+    return fleetName;
+  }
+
+  public String getFromStar() {
+    return fromStar;
+  }
+
+  public String getToStar() {
+    return toStar;
+  }
+
   @Override
   public boolean isComplete(GameState state) {
 

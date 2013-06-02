@@ -121,7 +121,8 @@ public class HubrisUtil {
     List<Star> starsInRange = Lists.newArrayList();
 
     for (Star candidate : state.getAllStars(false)) {
-      if (getDistanceInLightYears(x, y, candidate.getX(), candidate.getY()) <= lightYears) {
+      double distanceInLightYears = getDistanceInLightYears(x, y, candidate.getX(), candidate.getY());
+      if (distanceInLightYears != 0.0 && distanceInLightYears <= lightYears) {
         starsInRange.add(candidate);
       }
     }
