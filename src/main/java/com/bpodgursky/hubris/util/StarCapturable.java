@@ -29,7 +29,11 @@ public class StarCapturable implements Filter<Star> {
       return true;
     }
 
-    int ships = item.getShips();
+    Integer ships = item.getShips();
+    if(ships == null){
+      return true;
+    }
+
     int weapons = state.getPlayer(playerNumber).getWeapons();
 
     BattleOutcome outcome = HubrisUtil.getBattleOutcome(weapons, assaultWeapons, ships, assaultShips);

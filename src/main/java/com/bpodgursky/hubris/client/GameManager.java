@@ -33,109 +33,52 @@ public class GameManager {
     HubrisUtil.startLogging();
   }
 
-  private final NpHttpClient client;
-
-  private static final Pattern GAME_PATTERN
-      = Pattern.compile("href='/game[?]game=([^']+)'>([^<]+)<");
-
-  public GameManager(NpHttpClient client) {
-    this.client = client;
-  }
-
-  /**
-   * Requests a list of games this user is currently a member of.
-   *
-   * @return
-   */
-  public List<GameMeta> getActiveGames() {
-    String source = client.get(HubrisConstants.accountHomeUrl);
-    Matcher matcher = GAME_PATTERN.matcher(source);
-
-    // TODO: make sure we're getting back the page we expect.
-    if (!matcher.find()) {
-      return Collections.emptyList();
-    }
-
-    List<GameMeta> games = new ArrayList<GameMeta>();
-
-    do {
-      String name = matcher.group(2);
-      Integer id;
-      try {
-        id = Integer.parseInt(matcher.group(1));
-      } catch (NumberFormatException e) {
-        throw new RuntimeException("Expected game ID (" + matcher.group(1) + ") to be an integer!");
-      }
-
-      games.add(new GameMeta(name, id));
-    } while (matcher.find());
-
-    return games;
-  }
-
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
       System.err.println("Syntax is: GameManager <settings_file.yml>");
       System.exit(1);
     }
 
-    ClientSettings settings = ClientSettings.loadFromYaml(args[0]);
-    String cookies = settings.getCookies();
-    NpHttpClient client = new NpHttpClient(cookies);
-    GameManager manager = new GameManager(client);
-    ConsoleReader reader = new ConsoleReader();
+    AbstractManager.GameInfo info = AbstractManager.login(args[0]);
+    process(info.getConnection(), info.getFactory());
+  }
+
+  private static void process(GameConnection connection, CommandFactory factory) throws Exception {
+
+    Plan plan = new Plan(factory, connection);
+
+    GameState currentState = null;
+    StateProcessor processsor = new StateProcessor(connection, factory);
+    processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, .5, .5));
+
+    currentState = connection.getState(currentState, factory.getState());
+    for(GameRequest request: SpendHelper.planSpend(currentState, 1.0, 1.0, 0.5, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, 0, factory)){
+      connection.submit(request);
+    }
+
+    System.out.println(currentState);
 
     while (true) {
-      System.out.println(" ---- ACTIVE GAMES ---- ");
-      List<GameMeta> games = manager.getActiveGames();
-      for (int i = 0; i < games.size(); i++) {
-        GameMeta game = games.get(i);
-        System.out.printf("%2d. %s\n", i, game.getName());
-      }
-      GameMeta game = games.get(Integer.parseInt(reader.readLine("Enter game: ")));
+      try {
+        currentState = connection.getState(currentState, factory.getState());
+        plan.tick(currentState);
+        processsor.update(currentState);
 
-      GameConnection connection = new RemoteConnection(cookies);
-      String npUsername = settings.getNpUsername();
-      long id = game.getId();
-      int player = HubrisUtil.getPlayerNumber(connection, npUsername, id);
+        List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
+        LOG.info("Found idle fleets:" +idleFleets);
 
-      CommandFactory factory = new CommandFactory(npUsername, id, player);
-      Plan plan = new Plan(factory, connection);
+        Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0, FleetDistStrat.defensiveDist());
 
-      GameState currentState = null;
-      StateProcessor processsor = new StateProcessor(connection, factory);
-      processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, .5, .5));
+        LOG.info("New orders: "+orders);
 
-      currentState = connection.getState(currentState, new GetState(player, npUsername, id));
-      for(GameRequest request: SpendHelper.planSpend(currentState, 1.0, 1.0, 0.5, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, 0, factory)){
-        connection.submit(request);
+        plan.schedule(orders);
+
+      } catch (Exception e) {
+        e.printStackTrace();
       }
 
-      System.out.println(currentState);
-
-      while (true) {
-        try {
-          currentState = connection.getState(currentState, new GetState(player, npUsername, id));
-          plan.tick(currentState);
-          processsor.update(currentState);
-
-          List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
-          LOG.info("Found idle fleets:" +idleFleets);
-
-          Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0, FleetDistStrat.defensiveDist());
-
-          LOG.info("New orders: "+orders);
-
-          plan.schedule(orders);
-
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-
-        Thread.sleep(20000);
-      }
-
-
+      Thread.sleep(20000);
     }
+
   }
 }

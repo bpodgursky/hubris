@@ -42,6 +42,8 @@ public class ExploreHelper {
 
       Star target = getHighestValue(stars, queuedStars, player.getId());
 
+      //  TODO diff strat depending on whether it's moving towards or away from the enemy threat vector
+      //  TODO also, if you have more ships, vector should count for more
       if(target != null){
         queuedStars.add(target.getId());
         fleetToLastOrder.put(fleet.getName(), new TailOrder(take(fleet.getName(), currentStar, target, distStrat), currentStar.distanceFrom(target)));
@@ -101,6 +103,8 @@ public class ExploreHelper {
     }
 
   }
+
+
 
   public static Star getHighestValue(List<Star> stars, Set<Integer> skip, Integer currentPlayer){
 
