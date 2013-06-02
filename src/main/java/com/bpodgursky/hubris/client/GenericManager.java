@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractManager {
+public class GenericManager {
 
   private static final Pattern GAME_PATTERN
       = Pattern.compile("href='/game[?]game=([^']+)'>([^<]+)<");

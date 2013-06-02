@@ -1,6 +1,6 @@
 package com.bpodgursky.hubris;
 
-import com.bpodgursky.hubris.client.AbstractManager;
+import com.bpodgursky.hubris.client.GenericManager;
 import com.bpodgursky.hubris.client.CommandFactory;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.event.StateProcessor;
@@ -17,7 +17,7 @@ public class HubrisProcessLoop {
       System.exit(1);
     }
 
-    AbstractManager.GameInfo info = AbstractManager.login(args[0]);
+    GenericManager.GameInfo info = GenericManager.login(args[0]);
     GameConnection connection = info.getConnection();
     CommandFactory factory = info.getFactory();
 

@@ -1,12 +1,8 @@
 package com.bpodgursky.hubris.client;
 
 import com.bpodgursky.hubris.HubrisUtil;
-import com.bpodgursky.hubris.account.GameMeta;
 import com.bpodgursky.hubris.command.GameRequest;
-import com.bpodgursky.hubris.command.GetState;
-import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.GameConnection;
-import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.event.StateProcessor;
 import com.bpodgursky.hubris.helpers.ExploreHelper;
 import com.bpodgursky.hubris.helpers.FleetHelper;
@@ -15,16 +11,12 @@ import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
-import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
-import jline.console.ConsoleReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GameManager {
   private static final Logger LOG = LoggerFactory.getLogger(GameManager.class);
@@ -39,7 +31,7 @@ public class GameManager {
       System.exit(1);
     }
 
-    AbstractManager.GameInfo info = AbstractManager.login(args[0]);
+    GenericManager.GameInfo info = GenericManager.login(args[0]);
     process(info.getConnection(), info.getFactory());
   }
 
