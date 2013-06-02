@@ -2,26 +2,34 @@ package com.bpodgursky.hubris.client;
 
 import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.account.GameMeta;
+import com.bpodgursky.hubris.command.GameRequest;
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
+import com.bpodgursky.hubris.event.StateProcessor;
 import com.bpodgursky.hubris.helpers.ExploreHelper;
 import com.bpodgursky.hubris.helpers.FleetHelper;
+import com.bpodgursky.hubris.helpers.SpendHelper;
+import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
 import com.bpodgursky.hubris.plan.orders.FleetDistPlan;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
+import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Star;
 import jline.console.ConsoleReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameManager {
+  private static final Logger LOG = LoggerFactory.getLogger(GameManager.class);
 
   static {
     HubrisUtil.startLogging();
@@ -94,40 +102,32 @@ public class GameManager {
       int player = HubrisUtil.getPlayerNumber(connection, npUsername, id);
 
       CommandFactory factory = new CommandFactory(npUsername, id, player);
-      GameState state = connection.getState(null, factory.getState());
-
       Plan plan = new Plan(factory, connection);
 
-      Collection<Order> orders = ExploreHelper.planExplore(FleetHelper.getIdleFleets(state), state, 5.0);
-
-      plan.schedule(orders);
-
-      for (Order order : orders) {
-        System.out.println();
-        System.out.println("------ ");
-        System.out.println();
-
-        Order head = order;
-        while (head != null) {
-          System.out.println(head);
-          System.out.println();
-
-          Iterator<Order> iterator = head.getPrereqs().iterator();
-          if (iterator.hasNext()) {
-            head = head.getPrereqs().iterator().next();
-          } else {
-            head = null;
-          }
-        }
-      }
-
-
       GameState currentState = null;
+      StateProcessor processsor = new StateProcessor(connection, factory);
+      processsor.addEventListener(new SpendOnIncomeListener(150, 1.0, 1.0, .5));
+
+      currentState = connection.getState(currentState, new GetState(player, npUsername, id));
+      for(GameRequest request: SpendHelper.planSpend(currentState, 1.0, 1.0, 0.5, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, 0, factory)){
+        connection.submit(request);
+      }
 
       while (true) {
         try {
           currentState = connection.getState(currentState, new GetState(player, npUsername, id));
           plan.tick(currentState);
+          processsor.update(currentState);
+
+          List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState);
+          LOG.info("Found idle fleets:" +idleFleets);
+
+          Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0);
+
+          LOG.info("New orders: "+orders);
+
+          plan.schedule(orders);
+
         } catch (Exception e) {
           e.printStackTrace();
         }

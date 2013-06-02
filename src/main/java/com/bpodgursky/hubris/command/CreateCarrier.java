@@ -49,4 +49,11 @@ public class CreateCarrier extends GameRequest {
     return asString(doc);
   }
 
+  @Override
+  public String toString() {
+    return "CreateCarrier{" +
+        "star=" + star +
+        ", strength=" + strength +
+        '}';
+  }
 }

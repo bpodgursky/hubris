@@ -13,6 +13,8 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class HubrisUtil {
@@ -115,6 +117,69 @@ public class HubrisUtil {
     else {
       return new BattleOutcome(false, attackerShips);
     }
+  }
+
+  public static interface Filter<A> {
+    public boolean isAccept(A item);
+  }
+
+  public static class FriendlyStars implements Filter<Star> {
+
+    private final int player;
+    public FriendlyStars(int player){
+      this.player = player;
+    }
+
+    @Override
+    public boolean isAccept(Star item) {
+      return item.getPlayerNumber() != null && item.getPlayerNumber() == player;
+    }
+  }
+
+  public static class StarsWithoutCarriers implements Filter<Star> {
+
+    @Override
+    public boolean isAccept(Star item) {
+      return item.getFleets() != null && item.getFleets().isEmpty();
+    }
+  }
+
+  public static class SortByShips implements Comparator<Star> {
+
+    @Override
+    public int compare(Star o1, Star o2) {
+      return new Integer(getShips(o1)).compareTo(getShips(o2));
+    }
+
+    private int getShips(Star star){
+      if(star.getShips() == null){
+        return -1;
+      }
+
+      return star.getShips();
+    }
+  }
+
+  public static List<Star> getStars(GameState state, Comparator<Star> sortOrder, List<Filter<Star>> filters){
+
+    List<Star> stars = Lists.newArrayList();
+    for (Star candidate : state.getAllStars(false)) {
+
+      boolean isAccept = true;
+      for(Filter<Star> filter: filters){
+        if(!filter.isAccept(candidate)){
+          isAccept = false;
+        }
+      }
+
+      if(isAccept){
+        stars.add(candidate);
+      }
+    }
+
+    Collections.sort(stars, sortOrder);
+
+    return stars;
   }
 
   private static List<Star> getStarsInRange(GameState state, int x, int y, double lightYears) {
