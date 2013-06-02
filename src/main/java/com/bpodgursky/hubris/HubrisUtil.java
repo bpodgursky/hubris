@@ -2,12 +2,8 @@ package com.bpodgursky.hubris;
 
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
-import com.bpodgursky.hubris.universe.Fleet;
-import com.bpodgursky.hubris.universe.GameState;
-import com.bpodgursky.hubris.universe.Player;
-import com.bpodgursky.hubris.universe.Star;
-import com.bpodgursky.hubris.universe.TechType;
-import com.bpodgursky.hubris.util.BattleOutcome;
+import com.bpodgursky.hubris.universe.*;
+import com.bpodgursky.hubris.util.*;
 import com.google.common.collect.Lists;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
@@ -58,6 +54,17 @@ public class HubrisUtil {
     return getStarsInRange(state, star.getX(), star.getY(), lightYears);
   }
 
+  public static double getLongestJumpRange(GameState state){
+
+    double range = Double.MIN_VALUE;
+    for(Player p: state.getAllPlayers()){
+      double jumpRange = p.getRange();
+      range = Math.max(jumpRange, range);
+    }
+
+    return range;
+  }
+
   /**
    *
    * @param state
@@ -68,6 +75,23 @@ public class HubrisUtil {
   public static List<Star> getStarsInRange(GameState state, Fleet fleet, double lightYears) {
     return getStarsInRange(state, fleet.getX(), fleet.getY(), lightYears);
   }
+
+  public static boolean canReach(Integer fromId, Integer toId, GameState state){
+
+    Star from = state.getStar(fromId, false);
+    Star to = state.getStar(toId, false);
+
+    Integer playerId = from.getPlayerNumber();
+    if(playerId == -1){
+      return false;
+    }
+
+    Player player = state.getPlayer(playerId);
+    double range = player.getRange();
+
+    return range >= from.distanceFrom(to);
+  }
+  /**
 
   /**
    *
@@ -100,6 +124,11 @@ public class HubrisUtil {
     return Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2), 2)) / LY_TO_DISTANCE_CONVERSION_FACTOR;
   }
 
+  public static double getDistanceInLightYears(Coordinate coord1, Coordinate coord2) {
+    return coord1.distance(coord2) / LY_TO_DISTANCE_CONVERSION_FACTOR;
+  }
+
+
   public static BattleOutcome getBattleOutcome(int defenderWeapons, int attackerWeapons, int defenderShips, int attackerShips) {
     defenderWeapons += DEFENDER_WEAPONS_BONUS;
 
@@ -119,45 +148,42 @@ public class HubrisUtil {
     }
   }
 
-  public static interface Filter<A> {
-    public boolean isAccept(A item);
+  public static List<Star> getFriendlyStars(GameState state, int player){
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new FriendlyStars(player)));
   }
 
-  public static class FriendlyStars implements Filter<Star> {
-
-    private final int player;
-    public FriendlyStars(int player){
-      this.player = player;
-    }
-
-    @Override
-    public boolean isAccept(Star item) {
-      return item.getPlayerNumber() != null && item.getPlayerNumber() == player;
-    }
+  public static List<Star> getEnemyStars(GameState state, int player){
+    return getStars(state, new SortByShips(), Lists.<Filter<Star>>newArrayList(new EnemyStars(player)));
   }
 
-  public static class StarsWithoutCarriers implements Filter<Star> {
-
-    @Override
-    public boolean isAccept(Star item) {
-      return item.getFleets() != null && item.getFleets().isEmpty();
-    }
+  public static List<Fleet> getEnemyShips(GameState state, int player){
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new EnemyShips(player)));
   }
 
-  public static class SortByShips implements Comparator<Star> {
+  public static List<Fleet> getFriendlyShips(GameState state, int player){
+    return getFleets(state, Lists.<Filter<Fleet>>newArrayList(new FriendlyShips(player)));
+  }
 
-    @Override
-    public int compare(Star o1, Star o2) {
-      return new Integer(getShips(o1)).compareTo(getShips(o2));
-    }
 
-    private int getShips(Star star){
-      if(star.getShips() == null){
-        return -1;
+
+  public static List<Fleet> getFleets(GameState state, List<Filter<Fleet>> filters){
+    List<Fleet> fleets = Lists.newArrayList();
+
+    for (Fleet candidate : state.getAllFleets()) {
+
+      boolean isAccept = true;
+      for(Filter<Fleet> filter: filters){
+        if(!filter.isAccept(candidate)){
+          isAccept = false;
+        }
       }
 
-      return star.getShips();
+      if(isAccept){
+        fleets.add(candidate);
+      }
     }
+
+    return fleets;
   }
 
   public static List<Star> getStars(GameState state, Comparator<Star> sortOrder, List<Filter<Star>> filters){

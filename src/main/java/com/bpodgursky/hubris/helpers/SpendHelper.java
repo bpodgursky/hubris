@@ -6,6 +6,9 @@ import com.bpodgursky.hubris.command.GameRequest;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Player;
 import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.util.FriendlyStars;
+import com.bpodgursky.hubris.util.SortByShips;
+import com.bpodgursky.hubris.util.StarsWithoutCarriers;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +54,8 @@ public class SpendHelper {
 
     LOG.info("Number of carriers to buy: "+carriersToBuy);
 
-    List<Star> starsForFleets = HubrisUtil.getStars(state, new HubrisUtil.SortByShips(),
-        Lists.newArrayList(new HubrisUtil.FriendlyStars(state.getPlayerId()), new HubrisUtil.StarsWithoutCarriers()));
+    List<Star> starsForFleets = HubrisUtil.getStars(state, new SortByShips(),
+        Lists.newArrayList(new FriendlyStars(state.getPlayerId()), new StarsWithoutCarriers()));
 
     int boughtCarriers = 0;
     for(Star toPurchase: Lists.reverse(starsForFleets)){
