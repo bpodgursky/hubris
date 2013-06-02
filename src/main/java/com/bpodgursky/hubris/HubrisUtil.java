@@ -30,6 +30,8 @@ public class HubrisUtil {
 
   public static final int INDUSTRY_PRODUCTION_PERIOD = 12;
 
+  public static final int MINUTES_IN_TICK = 10;
+
   /**
    * For some really brilliant reason, <i>you</i> have to tell the game what your player ID is, even though the
    * game is already aware of what your player ID is. This mimics the actual client to get the player ID given
