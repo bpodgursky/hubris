@@ -11,6 +11,7 @@ import com.bpodgursky.hubris.listeners.SpendOnIncomeListener;
 import com.bpodgursky.hubris.plan.Order;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
+import com.bpodgursky.hubris.state.AIStrategy;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class GameManager {
 
     GameState currentState = null;
     StateProcessor processsor = new StateProcessor(connection, factory);
+    AIStrategy strategy = new AIStrategy();
+
     processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, .5, .5));
 
     currentState = connection.getState(currentState, factory.getState());
@@ -52,14 +55,17 @@ public class GameManager {
 
     while (true) {
       try {
+
         currentState = connection.getState(currentState, factory.getState());
+        strategy = strategy.update(currentState);
+
         plan.tick(currentState);
         processsor.update(currentState);
 
         List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
         LOG.info("Found idle fleets:" +idleFleets);
 
-        Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, 5.0, FleetDistStrat.defensiveDist());
+        Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, strategy, 5.0);
 
         LOG.info("New orders: "+orders);
 

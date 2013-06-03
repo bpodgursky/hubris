@@ -11,39 +11,40 @@ import java.util.List;
 
 public abstract class FleetDistStrat {
 
+  private static final FleetDistStrat DEFENSIVE = new FleetDistStrat() {
+    @Override
+    public FleetBalance getBalance(int inFleet, int onStar, String fleetName, String starName, GameState state) {
 
-  public static FleetDistStrat defensiveDist(){
-    return new FleetDistStrat() {
-      @Override
-      public FleetBalance getBalance(int inFleet, int onStar, String fleetName, String starName, GameState state) {
+      double maxRange = HubrisUtil.getLongestJumpRange(state);
+      Star star = state.getStar(starName, false);
 
-        double maxRange = HubrisUtil.getLongestJumpRange(state);
-        Star star = state.getStar(starName, false);
+      List<Star> stars = HubrisUtil.getEnemyStarsInRange(state, state.getPlayerId(), star.getCoords(), maxRange);
 
-        List<Star> stars = HubrisUtil.getEnemyStarsInRange(state, state.getPlayerId(), star.getCoords(), maxRange);
-
-        int defense = 0;
-        for(Star otherStar: stars){
-          if(otherStar.getPlayerNumber() != null){
-            if(HubrisUtil.canReach(otherStar.getId(), star.getId(), state)){
-              Integer extra = otherStar.getShipsIncludingFleets(state);
-              if(extra != null){
-                defense += extra;
-              }
+      int defense = 0;
+      for(Star otherStar: stars){
+        if(otherStar.getPlayerNumber() != null){
+          if(HubrisUtil.canReach(otherStar.getId(), star.getId(), state)){
+            Integer extra = otherStar.getShipsIncludingFleets(state);
+            if(extra != null){
+              defense += extra;
             }
           }
         }
-
-        defense = Math.max(defense, 1);
-
-        return leaveOnStar(defense, inFleet, onStar);
       }
 
-      public String toString(){
-        return "[FleetDistStrat: defensive strategy]";
-      }
+      defense = Math.max(defense, 1);
 
-    };
+      return leaveOnStar(defense, inFleet, onStar);
+    }
+
+    public String toString(){
+      return "[FleetDistStrat: defensive strategy]";
+    }
+
+  };
+
+  public static FleetDistStrat defensiveDist(){
+    return DEFENSIVE;
   }
 
   protected static FleetBalance leaveOnStar(final int number, int inFleet, int onStar){

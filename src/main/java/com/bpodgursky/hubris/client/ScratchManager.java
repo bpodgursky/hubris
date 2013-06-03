@@ -7,6 +7,7 @@ import com.bpodgursky.hubris.helpers.FleetHelper;
 import com.bpodgursky.hubris.metric.DangerMetric;
 import com.bpodgursky.hubris.plan.Plan;
 import com.bpodgursky.hubris.plan.orders.FleetDistStrat;
+import com.bpodgursky.hubris.state.AIStrategy;
 import com.bpodgursky.hubris.universe.Fleet;
 import com.bpodgursky.hubris.universe.GameState;
 import com.bpodgursky.hubris.universe.Vector;
@@ -33,19 +34,12 @@ public class ScratchManager {
     GameState state = connection.getState(null, factory.getState());
 
 
-//    for (Fleet fleet : HubrisUtil.getFriendlyFleets(state, state.getPlayerId())) {
-//      System.out.println(fleet.getName());
-//
-//      Vector combatVector = DangerMetric.getCombatVector(state, fleet.getCoords());
-//
-//      System.out.println(combatVector);
-//    }
-
     Plan plan = new Plan(factory, connection);
+    AIStrategy strategy = new AIStrategy();
+    strategy = strategy.update(state);
 
-    ExploreHelper.planExplore(FleetHelper.getIdleFleets(state, plan), state, 1.0, FleetDistStrat.defensiveDist());
 
-
+    ExploreHelper.planExplore(FleetHelper.getIdleFleets(state, plan), state, strategy, 1.0);
 
   }
 

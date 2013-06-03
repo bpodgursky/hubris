@@ -4,7 +4,7 @@ import com.bpodgursky.hubris.universe.Star;
 
 import java.util.Comparator;
 
-public class SortByShips implements Comparator<Star> {
+public class SortStarByShips implements Comparator<Star> {
 
   @Override
   public int compare(Star o1, Star o2) {
