@@ -16,6 +16,8 @@ import com.bpodgursky.hubris.notification.TechResearch;
 import com.bpodgursky.hubris.notification.TechSent;
 import com.bpodgursky.hubris.universe.*;
 import com.google.common.collect.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -42,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseTransformer {
+  private static final Logger LOG = LoggerFactory.getLogger(ResponseTransformer.class);
+
   public static final int AT_STAR_THRESHOLD = 1;
 
   private static final DocumentBuilder docBuilder;
@@ -56,63 +60,71 @@ public class ResponseTransformer {
   }
 
   public static GameState parseUniverse(GameState prevState, GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
-    Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
-    TransformerFactory factory = TransformerFactory.newInstance();
-    Transformer transformer = factory.newTransformer();
-    DOMSource source = new DOMSource(doc);
-    StreamResult result = new StreamResult(new StringWriter());
-    transformer.transform(source, result);
+    try {
+      Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
 
-    NodeList nodes = doc.getChildNodes();
+      TransformerFactory factory = TransformerFactory.newInstance();
+      Transformer transformer = factory.newTransformer();
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(new StringWriter());
+      transformer.transform(source, result);
 
-    Element root = (Element) nodes.item(0);
-    Element universe = (Element) root.getElementsByTagName("universe").item(0);
+      NodeList nodes = doc.getChildNodes();
 
-    NodeList children = universe.getChildNodes();
+      Element root = (Element) nodes.item(0);
+      Element universe = (Element) root.getElementsByTagName("universe").item(0);
 
-    Game game = parseGameNode(children.item(1));
+      NodeList children = universe.getChildNodes();
 
-    // Get techs before players so that we can set our player's tech state
-    List<Tech> techs = getTechs(children.item(11));
+      Game game = parseGameNode(children.item(1));
 
-    Alliance alliances = getAlliances(children.item(3));
-    List<Player> players = getPlayers(children.item(5), game.getMid(), techs);
-    StarClosure starClosure = getStars(children.item(7));
-    List<Fleet> fleets = getFleets(children.item(9), starClosure);
+      // Get techs before players so that we can set our player's tech state
+      List<Tech> techs = getTechs(children.item(11));
 
-    List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
-    List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
-    Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
+      Alliance alliances = getAlliances(children.item(3));
+      List<Player> players = getPlayers(children.item(5), game.getMid(), techs);
+      StarClosure starClosure = getStars(children.item(7));
+      List<Fleet> fleets = getFleets(children.item(9), starClosure);
 
-    // Find ships that are at stars. This isn't provided directly by the game and can be determined when a
-    // fleet doesn't have a star its destinations and is sufficiently close.
-    for (Fleet fleet : fleets) {
-      Star atStar = null;
+      List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
+      List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
+      Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
 
-      for (Star star : starClosure.stars) {
-        double d = fleet.getCoords().distance(star.getCoords());
+      // Find ships that are at stars. This isn't provided directly by the game and can be determined when a
+      // fleet doesn't have a star its destinations and is sufficiently close.
+      for (Fleet fleet : fleets) {
+        Star atStar = null;
 
-        if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
-          atStar = star;
-          break;
+        for (Star star : starClosure.stars) {
+          double d = fleet.getCoords().distance(star.getCoords());
+
+          if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
+            atStar = star;
+            break;
+          }
         }
+
+        Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
+        if (atStar != null) {
+          fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
+        }
+        fleetsWithStars.add(fleetWithStar);
       }
 
-      Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
-      if (atStar != null) {
-        fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
+      // Create stars that have references to ships located at them
+      for (Star star : starClosure.stars) {
+        Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
+        starsWithFleets.add(new Star(star, fleetsAtStar == null ? Sets.<Integer>newHashSet() : Sets.newHashSet(fleetsAtStar)));
       }
-      fleetsWithStars.add(fleetWithStar);
+
+      return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
+    } catch (Exception e) {
+      LOG.info("Died parsing response: "+response);
+
+      throw new RuntimeException(e);
     }
 
-    // Create stars that have references to ships located at them
-    for (Star star : starClosure.stars) {
-      Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
-      starsWithFleets.add(new Star(star, fleetsAtStar == null ? Sets.<Integer>newHashSet() : Sets.newHashSet(fleetsAtStar)));
-    }
-
-    return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
   }
 
   private static Game parseGameNode(Node gameNode) {
@@ -261,16 +273,16 @@ public class ResponseTransformer {
       jumpPrep *= HubrisUtil.MINUTES_IN_TICK;
 
       Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
-        Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
-        Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
-        eta,
-        neta,
-        Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
-        Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
-        destStars,
-        Coordinate.from(x, y),
-        jumpPrep,
-        null);
+          Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
+          Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
+          eta,
+          neta,
+          Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
+          Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
+          destStars,
+          Coordinate.from(x, y),
+          jumpPrep,
+          null);
 
       fleets.add(fleet);
     }
