@@ -31,7 +31,7 @@ public class StarCapturable implements Filter<Star> {
 
     Integer ships = item.getShips();
     if(ships == null){
-      return true;
+      ships = 1;
     }
 
     int weapons = state.getPlayer(playerNumber).getWeapons();

@@ -22,12 +22,6 @@ import java.util.*;
 public class ExploreHelper {
   private static final Logger LOG = LoggerFactory.getLogger(ExploreHelper.class);
 
-  //  TODO should be params
-  //  TODO keep these parameters per fleet -- some will focus on reinforcing, some on conquering, etc
-//  private static final double EXPAND_WEIGHT = 1.0;
-//  private static final double REINFORCE_WEIGHT = 1.0;
-//  private static final double PICKUP_WEIGHT = 1.0;
-
   public static Collection<Order> planExplore(List<Fleet> fleets, GameState state, AIStrategy aiState, double maxDistance) {
     LOG.info("Planning exploration for fleets: " + fleets);
 
