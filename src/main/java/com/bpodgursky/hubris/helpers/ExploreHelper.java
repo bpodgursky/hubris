@@ -161,8 +161,8 @@ public class ExploreHelper {
 
     return
         //  valuable if this fleet has a bunch of ships on it and target star is closer to the enemy
-        REINFORCE_WEIGHT * (fleetPercentOfShips * (targetCombatValue - currentCombatValue)) +
+        REINFORCE_WEIGHT * (fleetPercentOfShips * ((targetCombatValue - currentCombatValue)/bestCombatValue)) +
          //  valuable if you can pick up ships from the star  (more valuable the farther from danger it is)
-        PICKUP_WEIGHT * (targetPercentOfShips * (bestCombatValue - targetCombatValue));
+        PICKUP_WEIGHT * (targetPercentOfShips * ((bestCombatValue - targetCombatValue)/bestCombatValue));
   }
 }

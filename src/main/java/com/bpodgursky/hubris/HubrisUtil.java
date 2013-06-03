@@ -204,10 +204,6 @@ public class HubrisUtil {
     return stars;
   }
 
-//  public static boolean canTake(int ships, Star target){
-//
-//  }
-
   public static void startLogging(){
     BasicConfigurator.resetConfiguration();
     final ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n"), ConsoleAppender.SYSTEM_ERR);
