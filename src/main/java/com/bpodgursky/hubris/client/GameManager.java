@@ -65,7 +65,7 @@ public class GameManager {
         List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
         LOG.info("Found idle fleets:" +idleFleets);
 
-        Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, strategy, 5.0);
+        Collection<Order> orders = ExploreHelper.planExplore(idleFleets, currentState, strategy, 1.0);
 
         LOG.info("New orders: "+orders);
 

@@ -5,9 +5,7 @@ import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.universe.*;
 import com.bpodgursky.hubris.util.*;
 import com.google.common.collect.Lists;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
+import org.apache.log4j.*;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -211,6 +209,7 @@ public class HubrisUtil {
     final ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n"), ConsoleAppender.SYSTEM_ERR);
     consoleAppender.setFollow(true);
     BasicConfigurator.configure(consoleAppender);
+    Logger.getRootLogger().setLevel(Level.INFO);
   }
 
   public static int totalControlledResources(GameState state){
