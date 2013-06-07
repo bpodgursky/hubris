@@ -58,6 +58,7 @@ public class SpendHelper {
 
       if(sumCost + FLEET_COST > totalCash - escrow){
         break;
+
       }
 
       if(toPurchase.getShips() == 0){

@@ -29,7 +29,7 @@ public class StarCapturable implements Filter<Star> {
       return true;
     }
 
-    Integer ships = item.getShips();
+    Integer ships = item.getShipsIncludingFleets(state);
     if(ships == null){
       ships = 1;
     }
