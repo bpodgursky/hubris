@@ -44,7 +44,7 @@ public class GameManager {
     StateProcessor processsor = new StateProcessor(connection, factory);
     AIStrategy strategy = new AIStrategy();
 
-    processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, .5, .5));
+    processsor.addEventListener(new SpendOnIncomeListener(0, 1.0, 1.0, 0.5));
 
     currentState = connection.getState(currentState, factory.getState());
     for(GameRequest request: SpendHelper.planSpend(currentState, 1.0, 1.0, 0.5, SpendHelper.DEFAULT_STAR_CARRIER_RATIO, 0, factory)){
@@ -56,11 +56,11 @@ public class GameManager {
     while (true) {
       try {
 
-        currentState = connection.getState(currentState, factory.getState());
+        GameState newState = connection.getState(currentState, factory.getState());
         strategy = strategy.update(currentState);
 
         plan.tick(currentState);
-        processsor.update(currentState);
+        processsor.update(currentState, newState);
 
         List<Fleet> idleFleets = FleetHelper.getIdleFleets(currentState, plan);
         LOG.info("Found idle fleets:" +idleFleets);
@@ -70,6 +70,8 @@ public class GameManager {
         LOG.info("New orders: "+orders);
 
         plan.schedule(orders);
+
+        currentState = newState;
 
       } catch (Exception e) {
         e.printStackTrace();

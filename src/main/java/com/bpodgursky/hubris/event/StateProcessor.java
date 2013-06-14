@@ -48,17 +48,12 @@ public class StateProcessor {
     this.commandFactory = factory;
   }
 
-  public GameState update(GameState newState) throws Exception {
-
-    //  skip the first time
-    if (newState.previousState() == null) {
-      return newState;
-    }
+  public GameState update(GameState oldState, GameState newState) throws Exception {
 
     Queue<EventSet> toProcess = Lists.newLinkedList();
 
     //  produce events for the initial new state
-    toProcess.addAll(getNewEvents(newState));
+    toProcess.addAll(getNewEvents(newState, oldState));
 
     //  process until something submits a command
     while(!toProcess.isEmpty()){
@@ -78,7 +73,7 @@ public class StateProcessor {
             }
 
             newState = connection.getState(newState, commandFactory.getState());
-            toProcess.addAll(getNewEvents(newState));
+            toProcess.addAll(getNewEvents(newState, oldState));
           }
         }
       }
@@ -87,10 +82,10 @@ public class StateProcessor {
     return newState;
   }
 
-  private Collection<EventSet> getNewEvents(GameState state){
+  private Collection<EventSet> getNewEvents(GameState state, GameState previousState){
     List<EventSet> toProcess = Lists.newArrayList();
     for (EventFactory<?> eventFactory : eventFactories) {
-      toProcess.add(new EventSet(eventFactory.getEvents(state), eventFactory.getEventType()));
+      toProcess.add(new EventSet(eventFactory.getEvents(state, previousState), eventFactory.getEventType()));
     }
     return toProcess;
   }

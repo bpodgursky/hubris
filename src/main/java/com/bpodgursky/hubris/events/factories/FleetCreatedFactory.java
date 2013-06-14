@@ -9,8 +9,7 @@ import java.util.List;
 
 public class FleetCreatedFactory implements EventFactory<FleetCreatedEvent> {
   @Override
-  public List<FleetCreatedEvent> getEvents(GameState newState) {
-    GameState oldState = newState.previousState();
+  public List<FleetCreatedEvent> getEvents(GameState newState, GameState oldState) {
     List<FleetCreatedEvent> events = Lists.newArrayList();
 
     for (Fleet fleet : newState.getAllFleets()) {

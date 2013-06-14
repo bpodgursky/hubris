@@ -11,8 +11,7 @@ import java.util.List;
 public class StarUpgradeFactory implements EventFactory<StarUpgradedEvent> {
 
   @Override
-  public List<StarUpgradedEvent> getEvents(GameState newState) {
-    GameState prevState = newState.previousState();
+  public List<StarUpgradedEvent> getEvents(GameState newState, GameState prevState) {
 
     List<StarUpgradedEvent> upgrades = Lists.newArrayList();
     for (Star star : newState.getAllStars(false)) {

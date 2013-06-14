@@ -10,8 +10,7 @@ import java.util.List;
 public class FleetDestinationChangedFactory implements EventFactory<FleetDestinationChangedEvent> {
 
   @Override
-  public List<FleetDestinationChangedEvent> getEvents(GameState newState) {
-    GameState oldState = newState.previousState();
+  public List<FleetDestinationChangedEvent> getEvents(GameState newState, GameState oldState) {
     List<FleetDestinationChangedEvent> events = Lists.newArrayList();
 
     for (Fleet fleet : newState.getAllFleets()) {

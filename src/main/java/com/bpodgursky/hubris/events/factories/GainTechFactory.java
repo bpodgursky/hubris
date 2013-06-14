@@ -9,8 +9,7 @@ import java.util.List;
 
 public class GainTechFactory implements EventFactory<GainTechEvent> {
   @Override
-  public List<GainTechEvent> getEvents(GameState newState) {
-    GameState oldState = newState.previousState();
+  public List<GainTechEvent> getEvents(GameState newState, GameState oldState) {
     List<GainTechEvent> events = Lists.newArrayList();
 
     for (Player player : newState.getPlayers().values()) {

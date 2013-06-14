@@ -20,8 +20,7 @@ import java.util.UUID;
 public class GameState {
 
   public final Map<Integer, Player> playersByID;
-  public final Map<Integer, Star> starsByID;
-  public final Map<String, Star> starsByName;
+
 
   private final Map<Integer, Fleet> fleetsByID;
   private final Map<String, Fleet> fleetsByName;
@@ -29,7 +28,36 @@ public class GameState {
   public final Alliance alliance;
   public final Game gameData;
   private final int playerId;
-  private final GameState previousState;
+
+  private static class StarsRecord {
+
+    public final Map<Integer, Star> starsByID;
+    public final Map<String, Star> starsByName = Maps.newHashMap();
+
+
+    private StarsRecord(Map<Integer, Star> starsByID) {
+      this.starsByID = starsByID;
+
+      for(Map.Entry<Integer, Star> entry: starsByID.entrySet()){
+        starsByName.put(entry.getValue().getName(), entry.getValue());
+      }
+    }
+
+    public Star get(String name){
+      return starsByName.get(name);
+    }
+
+    public Star get(int id){
+      return starsByID.get(id);
+    }
+
+    public Collection<Star> getAllStars(){
+      return starsByID.values();
+    }
+  }
+
+  private final StarsRecord currentStarData;
+  private final StarsRecord historicStarData;
 
   public GameState(GameState previousState,
                    Game gameData,
@@ -38,18 +66,31 @@ public class GameState {
                    Collection<Fleet> fleets,
                    Alliance alliance, int playerId) {
 
-    this.previousState = previousState;
+    Map<Integer, Star> currentStars = Maps.newHashMap();
+    Map<Integer, Star> historicStars = Maps.newHashMap();
+
     this.playersByID = Maps.newHashMap();
     for (Player p : players) {
       playersByID.put(p.getId(), p);
     }
 
-    this.starsByID = Maps.newHashMap();
-    this.starsByName = Maps.newHashMap();
-    for (Star s : stars) {
-      starsByID.put(s.id, s);
-      starsByName.put(s.getName(), s);
+    if(previousState != null){
+      for(Star s: previousState.getAllStars(true)){
+        historicStars.put(s.getId(), s);
+      }
     }
+
+    for(Star s: stars){
+      currentStars.put(s.getId(), s);
+
+      Star merged = merge(s, historicStars.get(s.getId()));
+
+      historicStars.put(merged.getId(), merged);
+
+    }
+
+    currentStarData = new StarsRecord(currentStars);
+    historicStarData = new StarsRecord(historicStars);
 
     this.fleetsByID = Maps.newHashMap();
     this.fleetsByName = Maps.newHashMap();
@@ -59,23 +100,9 @@ public class GameState {
       fleetsByName.put(f.getName(), f);
     }
 
-
     this.alliance = alliance;
     this.gameData = gameData;
     this.playerId = playerId;
-  }
-
-  public List<Star> getReachableStars(Star source, Player player){
-    double jumpDistance = player.getRange();
-
-    List<Star> reachable = Lists.newArrayList();
-    for(Star otherStar: starsByID.values()){
-      if(source.distanceFrom(otherStar) >= jumpDistance){
-        reachable.add(otherStar);
-      }
-    }
-
-    return reachable;
   }
 
   public List<Fleet> getAllFleets() {
@@ -95,50 +122,41 @@ public class GameState {
   }
 
   public boolean starIsVisible(int starId) {
-    return getStar(starId, false).getResources() != null;
+    return starIsVisible(getStar(starId, false));
+  }
+
+  public static boolean starIsVisible(Star star){
+    return star.getResources() != null;
   }
 
   public Star getStar(String starName, boolean useHistoric){
-    Star star = starsByName.get(starName);
-    if(!useHistoric){
-      return star;
+    if(useHistoric){
+      return historicStarData.get(starName);
     }
-
-    return mergeHistoric(star);
+    else{
+      return currentStarData.get(starName);
+    }
   }
 
   public Star getStar(int starId, boolean useHistoric){
-    Star star = starsByID.get(starId);
-
-    if(!useHistoric){
-      return star;
+    if(useHistoric){
+      return historicStarData.get(starId);
     }
-
-    return mergeHistoric(star);
-  }
-
-  private Star mergeHistoric(Star currentInfo){
-
-    if(starIsVisible(currentInfo.getId())) {
-      return currentInfo;
+    else{
+      return currentStarData.get(starId);
     }
-
-    Star lastVisible = getLastVisible(currentInfo.getId());
-
-    return merge(currentInfo, lastVisible);
   }
 
   public List<Player> getAllPlayers(){
     return Lists.newArrayList(playersByID.values());
   }
 
-  public List<Star> getAllStars(boolean useHistoric){
-    List<Star> stars = Lists.newArrayList();
-    for(Integer star :starsByID.keySet()){
-      stars.add(getStar(star, useHistoric));
+  public Collection<Star> getAllStars(boolean useHistoric){
+    if(useHistoric){
+      return historicStarData.getAllStars();
+    }else{
+      return currentStarData.getAllStars();
     }
-
-    return stars;
   }
 
   public Player getPlayer(int playerId) {
@@ -149,41 +167,32 @@ public class GameState {
     return int1 == null && int2 == null || int1 != null && int2 != null && int1.intValue() == int2.intValue();
   }
 
-  private Star merge(Star visible, Star lastVisible){
+  private Star merge(Star current, Star lastVisible){
 
-    Integer playerVisible = visible.getPlayerNumber();
+    if(lastVisible == null){
+      return current;
+    }
+
+    if(starIsVisible(current)){
+      return current;
+    }
+
+    Integer playerVisible = current.getPlayerNumber();
     Integer playerLast = lastVisible.getPlayerNumber();
 
     //  if the same player controls it, last state is the best guess
     if(equal(playerVisible, playerLast)){
       return lastVisible;
     } else {
-      return new Star(visible.getName(), visible.getPlayerNumber(),
+      return new Star(current.getName(), current.getPlayerNumber(),
           null, null, null,
           lastVisible.getIndustry(), lastVisible.getIndustryUpgrade(),
           lastVisible.getScience(), lastVisible.getScienceUpgrade(),
-          visible.getId(),visible.getCoords(), null, visible.getResources(), Sets.<Integer>newHashSet());
+          current.getId(),current.getCoords(), null, current.getResources(), Sets.<Integer>newHashSet());
 
     }
   }
 
-  public GameState previousState(){
-    return previousState;
-  }
-
-  private Star getLastVisible(int starId){
-    GameState state = this;
-
-    while(state != null){
-      Star star = state.getStar(starId, false);
-      if(starIsVisible(starId)) {
-        return star;
-      }
-      state = state.previousState();
-    }
-
-    return null;
-  }
 
   public String toString() {
     return new Gson().toJson(this);
@@ -232,7 +241,7 @@ public class GameState {
     playerStarFiles.put(-1, new FileWriter(tmpStarRoot + "_none"));
     playerFleetFiles.put(-1, new FileWriter(tmpFleetRoot + "_none"));
 
-    for (Star s : starsByID.values()) {
+    for (Star s : currentStarData.getAllStars()) {
       String label = (s.ships == null ? "" : s.ships + "-") + "[" +
           (s.economy == null ? "" : s.economy + ",") +
           (s.industry == null ? "" : s.industry + ",") +

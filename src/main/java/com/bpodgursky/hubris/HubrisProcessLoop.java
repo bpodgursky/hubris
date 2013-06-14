@@ -38,8 +38,10 @@ public class HubrisProcessLoop {
     System.out.println(evaluate);
 
     while(true){
-      currentState = connection.getState(currentState, factory.getState());
-      processsor.update(currentState);
+      GameState newState = connection.getState(currentState, factory.getState());
+      processsor.update(currentState, newState);
+
+      currentState = newState;
 
       Thread.sleep(20000);
     }

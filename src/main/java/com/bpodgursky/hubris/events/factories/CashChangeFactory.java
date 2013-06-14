@@ -11,9 +11,9 @@ import java.util.Map;
 public class CashChangeFactory implements EventFactory<CashChangeEvent> {
 
   @Override
-  public List<CashChangeEvent> getEvents(GameState newState) {
+  public List<CashChangeEvent> getEvents(GameState newState, GameState previousState) {
     List<CashChangeEvent> events = Lists.newArrayList();
-    for (Player player : newState.previousState().getAllPlayers()) {
+    for (Player player : previousState.getAllPlayers()) {
       int oldCash = player.getCash();
       int newCash = newState.getPlayers().get(player.getId()).getCash();
 

@@ -11,8 +11,7 @@ import java.util.List;
 public class ChangeResearchFactory implements EventFactory<ResearchChangeEvent> {
 
   @Override
-  public List<ResearchChangeEvent> getEvents(GameState newState) {
-    GameState prevState = newState.previousState();
+  public List<ResearchChangeEvent> getEvents(GameState newState, GameState prevState) {
 
     List<ResearchChangeEvent> researchChanges = Lists.newArrayList();
     for (Player player : newState.getAllPlayers()) {

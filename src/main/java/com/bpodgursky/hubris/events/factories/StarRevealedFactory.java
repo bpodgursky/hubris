@@ -9,8 +9,7 @@ import java.util.List;
 
 public class StarRevealedFactory implements EventFactory<StarRevealedEvent> {
   @Override
-  public List<StarRevealedEvent> getEvents(GameState newState) {
-    GameState oldState = newState.previousState();
+  public List<StarRevealedEvent> getEvents(GameState newState, GameState oldState) {
     List<StarRevealedEvent> events = Lists.newArrayList();
 
     for (Star star : newState.getAllStars(false)) {
