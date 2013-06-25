@@ -74,18 +74,19 @@ public class Plan {
 
     nextOrders.addAll(toAdd);
 
-    Set<String> friendlyFleetNames = HubrisUtil.getFriendlyFleetNames(current);
-    Set<String> fleetsToRemove = Sets.newHashSet();
-    for (String fleet : orderForFleet.keys()) {
-      if (!friendlyFleetNames.contains(fleet)) {
-        fleetsToRemove.add(fleet);
+    if (current != null) {
+      Set<String> friendlyFleetNames = HubrisUtil.getFriendlyFleetNames(current);
+      Set<String> fleetsToRemove = Sets.newHashSet();
+      for (String fleet : orderForFleet.keys()) {
+        if (!friendlyFleetNames.contains(fleet)) {
+          fleetsToRemove.add(fleet);
+        }
       }
+      orderForFleet.removeAll(fleetsToRemove);
     }
 
-    orderForFleet.removeAll(fleetsToRemove);
-
     LOG.info("Next orders: " + nextOrders);
-    LOG.info("Orders for fleets: "+orderForFleet);
+    LOG.info("Orders for fleets: " + orderForFleet);
 
   }
 
