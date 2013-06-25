@@ -4,12 +4,16 @@ import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.universe.*;
 import com.bpodgursky.hubris.util.*;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.log4j.*;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public class HubrisUtil {
   /**
@@ -219,5 +223,14 @@ public class HubrisUtil {
     }
 
     return sum;
+  }
+
+  public static Set<String> getFriendlyFleetNames(GameState state){
+    return Sets.newHashSet(Collections2.transform(HubrisUtil.getFriendlyFleets(state, state.getPlayerId()), new Function<Fleet, String>() {
+      @Override
+      public String apply(Fleet fleet) {
+        return fleet.getName();
+      }
+    }));
   }
 }

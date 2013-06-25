@@ -1,5 +1,6 @@
 package com.bpodgursky.hubris.plan;
 
+import com.bpodgursky.hubris.HubrisUtil;
 import com.bpodgursky.hubris.client.CommandFactory;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.plan.orders.BalanceFleets;
@@ -22,21 +23,21 @@ public class Plan {
   private final CommandFactory factory;
   private final GameConnection connection;
 
-  public Plan(CommandFactory factory, GameConnection connection){
+  public Plan(CommandFactory factory, GameConnection connection) {
     this.factory = factory;
     this.connection = connection;
   }
 
-  private void removeOrder(Order order, Iterator<Order> iter){
+  private void removeOrder(Order order, Iterator<Order> iter) {
     iter.remove();
 
     String fleet = getFleet(order);
-    if(fleet != null){
+    if (fleet != null) {
       orderForFleet.remove(fleet, order);
     }
   }
 
-  public boolean isFleetIdle(String fleet){
+  public boolean isFleetIdle(String fleet) {
     return orderForFleet.get(fleet).isEmpty();
   }
 
@@ -45,72 +46,86 @@ public class Plan {
     Iterator<Order> orderIter = nextOrders.iterator();
     Set<Order> toAdd = Sets.newHashSet();
 
-    while(orderIter.hasNext()){
+    while (orderIter.hasNext()) {
       Order currentOrder = orderIter.next();
 
-      if(isCancel(currentOrder)){
-        LOG.info("Cancelling order: "+currentOrder);
+      if (isCancel(currentOrder)) {
+        LOG.info("Cancelling order: " + currentOrder);
 
         removeOrder(currentOrder, orderIter);
       }
 
-      if(canExeute(currentOrder, current)){
-        LOG.info("Executing order; "+currentOrder);
+      if (canExecute(currentOrder, current)) {
+        LOG.info("Executing order; " + currentOrder);
 
         removeOrder(currentOrder, orderIter);
 
         Order.ExecuteResult result = currentOrder.execute(current, factory, connection);
         results.put(currentOrder, result);
 
-        if(result == Order.ExecuteResult.EXECUTED){
-          LOG.info("Order was submitted: "+currentOrder);
+        if (result == Order.ExecuteResult.EXECUTED) {
+          LOG.info("Order was submitted: " + currentOrder);
           toAdd.addAll(currentOrder.getChildren());
-        } else{
-          LOG.info("Order is no longer valid: "+currentOrder);
+        } else {
+          LOG.info("Order is no longer valid: " + currentOrder);
         }
       }
     }
 
     nextOrders.addAll(toAdd);
+
+    Set<String> friendlyFleetNames = HubrisUtil.getFriendlyFleetNames(current);
+    Set<String> fleetsToRemove = Sets.newHashSet();
+    for (String fleet : orderForFleet.keys()) {
+      if (!friendlyFleetNames.contains(fleet)) {
+        fleetsToRemove.add(fleet);
+      }
+    }
+
+    orderForFleet.removeAll(fleetsToRemove);
+
+    LOG.info("Next orders: " + nextOrders);
+    LOG.info("Orders for fleets: "+orderForFleet);
+
   }
 
-  private boolean isCancel(Order order){
-    for(Order prereq: order.getPrereqs()){
-      if(results.get(prereq) == Order.ExecuteResult.INVALID){
+  private boolean isCancel(Order order) {
+    for (Order prereq : order.getPrereqs()) {
+      if (results.get(prereq) == Order.ExecuteResult.INVALID) {
         return true;
       }
     }
     return false;
   }
 
-  private boolean canExeute(Order order, GameState state){
-    for(Order prereq: order.getPrereqs()){
-      if(results.get(prereq) != Order.ExecuteResult.EXECUTED || !prereq.isComplete(state)){
+  private boolean canExecute(Order order, GameState state) {
+    for (Order prereq : order.getPrereqs()) {
+      if (results.get(prereq) != Order.ExecuteResult.EXECUTED || !prereq.isComplete(state)) {
         return false;
       }
     }
     return true;
   }
 
-  public void schedule(Collection<Order> tailOrders){
+  public void schedule(Collection<Order> tailOrders) {
 
     Queue<Order> orderQueue = Lists.newLinkedList(tailOrders);
     Set<Order> newHeads = Sets.newHashSet();
 
-    while(!orderQueue.isEmpty()){
+    while (!orderQueue.isEmpty()) {
       Order order = orderQueue.poll();
       Set<Order> prereqs = order.getPrereqs();
 
       orderQueue.addAll(prereqs);
 
-      if(prereqs.isEmpty()){
+      if (prereqs.isEmpty()) {
         newHeads.add(order);
       }
 
 
       String fleet = getFleet(order);
 
-      if(fleet != null){
+      if (fleet != null) {
         orderForFleet.put(fleet, order);
       }
     }
@@ -118,11 +133,11 @@ public class Plan {
     nextOrders.addAll(newHeads);
   }
 
-  private static String getFleet(Order order){
-    if(order instanceof MoveFleet){
-      return ((MoveFleet)order).getFleetName();
-    }else if(order instanceof BalanceFleets){
-      return ((BalanceFleets)order).getFleetName();
+  private static String getFleet(Order order) {
+    if (order instanceof MoveFleet) {
+      return ((MoveFleet) order).getFleetName();
+    } else if (order instanceof BalanceFleets) {
+      return ((BalanceFleets) order).getFleetName();
     }
     return null;
   }
