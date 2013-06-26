@@ -19,42 +19,13 @@ import java.util.UUID;
 
 public class GameState {
 
-  public final Map<Integer, Player> playersByID;
-
-
+  private final Map<Integer, Player> playersByID;
   private final Map<Integer, Fleet> fleetsByID;
   private final Map<String, Fleet> fleetsByName;
 
-  public final Alliance alliance;
-  public final Game gameData;
+  private final Alliance alliance;
+  private final Game gameData;
   private final int playerId;
-
-  private static class StarsRecord {
-
-    public final Map<Integer, Star> starsByID;
-    public final Map<String, Star> starsByName = Maps.newHashMap();
-
-
-    private StarsRecord(Map<Integer, Star> starsByID) {
-      this.starsByID = starsByID;
-
-      for(Map.Entry<Integer, Star> entry: starsByID.entrySet()){
-        starsByName.put(entry.getValue().getName(), entry.getValue());
-      }
-    }
-
-    public Star get(String name){
-      return starsByName.get(name);
-    }
-
-    public Star get(int id){
-      return starsByID.get(id);
-    }
-
-    public Collection<Star> getAllStars(){
-      return starsByID.values();
-    }
-  }
 
   private final StarsRecord currentStarData;
   private final StarsRecord historicStarData;

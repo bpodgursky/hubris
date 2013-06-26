@@ -45,7 +45,7 @@ public class HubrisUtil {
    */
   public static int getPlayerNumber(GameConnection connection, String npUsername, long gameId) throws Exception {
     GameState state1 = connection.getState(null, new GetState(0, npUsername, gameId));
-    return state1.gameData.getMid();
+    return state1.getGameData().getMid();
   }
 
 

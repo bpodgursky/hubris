@@ -1,6 +1,10 @@
 package com.bpodgursky.hubris.account;
 
-public class GameMeta {
+import java.io.Serializable;
+
+public class GameMeta implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   private String name;
   private long id;
 

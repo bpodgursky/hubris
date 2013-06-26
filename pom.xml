@@ -200,6 +200,7 @@
           <include>**/*.js</include>
           <include>**/*.html</include>
           <include>**/*.png</include>
+          <include>**/*.gif</include>
         </includes>
       </resource>
     </resources>

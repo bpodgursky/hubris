@@ -21,19 +21,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
+import sun.management.resources.agent;
 
 public class LoginClient {
   public enum LoginResponseType {
-    SUCCESS, INVALID_LOGIN, INVALID_TWO_FACTOR_AUTH_TOKEN;
+    SUCCESS, INVALID_LOGIN, NEEDS_TWO_FACTOR_AUTH_TOKEN, INVALID_TWO_FACTOR_AUTH_TOKEN;
   }
 
   public static class LoginResponse {
     private final LoginResponseType responseType;
     private final String cookies;
+    private final MechanizeAgent agent;
+    private final Document page;
 
-    public LoginResponse(LoginResponseType responseType, String cookies) {
+    public LoginResponse(LoginResponseType responseType, String cookies, MechanizeAgent agent, Document page) {
       this.responseType = responseType;
       this.cookies = cookies;
+      this.agent = agent;
+      this.page = page;
     }
 
     public LoginResponseType getResponseType() {
@@ -42,6 +47,14 @@ public class LoginClient {
 
     public String getCookies() {
       return cookies;
+    }
+
+    protected MechanizeAgent getAgent() {
+      return agent;
+    }
+
+    protected Document getPage() {
+      return page;
     }
   }
 
@@ -85,7 +98,7 @@ public class LoginClient {
   }
 
   public LoginResponse login(String username, String password) {
-    return login(username, password, new ExceptionThrowingTwoFactorCallback("Two-factor authentication needed, but no callback provided."));
+    return login(username, password, null);
   }
 
   public LoginResponse login(String username, String password, TwoFactorAuthCallback twoFactorAuthCallback) {
@@ -118,6 +131,22 @@ public class LoginClient {
     return handlePostLoginResponse(agent, postLoginPage, twoFactorAuthCallback);
   }
 
+  public LoginResponse submitTwoFactorAuthToken(LoginResponse loginResponse, String authToken) {
+    Form authForm = loginResponse.getPage().form(LoginConstants.TWO_FACTOR_AUTH_FORM);
+    authForm.get(LoginConstants.TWO_FACTOR_AUTH_TOKEN_NAME).set(authToken);
+    Document postTwoFactorAuthResponse = authForm.submit();
+
+    // There's a hidden form that automatically submits via JavaScript. Submit it.
+    Form hiddenPostForm = postTwoFactorAuthResponse.form(LoginConstants.TWO_FACTOR_AUTH_HIDDEN_POST_FORM_NAME);
+    if (hiddenPostForm == null) {
+      return new LoginResponse(LoginResponseType.INVALID_TWO_FACTOR_AUTH_TOKEN, null, null, null);
+    }
+    Document postHiddenPostResponse = hiddenPostForm.submit();
+    return handlePostLoginResponse(loginResponse.getAgent(),
+        postHiddenPostResponse,
+        new ExceptionThrowingTwoFactorCallback("Two-factor authentication already passed, but detected Google asking for it again."));
+  }
+
   protected LoginResponse handlePostLoginResponse(MechanizeAgent agent, Document postLoginPage, TwoFactorAuthCallback twoFactorAuthCallback) {
     // A few possibilities at this point:
     //  1. Login failed -- indicated by the login form being present in the response
@@ -127,10 +156,20 @@ public class LoginClient {
     //  4. Weird Google Accounts state -- "enter phone number for verification", etc. Could be two-factor auth,
     //     all of which could theoretically be handled if need be.
     if (postLoginPage.form(LoginConstants.LOGIN_FORM_ID) != null) {
-      return new LoginResponse(LoginResponseType.INVALID_LOGIN, null);
+      return new LoginResponse(LoginResponseType.INVALID_LOGIN, null, null, null);
     }
     else if (postLoginPage.form(LoginConstants.TWO_FACTOR_AUTH_FORM) != null) {
-      return handleTwoFactorAuth(agent, postLoginPage, twoFactorAuthCallback);
+      LoginResponse response = new LoginResponse(LoginResponseType.NEEDS_TWO_FACTOR_AUTH_TOKEN,
+          null, //only used internally, so shouldn't need to specify.
+          agent,
+          postLoginPage);
+
+      if (twoFactorAuthCallback != null) {
+        return handleTwoFactorAuth(response, twoFactorAuthCallback);
+      }
+      else {
+        return response;
+      }
     }
     else if (postLoginPage.getUri().contains(HubrisConstants.homepageUrl)) {
       return handleLoginPassed(agent);
@@ -143,21 +182,9 @@ public class LoginClient {
     }
   }
 
-  protected LoginResponse handleTwoFactorAuth(MechanizeAgent agent, Document postLoginPage, TwoFactorAuthCallback twoFactorAuthCallback) {
+  protected LoginResponse handleTwoFactorAuth(LoginResponse response, TwoFactorAuthCallback twoFactorAuthCallback) {
     String authToken = twoFactorAuthCallback.requestAuthToken();
-    Form authForm = postLoginPage.form(LoginConstants.TWO_FACTOR_AUTH_FORM);
-    authForm.get(LoginConstants.TWO_FACTOR_AUTH_TOKEN_NAME).set(authToken);
-    Document postTwoFactorAuthResponse = authForm.submit();
-
-    // There's a hidden form that automatically submits via JavaScript. Submit it.
-    Form hiddenPostForm = postTwoFactorAuthResponse.form(LoginConstants.TWO_FACTOR_AUTH_HIDDEN_POST_FORM_NAME);
-    if (hiddenPostForm == null) {
-      return new LoginResponse(LoginResponseType.INVALID_TWO_FACTOR_AUTH_TOKEN, null);
-    }
-    Document postHiddenPostResponse = hiddenPostForm.submit();
-    return handlePostLoginResponse(agent,
-      postHiddenPostResponse,
-      new ExceptionThrowingTwoFactorCallback("Two-factor authentication already passed, but detected Google asking for it again."));
+    return submitTwoFactorAuthToken(response, authToken);
   }
 
   protected LoginResponse handleConfirmAccess(MechanizeAgent agent, Document confirmAccessPage) {
@@ -192,7 +219,7 @@ public class LoginClient {
       }
     }
 
-    return new LoginResponse(LoginResponseType.SUCCESS, Joiner.on("; ").join(mergedCookies));
+    return new LoginResponse(LoginResponseType.SUCCESS, Joiner.on("; ").join(mergedCookies), null, null);
   }
 
   protected static MechanizeAgent buildAgent() {

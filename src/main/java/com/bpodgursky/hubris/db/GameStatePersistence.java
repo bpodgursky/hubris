@@ -45,12 +45,12 @@ public class GameStatePersistence {
     }
   }
 
-  public void saveState(String gameName, String playerName, Date time, String gameState) throws SQLException {
+  public void saveState(long gameId, int cookiesId, Date time, String gameState) throws SQLException {
 
-    PreparedStatement ps = conn.prepareStatement("insert into game_states values (?, ?, ?, ?)");
+    PreparedStatement ps = conn.prepareStatement("INSERT INTO game_states (game_id, cookies_id, time, state) VALUES (?, ?, ?, ?)");
 
-    ps.setString(1, gameName);
-    ps.setString(2, playerName);
+    ps.setLong(1, gameId);
+    ps.setInt(2, cookiesId);
     ps.setTimestamp(3, new Timestamp(time.getTime()));
     ps.setBinaryStream(4, new ByteArrayInputStream( gameState.getBytes()));
 
@@ -76,21 +76,5 @@ public class GameStatePersistence {
     }
 
     return states;
-  }
-
-  public static void main(String[] args) throws SQLException, IOException, InterruptedException {
-
-    GameStatePersistence pers = new GameStatePersistence();
-
-    pers.saveState("game1", "player1", new Date(System.currentTimeMillis()), "state1");
-    Thread.sleep(10);
-    pers.saveState("game1", "player1", new Date(System.currentTimeMillis()), "state2");
-
-    pers.saveState("game1", "player2", new Date(System.currentTimeMillis()), "state3");
-    pers.saveState("game1", "player2", new Date(System.currentTimeMillis()), "state4");
-
-    System.out.println(pers.getStates("game1", "player1"));
-    System.out.println(pers.getStates("game1", "player2"));
-
   }
 }

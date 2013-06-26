@@ -2,31 +2,30 @@ var spacecase = null;
 
 (function($) { 
 
-var VP_WIDTH = 800;
-var VP_HEIGHT = 600;
-
+var VP_MAX_WIDTH = 1600;
+var VP_MAX_HEIGHT = 1200;
 var STAR_CLOSENESS_THRESHOLD = 3;
 
 spacecase = function() {
   // Setup canvas
   var x = d3.scale.linear()
-            .domain([0, VP_WIDTH])
-            .range([0, VP_WIDTH])
+            .domain([0, VP_MAX_WIDTH])
+            .range([0, VP_MAX_WIDTH])
     , y = d3.scale.linear()
-            .domain([0, VP_HEIGHT])
-            .range([0, VP_HEIGHT])
+            .domain([0, VP_MAX_HEIGHT])
+            .range([0, VP_MAX_HEIGHT])
     , zoom = d3.behavior.zoom()
                .scaleExtent([1, 5])
                .x(x).y(y)
                .on('zoom', zoomed)
     , $data = null;
 
-  var svg = d3.select('body')
+  var svg = d3.select('#game-container')
               .append('svg:svg')
                 .call(zoom)
                 .attr('class', 'spacecase-canvas')
                 .attr('pointer-events', 'all')
-                .attr('viewBox', '0 0 ' + VP_WIDTH + ' ' + VP_HEIGHT)
+                .attr('viewBox', '0 0 ' + VP_MAX_WIDTH + ' ' + VP_MAX_HEIGHT)
               .append('svg:g');
 
   // Rectangle to capture all input events
@@ -45,13 +44,10 @@ spacecase = function() {
       , carrierSelector = svg.selectAll('.carrier-container').data(ndata)
       , starSelector = svg.selectAll('.star-container').data(ndata);
     $data = ndata;
-    updateCarriers(carrierSelector, ndata)
-      .exit()
-      .remove();
-
-    updateStars(starSelector, ndata)
-      .exit()
-      .remove();
+    updateStars( starSelector, ndata )
+      .exit().remove();
+    updateCarriers( carrierSelector, ndata )
+      .exit().remove();
 
     // This enables click events to be caught for layered things
     $('g', $(svg[0])).on('click.passThrough', function (e, ee) {
@@ -89,12 +85,6 @@ spacecase = function() {
       zoom.scale(scale);
       zoom.translate(lastTranslate);
       svg.attr('transform', 'translate(' + lastTranslate + ') scale(' + scale +')');
-      if (scale < 2) {
-        $('text').hide();
-      }
-      else {
-        $('text').show();
-      }
     }
     if ((scale > 1 && scale < 5) || origScale == lastScale) {
       lastTranslate = [translateX, translateY];
@@ -112,7 +102,7 @@ function updateStars(selector, data) {
     .enter()
       .append('svg:g')
       .attr('class', 'star-container')
-      .attr('transform', function(c) { return 'translate(' + c.x + ',' + c.y + ')' });
+      .attr('transform', function(c) { return 'translate(' + c.coords.x + ',' + c.coords.y + ')' });
 
   // Plot the center of the star -- indicates whether or not this star is in scanning range
   container
@@ -162,7 +152,7 @@ function updateStars(selector, data) {
         var carrierFleets = 0;
         if (data.starsWithCarriers[star.id]) {
           for (var i in data.starsWithCarriers[star.id]) {
-            carrierFleets += data.carriersById[data.starsWithCarriers[star.id][i]].fleets;
+            carrierFleets += data.carriersById[data.starsWithCarriers[star.id][i]].ships;
           }
         }
         return star.ships + carrierFleets
@@ -193,8 +183,8 @@ function updateCarriers(selector, data) {
           , clusterId = data.clustersByCarrierId[c.id];
 
         if ( star >= 0 ) {
-          x = star.x;
-          y = star.y;
+          x = star.coords.x;
+          y = star.coords.y;
         }
         else if ( clusterId >= 0 ) {
           var center = data.clusterCenters[clusterId];
@@ -202,8 +192,8 @@ function updateCarriers(selector, data) {
           y = center[1];
         }
         else {
-          x = c.x;
-          y = c.y;
+          x = c.coords.x;
+          y = c.coords.y;
         }
 
         return 'translate(' + x + ',' + y + ')' 
@@ -216,8 +206,8 @@ function updateCarriers(selector, data) {
     .attr('transform', function(carrier) { 
       if (carrier.destinations.length > 0) {
         var star = data.starsById[carrier.destinations[0]]
-          , dx = carrier.x - star.x
-          , dy = carrier.y - star.y
+          , dx = carrier.coords.x - star.coords.x
+          , dy = carrier.coords.y - star.coords.y
           , h = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2))
           , d = 0
           , theta = (Math.acos(Math.abs(dy)/h)*(180/Math.PI));
@@ -276,7 +266,7 @@ function updateCarriers(selector, data) {
             }
           }
           else {
-            return c.fleets;
+            return c.ships;
           }
         }
       });
@@ -296,24 +286,61 @@ function normalizeData(rawData) {
     , clusterCenters = {}
     , fleetsInClusters = {}
     , minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-    , dx, dy;
+    , dx, dy
+    , totalFleets = 0;
+
+  // Find bounds
+  for (var i in rawData.currentStarData.starsByID) {
+    var star = rawData.currentStarData.starsByID[i];
+
+    maxX = Math.max(maxX, star.coords.x);
+    maxY = Math.max(maxY, star.coords.y);
+    minX = Math.min(minX, star.coords.x);
+    minY = Math.min(minY, star.coords.y);
+  }
+
+  var xRange = (maxX - minX)
+    , yRange = (maxY - minY)
+    , xm, ym;
+  if ( xRange >= yRange ) {
+    xm = VP_MAX_WIDTH;
+    ym = VP_MAX_HEIGHT * (yRange / xRange);
+  }
+  else {
+    ym = VP_MAX_HEIGHT;
+    xm = VP_MAX_WIDTH * (xRange / yRange);
+  }
+
+  function transform(o) {
+    if (!o.normalized) {
+      o.coords.x = ((o.coords.x - minX) / maxX)*xm;
+      o.coords.y = ((o.coords.y - minY) / maxY)*ym;
+      o.normalized = 1;
+    }
+    return o;
+  }
 
   // Stars
-  for (var i in rawData.starsByID) {
-    var star = rawData.starsByID[i];
+  for (var i in rawData.currentStarData.starsByID) {
+    var star = transform(rawData.currentStarData.starsByID[i]);
+
     stars.push(star);
     starsById[star.id] = star;
+
+    if (star.ships) {
+      totalFleets += star.ships;
+    }
   }
 
   // Process carriers
   for (var i in rawData.fleetsByID) {
-    var c = rawData.fleetsByID[i];
+    var c = transform(rawData.fleetsByID[i]);
     carriers.push(c);
     carriersById[c.id] = c;
 
     for (var i in stars) {
       var star = stars[i];
-      var d = Math.sqrt(Math.pow(star.x - c.x, 2) + Math.pow(star.y - c.y, 2));
+      var d = Math.sqrt(Math.pow(star.coords.x - c.coords.x, 2) + Math.pow(star.coords.y - c.coords.y, 2));
       
       if ( d < STAR_CLOSENESS_THRESHOLD ) {
         carriersAtStars[c.id] = star;
@@ -331,7 +358,7 @@ function normalizeData(rawData) {
 
     for (var j = i+1; j < carriers.length; j++) {
       var c2 = carriers[j]
-        , d = Math.sqrt(Math.pow(c1.x-c2.x,2) + Math.pow(c1.y-c2.y,2));
+        , d = Math.sqrt(Math.pow(c1.coords.x - c2.coords.x, 2) + Math.pow(c1.coords.y - c2.coords.y, 2));
       
       if ( d < STAR_CLOSENESS_THRESHOLD ) {
         if ( !clustersByCarrierId[c1.id] ) {
@@ -339,14 +366,14 @@ function normalizeData(rawData) {
           var clusterId = carrierClusters.length-1;
           clustersByCarrierId[c1.id] = clusterId;
           clustersByCarrierId[c2.id] = clusterId;
-          fleetsInClusters[clusterId] = c1.fleets + c2.fleets;
+          fleetsInClusters[clusterId] = c1.ships + c2.ships;
         }
         else {
           var clusterId = clustersByCarrierId[c1.id];
 
           carrierClusters[clusterId].push(c2.id);
           clustersByCarrierId[c2.id] = clusterId;
-          fleetsInClusters[clusterId] += c2.fleets;
+          fleetsInClusters[clusterId] += c2.ships;
         }
       }
     }
@@ -360,8 +387,8 @@ function normalizeData(rawData) {
 
     for (var i in cluster) {
       var carrier = carriersById[cluster[i]];
-      x += carrier.x;
-      y += carrier.y;
+      x += carrier.coords.x;
+      y += carrier.coords.y;
     }
 
     clusterCenters[clusterId] = [(x / cluster.length), (y / cluster.length)];
@@ -377,7 +404,8 @@ function normalizeData(rawData) {
     carrierClusters : carrierClusters,
     clusterCenters : clusterCenters,
     fleetsInClusters : fleetsInClusters,
-    clustersByCarrierId : clustersByCarrierId
+    clustersByCarrierId : clustersByCarrierId,
+    totalFleets : totalFleets
   };
 }
 

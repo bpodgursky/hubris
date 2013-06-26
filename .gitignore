@@ -3,3 +3,6 @@ config
 hubris.iml
 settings.yml
 .idea
+.sw*
+derby.log
+derbyDB
