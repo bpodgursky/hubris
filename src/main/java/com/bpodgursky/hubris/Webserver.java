@@ -23,12 +23,16 @@ public class Webserver {
   private static final Logger LOG = Logger.getLogger(Webserver.class);
 
   static{
-    Logger.getRootLogger().setLevel(Level.INFO);
+
 
     BasicConfigurator.resetConfiguration();
     final ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout("%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n"), ConsoleAppender.SYSTEM_ERR);
     consoleAppender.setFollow(true);
     BasicConfigurator.configure(consoleAppender);
+
+    Logger.getRootLogger().setLevel(Level.INFO);
+    
+    Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
   }
 
   public static void main(String[] args) throws Exception {
