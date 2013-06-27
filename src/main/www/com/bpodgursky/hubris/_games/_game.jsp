@@ -62,21 +62,25 @@ var hubrisGameState = ${game_state}
 spacecaseCanvas.update(hubrisGameState);
 
 function updateState(index, skipUpdateSlider) {
-  spacecaseCanvas.update(fullGameStateHistory[index]);
-  currentIndex = index;
+  if (index >= 0 && index < fullGameStateHistory.length) {
+    spacecaseCanvas.update(fullGameStateHistory[index]);
+    currentIndex = index;
 
-  if (! skipUpdateSlider) {
-    $('#history-slider').slider('value', currentIndex);
+    if (! skipUpdateSlider) {
+      $('#history-slider').slider('value', currentIndex);
+    }
   }
 }
 
 function startMovie() {
   playMovie = true;
+  $('#history-ctl-play').addClass('active');
   play();
 }
 
 function stopMovie() {
   playMovie = false;
+  $('#history-ctl-play').removeClass('active');
 }
 
 function play() {
