@@ -58,11 +58,11 @@ public class GameStatePersistence {
   }
 
 
-  public List<GameStateResult> getStates(String gameName, String playerName) throws SQLException, IOException {
-    PreparedStatement s = conn.prepareStatement("SELECT state,time FROM game_states WHERE game_name=? AND user_name=? ORDER BY time");
+  public List<GameStateResult> getStates(int gameId, int cookiesId) throws SQLException, IOException {
+    PreparedStatement s = conn.prepareStatement("SELECT state, time FROM game_states WHERE game_id = ? AND cookies_id = ? ORDER BY time");
 
-    s.setString(1, gameName);
-    s.setString(2, playerName);
+    s.setInt(1, gameId);
+    s.setInt(2, cookiesId);
 
     ResultSet resultSet = s.executeQuery();
 

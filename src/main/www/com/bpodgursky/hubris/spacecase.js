@@ -2,7 +2,7 @@ var spacecase = null;
 
 (function($) { 
 
-var VP_MAX_WIDTH = 1600;
+var VP_MAX_WIDTH = 1200;
 var VP_MAX_HEIGHT = 1200;
 var STAR_CLOSENESS_THRESHOLD = 3;
 

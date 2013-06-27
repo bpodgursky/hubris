@@ -62,7 +62,7 @@ public class LoginServlet extends HttpServlet {
         } catch (SQLException e) {
           throw new RuntimeException(e);
         }
-        req.getRequestDispatcher("/").forward(req, resp);
+        req.getRequestDispatcher("/_games/index.jsp").forward(req, resp);
       }
     }
   }

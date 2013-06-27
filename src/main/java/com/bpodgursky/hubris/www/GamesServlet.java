@@ -6,15 +6,21 @@ import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.db.CookiesPersistence;
+import com.bpodgursky.hubris.db.GameStatePersistence;
 import com.bpodgursky.hubris.db.GameSyncsPersistence;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
+import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static com.bpodgursky.hubris.db.GameStatePersistence.GameStateResult;
 
 public class GamesServlet extends HubrisServlet {
   @Override
@@ -26,6 +32,15 @@ public class GamesServlet extends HubrisServlet {
       List<GameMeta> activeGames = GenericManager.getActiveGames(client);
       req.setAttribute("active_games", activeGames);
       req.getRequestDispatcher("/_games/_game_list.jsp").forward(req, resp);
+    }
+    else if ("/states_batch/".equals(req.getPathInfo())) {
+      int gameId = Integer.parseInt(req.getParameter("gameId"));
+      try {
+        List<GameStateResult> states = db.gameStatePersistence().getStates(gameId, result.getId());
+        writeResultsBatch(states, resp);
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
     }
     else if (req.getParameter("syncs") != null) {
       int gameId = Integer.parseInt(req.getPathInfo().substring(1));
@@ -53,5 +68,19 @@ public class GamesServlet extends HubrisServlet {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  protected void writeResultsBatch(List<GameStateResult> results, HttpServletResponse resp) throws IOException {
+    ServletOutputStream out = resp.getOutputStream();
+    out.print("[");
+
+    for (int i = 0; i < results.size(); i++) {
+      out.print(results.get(i).getState());
+      if (i < (results.size() - 1)) {
+        out.print(',');
+      }
+    }
+    out.print("]");
+    out.close();
   }
 }

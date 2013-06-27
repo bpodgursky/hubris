@@ -8,13 +8,16 @@ import com.bpodgursky.hubris.www.LoginServlet;
 import com.google.common.collect.Maps;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.EnumSet;
 import java.util.concurrent.Executors;
+import javax.servlet.DispatcherType;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import static com.bpodgursky.hubris.account.LoginClient.LoginResponse;
@@ -62,6 +65,7 @@ public class Webserver {
     WebAppContext webAppContext = new WebAppContext(warUrlString, "/");
     webAppContext.setAttribute("login_clients", Maps.<String, LoginResponse>newHashMap());
     webAppContext.setAttribute("cookies", Maps.<String, String>newHashMap());
+    webAppContext.addFilter(GzipFilter.class, "/games/*", EnumSet.of(DispatcherType.REQUEST));
     webAppContext.addServlet(LoginServlet.class, "/login");
     webAppContext.addServlet(GamesServlet.class, "/games/*");
     webAppContext.addServlet(HubrisDefaultServlet.class, "");
