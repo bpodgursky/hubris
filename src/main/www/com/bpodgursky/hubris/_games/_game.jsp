@@ -129,7 +129,9 @@ $('#history-ctl-last').click(function() { updateState(fullGameStateHistory.lengt
 $('#star-search').autocomplete({
   source : function(request, response) {
     response($.ui.autocomplete.filter(starNames, request.term).slice(0, 10));
-  }
+  },
+  autoFocus : true,
+  select : function() { $('#star-search-form').submit(); }
 });
 $('#star-search-form').submit(function() {
   var starName = $('#star-search').val();
