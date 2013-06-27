@@ -61,10 +61,13 @@ var hubrisGameState = ${game_state}
 
 spacecaseCanvas.update(hubrisGameState);
 
-function updateState(index) {
+function updateState(index, skipUpdateSlider) {
   spacecaseCanvas.update(fullGameStateHistory[index]);
   currentIndex = index;
-  $('#history-slider').slider('value', currentIndex);
+
+  if (! skipUpdateSlider) {
+    $('#history-slider').slider('value', currentIndex);
+  }
 }
 
 function startMovie() {
@@ -115,7 +118,8 @@ $.getJSON('/games/states_batch/?gameId=' + hubrisGameState.gameData.gameNumber,
     $('#history-slider').slider({
       value: fullGameStateHistory.length - 1,
       min: 0,
-      max: fullGameStateHistory.length - 1
+      max: fullGameStateHistory.length - 1,
+      slide: function() { updateState($(this).slider('value'), true); }
     });
   });
 

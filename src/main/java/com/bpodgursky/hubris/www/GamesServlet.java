@@ -6,13 +6,10 @@ import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.db.CookiesPersistence;
-import com.bpodgursky.hubris.db.GameStatePersistence;
 import com.bpodgursky.hubris.db.GameSyncsPersistence;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
-import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -74,12 +71,17 @@ public class GamesServlet extends HubrisServlet {
     ServletOutputStream out = resp.getOutputStream();
     out.print("[");
 
-    for (int i = 0; i < results.size(); i++) {
-      out.print(results.get(i).getState());
-      if (i < (results.size() - 1)) {
-        out.print(',');
+    if (! results.isEmpty()) {
+      out.print(results.get(0).getState());
+
+      for (int i = 1; i < results.size(); i++) {
+        if ((i % 10) == 0) {
+          out.print(',');
+          out.print(results.get(i).getState());
+        }
       }
     }
+
     out.print("]");
     out.close();
   }

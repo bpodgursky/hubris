@@ -20,6 +20,10 @@
   width: 240px;
 }
 
+#history-ctl {
+  display: none;
+}
+
 svg, g, circle, polygon, rect, text {
   pointer-events: all;
 }
