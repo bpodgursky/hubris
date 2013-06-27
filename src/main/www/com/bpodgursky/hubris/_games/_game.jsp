@@ -131,7 +131,7 @@ $('#star-search').autocomplete({
     response($.ui.autocomplete.filter(starNames, request.term).slice(0, 10));
   },
   autoFocus : true,
-  select : function() { $('#star-search-form').submit(); }
+  select : function(event, ui) { spacecaseCanvas.selectStar(ui.item.value); }
 });
 $('#star-search-form').submit(function() {
   var starName = $('#star-search').val();
