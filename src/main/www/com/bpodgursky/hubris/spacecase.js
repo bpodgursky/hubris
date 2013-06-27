@@ -18,7 +18,8 @@ spacecase = function() {
                .scaleExtent([1, 5])
                .x(x).y(y)
                .on('zoom', zoomed)
-    , $data = null;
+    , $data = null
+    , selectedStar;
 
   var svg = d3.select('#game-container')
               .append('svg:svg')
@@ -36,6 +37,41 @@ spacecase = function() {
 
   // Update data
   function my() {
+  }
+
+  // Select star
+  my.selectStar = function(starName) {
+    // Clear currently selected star
+    if (selectedStar) {
+      $('#target-circle').remove();
+    }
+
+    var selectedContainer = $('.star-container')
+      .filter(function() {
+        return $('.planet-label', this).text() == starName;
+      })
+      , star = $data.starsByName[starName];
+
+    if (star) {
+      selectedStar = star;
+      var container = svg.append('g')
+        .attr('transform', function() {
+          return 'translate(' + star.coords.x + ',' + star.coords.y + ')';
+        })
+        .attr('id', 'target-circle');
+      container.append('circle')
+        .attr('r', 50);
+      container.append('line')
+        .attr('x1', -50)
+        .attr('x2', 50)
+        .attr('y1', 0)
+        .attr('y2', 0);
+      container.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', -50)
+        .attr('y2', 50);
+    }
   }
 
   // Update game data
@@ -277,6 +313,7 @@ function updateCarriers(selector, data) {
 function normalizeData(rawData) {
   var stars = []
     , starsById = {}
+    , starsByName = {}
     , carriers = []
     , carriersById = {}
     , carriersAtStars = {}
@@ -326,6 +363,7 @@ function normalizeData(rawData) {
 
     stars.push(star);
     starsById[star.id] = star;
+    starsByName[star.name] = star;
 
     if (star.ships) {
       totalFleets += star.ships;
@@ -396,7 +434,8 @@ function normalizeData(rawData) {
 
   return { 
     stars : stars, 
-    starsById : starsById, 
+    starsById : starsById,
+    starsByName : starsByName,
     carriers : carriers, 
     carriersById : carriersById,
     carriersAtStars : carriersAtStars,

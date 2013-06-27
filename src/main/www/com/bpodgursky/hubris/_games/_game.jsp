@@ -26,6 +26,7 @@
   </c:otherwise>
 </c:choose>
 <p>&nbsp;</p>
+
 <h4>
   <i class="icon-time"></i>
   History
@@ -47,6 +48,20 @@
     </div>
     <div id="history-slider"></div>
   </div>
+
+<p>&nbsp;</p>
+<h4>
+  <i class="icon-wrench"></i>
+  Tools
+</h4>
+
+  <div>
+    <form id="star-search-form" action="#">
+      <input type="text" id="star-search" placeholder="Search For Star"/>
+      <i class="icon-search"></i>
+    </form>
+  </div>
+
 </div>
 </div>
 
@@ -57,9 +72,21 @@ var hubrisGameState = ${game_state}
   , spacecaseCanvas = spacecase()
   , fullGameStateHistory
   , currentIndex = 0
-  , playMovie = false;
+  , playMovie = false
+  , starNames = getStarNames();
 
 spacecaseCanvas.update(hubrisGameState);
+
+function getStarNames() {
+  var stars = hubrisGameState.currentStarData.starsByID
+    , starNames = [];
+
+  for (var i in stars) {
+    starNames.push(stars[i].name);
+  }
+
+  return starNames.sort();
+}
 
 function updateState(index, skipUpdateSlider) {
   if (index >= 0 && index < fullGameStateHistory.length) {
@@ -99,6 +126,16 @@ $('#history-ctl-stop').click(function() { stopMovie(); return false; });
 $('#history-ctl-play').click(function() { startMovie(); return false; });
 $('#history-ctl-forward').click(function() { updateState(currentIndex + 1); return false; });
 $('#history-ctl-last').click(function() { updateState(fullGameStateHistory.length - 1); return false; });
+$('#star-search').autocomplete({
+  source : function(request, response) {
+    response($.ui.autocomplete.filter(starNames, request.term).slice(0, 10));
+  }
+});
+$('#star-search-form').submit(function() {
+  var starName = $('#star-search').val();
+  spacecaseCanvas.selectStar(starName);
+  return false;
+});
 
 $('#syncs-btn').click(function() {
   var $this = $(this);

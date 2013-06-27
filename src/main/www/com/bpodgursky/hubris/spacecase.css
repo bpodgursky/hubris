@@ -24,6 +24,15 @@
   display: none;
 }
 
+#target-circle circle,
+#target-circle line {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1.2;
+  stroke: #666;
+  pointer-events: none;
+}
+
 svg, g, circle, polygon, rect, text {
   pointer-events: all;
 }
