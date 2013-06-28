@@ -18,6 +18,8 @@
   top: 0;
   margin: 15px 0 0 15px;
   width: 240px;
+  max-height: 80%;
+  overflow-y: auto;
 }
 
 #history-ctl {
@@ -40,52 +42,74 @@ svg, g, circle, polygon, rect, text {
 rect.events-rect {
 }
 
-circle.player0 { 
+.player-label {
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  font-size: 0.8em;
+}
+
+.player-info {
+  font-size: 0.8em;
+}
+
+.player0 {
   stroke: #ff0000; 
+  color: #ff0000;
 }
 
-circle.player1 {
+.player1 {
   stroke: #ffff00;
+  color: #ffff00;
 }
 
-circle.player2 {
+.player2 {
   stroke: #7ffeff;
+  color: #7ffeff;
 }
 
-circle.player3 {
+.player3 {
   stroke: #004080;
+  color: #004080;
 }
 
-circle.player4 {
+.player4 {
   stroke: #ff7f00;
+  color: #ff7f00;
 }
 
-circle.player5 {
+.player5 {
   stroke: #7f00ff;
+  color: #7f00ff;
 }
 
-circle.player6 {
+.player6 {
   stroke: #600000;
+  color: #600000;
 }
 
-circle.player7 {
+.player7 {
   stroke: #00ff00;
+  color: #00ff00;
 }
 
-circle.player8 {
+.player8 {
   stroke: #006000;
+  color: #006000;
 }
 
-circle.player9 {
+.player9 {
   stroke: #ff00ff;
+  color: #ff00ff;
 }
 
-circle.player10 {
+.player10 {
   stroke: #804000;
+  color: #804000;
 }
 
-circle.player11 {
+.player11 {
   stroke: #ffffff;
+  color: #ffffff;
 }
 
 svg.spacecase-canvas {

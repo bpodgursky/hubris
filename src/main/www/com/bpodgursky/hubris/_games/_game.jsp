@@ -62,6 +62,15 @@
     </form>
   </div>
 
+<p>&nbsp;</p>
+<h4>
+  <i class="icon-info-sign"></i>
+  Player Breakdown
+</h4>
+
+  <div id="player-breakdown">
+  </div>
+
 </div>
 </div>
 
@@ -70,12 +79,10 @@ $(function() {
 
 var hubrisGameState = ${game_state}
   , spacecaseCanvas = spacecase()
-  , fullGameStateHistory
+  , fullGameStateHistory = [hubrisGameState]
   , currentIndex = 0
   , playMovie = false
   , starNames = getStarNames();
-
-spacecaseCanvas.update(hubrisGameState);
 
 function getStarNames() {
   var stars = hubrisGameState.currentStarData.starsByID
@@ -92,6 +99,22 @@ function updateState(index, skipUpdateSlider) {
   if (index >= 0 && index < fullGameStateHistory.length) {
     spacecaseCanvas.update(fullGameStateHistory[index]);
     currentIndex = index;
+
+    var playerList = $('<ol></ol>')
+      , state = fullGameStateHistory[index];
+
+    for (var playerId in state.playersByID) {
+      var item = $('<li/>').appendTo(playerList)
+        , player = state.playersByID[playerId];
+
+      item
+        .append('<span class="player-label player' + playerId + '">' + state.playersByID[playerId].name + '</span>')
+        .append(' <span class="player-info">($' + player.cash + ', ' + player.currentResearch.toLowerCase() +')</span>');
+    }
+
+    $('#player-breakdown')
+      .html('')
+      .append(playerList);
 
     if (! skipUpdateSlider) {
       $('#history-slider').slider('value', currentIndex);
@@ -154,7 +177,7 @@ $.getJSON('/games/states_batch/?gameId=' + hubrisGameState.gameData.gameNumber,
   function(data) {
     fullGameStateHistory = data;
     fullGameStateHistory.push(hubrisGameState);
-    currentIndex = fullGameStateHistory.length - 1;
+    updateState(fullGameStateHistory.length - 1, true);
 
     $('#history-ctl-info').html('<p>There are ' + fullGameStateHistory.length + ' snapshots available.');
     $('#history-ctl').show();
@@ -166,6 +189,7 @@ $.getJSON('/games/states_batch/?gameId=' + hubrisGameState.gameData.gameNumber,
     });
   });
 
+  updateState(0, true);
 });
 </script>
 
