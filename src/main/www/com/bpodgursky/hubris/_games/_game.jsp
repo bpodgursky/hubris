@@ -4,7 +4,6 @@
 
 <div id="game-container">
 <div class="well" id="game-controller">
-<h3>Controls</h3>
 <h4>
   <i class="icon-repeat"></i>
   Syncs
@@ -25,7 +24,6 @@
     </button>
   </c:otherwise>
 </c:choose>
-<p>&nbsp;</p>
 
 <h4>
   <i class="icon-time"></i>
@@ -49,7 +47,6 @@
     <div id="history-slider"></div>
   </div>
 
-<p>&nbsp;</p>
 <h4>
   <i class="icon-wrench"></i>
   Tools
@@ -62,7 +59,6 @@
     </form>
   </div>
 
-<p>&nbsp;</p>
 <h4>
   <i class="icon-info-sign"></i>
   Player Breakdown
@@ -82,7 +78,13 @@ var hubrisGameState = ${game_state}
   , fullGameStateHistory = [hubrisGameState]
   , currentIndex = 0
   , playMovie = false
-  , starNames = getStarNames();
+  , starNames = getStarNames()
+  , researchTypes = {
+      'weapons'  : 'W',
+      'speed'    : 'Sp',
+      'range'    : 'R',
+      'scanning' : 'Sc'
+    };
 
 function getStarNames() {
   var stars = hubrisGameState.currentStarData.starsByID
@@ -109,7 +111,12 @@ function updateState(index, skipUpdateSlider) {
 
       item
         .append('<span class="player-label player' + playerId + '">' + state.playersByID[playerId].name + '</span>')
-        .append(' <span class="player-info">($' + player.cash + ', ' + player.currentResearch.toLowerCase() +')</span>');
+        .append(' <span class="player-info">'
+           + '[$' + player.cash + '] '
+           + '[' + researchTypes[player.currentResearch.toLowerCase()]  + ']'
+           + '<br />'
+           + '[' + getFormattedResearchString(player) + ']'
+           + '</span>');
     }
 
     $('#player-breakdown')
@@ -120,6 +127,18 @@ function updateState(index, skipUpdateSlider) {
       $('#history-slider').slider('value', currentIndex);
     }
   }
+}
+
+function getFormattedResearchString(player) {
+  var r = "";
+
+  for (var longName in researchTypes) {
+    r += player[longName];
+    r += researchTypes[longName];
+    r += " ";
+  }
+
+  return r;
 }
 
 function startMovie() {
