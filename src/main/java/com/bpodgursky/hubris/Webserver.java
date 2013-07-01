@@ -34,7 +34,7 @@ public class Webserver {
     BasicConfigurator.configure(consoleAppender);
 
     Logger.getRootLogger().setLevel(Level.INFO);
-    
+
     Logger.getLogger("org.eclipse.jetty").setLevel(Level.WARN);
   }
 
