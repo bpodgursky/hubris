@@ -16,4 +16,12 @@ public class BattleOutcome {
   public int getShipsRemaining() {
     return shipsRemaining;
   }
+
+  @Override
+  public String toString() {
+    return "BattleOutcome{" +
+        "defenderWon=" + defenderWon +
+        ", shipsRemaining=" + shipsRemaining +
+        '}';
+  }
 }
