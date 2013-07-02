@@ -33,8 +33,7 @@ public class GamesServlet extends HubrisServlet {
     else if ("/states_batch/".equals(req.getPathInfo())) {
       int gameId = Integer.parseInt(req.getParameter("gameId"));
       try {
-        List<GameStateResult> states = db.gameStatePersistence().getStates(gameId, result.getId());
-        writeResultsBatch(states, resp);
+        db.gameStatePersistence().writeStates(gameId, result.getId(), resp.getOutputStream(), 10);
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
@@ -65,24 +64,5 @@ public class GamesServlet extends HubrisServlet {
         throw new RuntimeException(e);
       }
     }
-  }
-
-  protected void writeResultsBatch(List<GameStateResult> results, HttpServletResponse resp) throws IOException {
-    ServletOutputStream out = resp.getOutputStream();
-    out.print("[");
-
-    if (! results.isEmpty()) {
-      out.print(results.get(0).getState());
-
-      for (int i = 1; i < results.size(); i++) {
-        if ((i % 10) == 0) {
-          out.print(',');
-          out.print(results.get(i).getState());
-        }
-      }
-    }
-
-    out.print("]");
-    out.close();
   }
 }
