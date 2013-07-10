@@ -51,7 +51,8 @@ public class Webserver {
           try {
             LOG.info("Syncing games...");
             syncer.syncAllGames();
-          } catch (SQLException e) {
+          }
+          catch (Exception e) {
             LOG.error("Error syncing games", e);
           }
 
