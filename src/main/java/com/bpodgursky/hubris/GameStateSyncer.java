@@ -30,7 +30,7 @@ public class GameStateSyncer {
       CookiesResult cookies = conn.cookiesPersistence().find(syncRequest.getCookiesId());
       GameConnection connection = new RemoteConnection(cookies.getCookies());
       Long gameId = Long.valueOf(syncRequest.getGameId());
-      LOG.info("Syncing game {} for cookies {}", gameId, cookies.getId());
+      LOG.info("Syncing game {} for cookies {}, uuid = {}", gameId, cookies.getId(), cookies.getUuid());
 
       try {
         GameState state = connection.getState(null, new GetState(0, cookies.getUsername(), gameId));
