@@ -5,10 +5,7 @@ import com.bpodgursky.hubris.client.GenericManager;
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
-import com.bpodgursky.hubris.db.CookiesPersistence;
-import com.bpodgursky.hubris.db.GameSyncsPersistence;
 import com.bpodgursky.hubris.db.models.hubris.Tables;
-import com.bpodgursky.hubris.db.models.hubris.tables.pojos.GameSyncs;
 import com.bpodgursky.hubris.db.models.hubris.tables.pojos.NpCookies;
 import com.bpodgursky.hubris.db.models.hubris.tables.records.GameStatesRecord;
 import com.bpodgursky.hubris.db.models.hubris.tables.records.GameSyncsRecord;
@@ -16,9 +13,6 @@ import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import org.apache.commons.io.IOUtils;
 import org.jooq.Cursor;
-import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.SelectLimitStep;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
