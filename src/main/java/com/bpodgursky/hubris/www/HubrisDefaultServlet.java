@@ -1,15 +1,13 @@
 package com.bpodgursky.hubris.www;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.bpodgursky.hubris.db.models.hubris.tables.pojos.NpCookies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.bpodgursky.hubris.db.CookiesPersistence.CookiesResult;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class HubrisDefaultServlet extends HubrisServlet {
   private static final Logger LOG = LoggerFactory.getLogger(HubrisDefaultServlet.class);

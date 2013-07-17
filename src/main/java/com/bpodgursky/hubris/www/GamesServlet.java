@@ -11,21 +11,16 @@ import com.bpodgursky.hubris.db.models.hubris.tables.records.GameStatesRecord;
 import com.bpodgursky.hubris.db.models.hubris.tables.records.GameSyncsRecord;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
-import org.apache.commons.io.IOUtils;
 import org.jooq.Cursor;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static com.bpodgursky.hubris.db.GameStatePersistence.GameStateResult;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.sql.SQLException;
+import java.util.List;
 
 public class GamesServlet extends HubrisServlet {
   @Override
@@ -105,13 +100,6 @@ public class GamesServlet extends HubrisServlet {
     wrappedOut.write(']');
     wrappedOut.close();
     results.close();
-  }
-
-  private GameStateResult fromResultSet(ResultSet results) throws SQLException, IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(results.getBinaryStream(1), writer);
-
-    return new GameStateResult(results.getTimestamp(2).getTime(), writer.toString());
   }
 
   private Cursor<GameStatesRecord> getStatesResults(int gameId, int cookiesId) throws SQLException {
