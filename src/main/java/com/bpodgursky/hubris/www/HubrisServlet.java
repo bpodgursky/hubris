@@ -1,6 +1,8 @@
 package com.bpodgursky.hubris.www;
 
 import com.bpodgursky.hubris.db.HubrisDb;
+import com.bpodgursky.hubris.db.models.hubris.tables.pojos.NpCookies;
+
 import java.sql.SQLException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,18 +14,14 @@ public abstract class HubrisServlet extends HttpServlet {
 
   public HubrisServlet() {
     super();
-    db = HubrisDb.get();
+    db = new HubrisDb.Factory().getProduction();
   }
 
-  public CookiesResult getCookies(HttpServletRequest request) {
+  public NpCookies getCookies(HttpServletRequest request) {
     String uuid = WwwUtil.getCookie("uuid", request.getCookies());
 
     if (uuid != null) {
-      try {
-        return db.cookiesPersistence().findByUuid(uuid);
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+      return db.npCookies().fetchOneByUuid(uuid);
     }
     else {
       return null;

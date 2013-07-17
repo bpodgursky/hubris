@@ -1,27 +1,27 @@
 package com.bpodgursky.hubris.www;
 
 import com.bpodgursky.hubris.account.LoginClient;
-import com.bpodgursky.hubris.db.HubrisDb;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.UUID;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.bpodgursky.hubris.db.models.hubris.tables.pojos.NpCookies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
+
 import static com.bpodgursky.hubris.account.LoginClient.LoginResponse;
 
-public class LoginServlet extends HttpServlet {
+public class LoginServlet extends HubrisServlet {
   private static final Logger LOG = LoggerFactory.getLogger(LoginServlet.class);
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     LoginClient client = new LoginClient();
+
     if ("login".equals(req.getParameter("state"))) {
       String username = req.getParameter("username");
       String password = req.getParameter("password");
@@ -56,12 +56,24 @@ public class LoginServlet extends HttpServlet {
       else if (twoFactorAuthResponse.getResponseType() == LoginClient.LoginResponseType.SUCCESS) {
         clearResponse(uuid);
         setCookies(uuid, twoFactorAuthResponse.getCookies());
-        resp.addCookie(new Cookie("uuid", uuid));
-        try {
-          HubrisDb.get().cookiesPersistence().create(uuid, username, twoFactorAuthResponse.getCookies());
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+        NpCookies existingCookies = db.npCookies().fetchOneByUsername(username);
+
+        if (existingCookies == null) {
+          NpCookies cookiesRow = new NpCookies();
+          cookiesRow.setCookies(twoFactorAuthResponse.getCookies());
+          cookiesRow.setUsername(username);
+          cookiesRow.setUuid(uuid);
+          db.npCookies().insert(cookiesRow);
+
+          resp.addCookie(new Cookie("uuid", uuid));
         }
+        else {
+          existingCookies.setCookies(twoFactorAuthResponse.getCookies());
+          db.npCookies().update(existingCookies);
+
+          resp.addCookie(new Cookie("uuid", existingCookies.getUuid()));
+        }
+
         req.getRequestDispatcher("/_games/index.jsp").forward(req, resp);
       }
     }

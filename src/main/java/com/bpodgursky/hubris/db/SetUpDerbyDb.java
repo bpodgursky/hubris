@@ -1,5 +1,7 @@
 package com.bpodgursky.hubris.db;
 
+import com.bpodgursky.hubris.db.models.hubris.Tables;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,7 +10,6 @@ import java.sql.Statement;
 public class SetUpDerbyDb {
 
   public static void main(String[] args) throws SQLException, ClassNotFoundException {
-
     Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
     Connection conn = DriverManager.getConnection("jdbc:derby:derbyDB;create=true");
 

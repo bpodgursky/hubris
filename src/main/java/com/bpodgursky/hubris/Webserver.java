@@ -7,7 +7,6 @@ import com.bpodgursky.hubris.www.HubrisDefaultServlet;
 import com.bpodgursky.hubris.www.LoginServlet;
 import com.google.common.collect.Maps;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.concurrent.Executors;
 import javax.servlet.DispatcherType;
@@ -43,7 +42,7 @@ public class Webserver {
     final URL warUrl = uiServer.getClass().getClassLoader().getResource("com/bpodgursky/hubris");
     final String warUrlString = warUrl.toExternalForm();
 
-    final GameStateSyncer syncer = new GameStateSyncer(HubrisDb.get());
+    final GameStateSyncer syncer = new GameStateSyncer(new HubrisDb.Factory().getProduction());
     Runnable syncerTask = new Runnable() {
       @Override
       public void run() {
@@ -78,8 +77,6 @@ public class Webserver {
     uiServer.setHandler(webAppContext);
 
     uiServer.start();
-
-    Thread.sleep(1000000000l);
-
+    uiServer.join();
   }
 }
