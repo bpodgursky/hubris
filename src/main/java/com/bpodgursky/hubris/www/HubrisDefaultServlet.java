@@ -4,6 +4,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.bpodgursky.hubris.db.models.hubris.tables.pojos.NpCookies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,7 @@ public class HubrisDefaultServlet extends HubrisServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String uuid = WwwUtil.getCookie("uuid", req.getCookies());
-    CookiesResult cookies = getCookies(req);
+    NpCookies cookies = getCookies(req);
 
     if (cookies == null) {
       req.getRequestDispatcher("login.jsp").forward(req, resp);
