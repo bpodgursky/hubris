@@ -12,6 +12,8 @@ import com.bpodgursky.hubris.db.models.hubris.tables.records.GameSyncsRecord;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.GameState;
 import org.jooq.Cursor;
+import org.jooq.ResultQuery;
+import org.jooq.SelectLimitStep;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -103,10 +105,12 @@ public class GamesServlet extends HubrisServlet {
   }
 
   private Cursor<GameStatesRecord> getStatesResults(int gameId, int cookiesId) throws SQLException {
-    return db.dslContext()
+    ResultQuery<GameStatesRecord> query = db.dslContext()
       .selectFrom(Tables.GAME_STATES)
       .where(Tables.GAME_STATES.GAME_ID.eq(gameId), Tables.GAME_STATES.COOKIES_ID.eq(cookiesId))
       .orderBy(Tables.GAME_STATES.TIME)
-      .fetchLazy();
+      .intern(Tables.GAME_STATES.STATE);
+
+    return query.fetchLazy(Integer.MIN_VALUE);
   }
 }

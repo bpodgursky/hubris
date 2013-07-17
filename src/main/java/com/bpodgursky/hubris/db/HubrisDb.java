@@ -1,6 +1,5 @@
 package com.bpodgursky.hubris.db;
 
-import com.bpodgursky.hubris.db.models.hubris.Tables;
 import com.bpodgursky.hubris.db.models.hubris.tables.daos.GameStatesDao;
 import com.bpodgursky.hubris.db.models.hubris.tables.daos.GameSyncsDao;
 import com.bpodgursky.hubris.db.models.hubris.tables.daos.NpCookiesDao;
@@ -8,7 +7,6 @@ import org.jooq.Configuration;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
-import org.jooq.conf.ObjectFactory;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultConfiguration;
@@ -71,6 +69,11 @@ public interface HubrisDb {
         public Connection connection() {
           return connection;
         }
+
+        @Override
+        public Configuration configuration() {
+          return configuration;
+        }
       };
     }
   }
@@ -80,4 +83,5 @@ public interface HubrisDb {
   public GameSyncsDao gameSyncs();
   public DSLContext dslContext();
   public Connection connection();
+  public Configuration configuration();
 }
