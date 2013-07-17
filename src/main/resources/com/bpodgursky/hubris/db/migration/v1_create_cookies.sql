@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS np_cookies (
+  id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  uuid VARCHAR(255),
+  username VARCHAR(255),
+  cookies TEXT,
+  UNIQUE(username),
+  UNIQUE(uuid)
+) ENGINE=INNODB;

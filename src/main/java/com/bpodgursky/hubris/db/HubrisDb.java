@@ -1,40 +1,83 @@
 package com.bpodgursky.hubris.db;
 
+import com.bpodgursky.hubris.db.models.hubris.Tables;
+import com.bpodgursky.hubris.db.models.hubris.tables.daos.GameStatesDao;
+import com.bpodgursky.hubris.db.models.hubris.tables.daos.GameSyncsDao;
+import com.bpodgursky.hubris.db.models.hubris.tables.daos.NpCookiesDao;
+import org.jooq.Configuration;
+import org.jooq.ConnectionProvider;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.conf.ObjectFactory;
+import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultConfiguration;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class HubrisDb {
-  private static HubrisDb instance;
+public interface HubrisDb {
+  public static class Factory {
+    public HubrisDb getProduction() {
+      return new HubrisDb() {
+        private final Connection connection;
+        public final Configuration configuration;
 
-  private CookiesPersistence cookiesPersistence;
-  private GameStatePersistence gameStatePersistence;
-  private GameSyncsPersistence gameSyncsPersistence;
+        /* Constructor */ {
+          try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/hubris", "hubris", "password");
+            configuration = new DefaultConfiguration().set(new ConnectionProvider() {
+              @Override
+              public Connection acquire() throws DataAccessException {
+                return connection;
+              }
 
-  private HubrisDb() throws SQLException {
-    this.cookiesPersistence = new CookiesPersistence();
-    this.gameStatePersistence = new GameStatePersistence();
-    this.gameSyncsPersistence = new GameSyncsPersistence();
-  }
+              @Override
+              public void release(Connection connection) throws DataAccessException {
+              }
+            }).set(SQLDialect.MYSQL);
+          }
+          catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+          catch (SQLException e) {
+            throw new RuntimeException(e);
+          }
+        }
 
-  public CookiesPersistence cookiesPersistence() {
-    return cookiesPersistence;
-  }
+        @Override
+        public NpCookiesDao npCookies() {
+          return new NpCookiesDao(configuration);
+        }
 
-  public GameStatePersistence gameStatePersistence() {
-    return gameStatePersistence;
-  }
+        @Override
+        public GameStatesDao gameStates() {
+          return new GameStatesDao(configuration);
+        }
 
-  public GameSyncsPersistence gameSyncsPersistence() {
-    return gameSyncsPersistence;
-  }
+        @Override
+        public GameSyncsDao gameSyncs() {
+          return new GameSyncsDao(configuration);
+        }
 
-  public static HubrisDb get() {
-    if (instance == null) {
-      try {
-        instance = new HubrisDb();
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+        @Override
+        public DSLContext dslContext() {
+          return DSL.using(connection, SQLDialect.MYSQL);
+        }
+
+        @Override
+        public Connection connection() {
+          return connection;
+        }
+      };
     }
-    return instance;
   }
+
+  public NpCookiesDao npCookies();
+  public GameStatesDao gameStates();
+  public GameSyncsDao gameSyncs();
+  public DSLContext dslContext();
+  public Connection connection();
 }

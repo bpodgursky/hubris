@@ -156,6 +156,28 @@
       <version>10.10.1.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.25</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-meta</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-codegen</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -189,6 +211,57 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <version>3.1.0</version>
+
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <dependencies>
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.25</version>
+          </dependency>
+        </dependencies>
+
+        <configuration>
+          <jdbc>
+            <driver>com.mysql.jdbc.Driver</driver>
+            <url>jdbc:mysql://localhost/hubris</url>
+            <user>hubris</user>
+            <password>password</password>
+          </jdbc>
+
+          <generator>
+            <name>org.jooq.util.DefaultGenerator</name>
+            <database>
+              <name>org.jooq.util.mysql.MySQLDatabase</name>
+              <includes>.*</includes>
+              <excludes></excludes>
+              <inputSchema></inputSchema>
+            </database>
+            <target>
+              <packageName>com.bpodgursky.hubris.db.models</packageName>
+              <directory>target/generated-sources/jooq</directory>
+            </target>
+            <generate>
+              <relations>true</relations>
+              <interfaces>true</interfaces>
+              <daos>true</daos>
+              <pojos>false</pojos>
+            </generate>
+          </generator>
+        </configuration>
+      </plugin>
+
     </plugins>
 
     <resources>
@@ -204,7 +277,6 @@
         </includes>
       </resource>
     </resources>
-
   </build>
 
 
