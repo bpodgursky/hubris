@@ -155,11 +155,27 @@ function stopMovie() {
 function play() {
   if ((currentIndex < (fullGameStateHistory.length - 1)) && playMovie) {
     updateState(currentIndex + 1);
-    setTimeout(play, 100);
+
+    var waitTime = maxSpeed(fullGameStateHistory[currentIndex]) * 500;
+    console.log("Wait time: " + waitTime + " ms");
+    setTimeout(play, waitTime);
   }
   else if (playMovie) {
     stopMovie();
   }
+}
+
+function maxSpeed(gameState) {
+  var maxSpeed = 0;
+
+  for (var id in gameState.playersByID) {
+    var speed = gameState.playersByID[id].speed;
+    if (speed > maxSpeed) {
+      maxSpeed = speed;
+    }
+  }
+
+  return maxSpeed;
 }
 
 $('#history-ctl-first').click(function() { updateState(0); return false; });
