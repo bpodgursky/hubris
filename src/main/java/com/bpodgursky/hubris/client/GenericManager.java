@@ -6,6 +6,9 @@ import com.bpodgursky.hubris.common.HubrisConstants;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import jline.console.ConsoleReader;
 
 import java.util.ArrayList;
@@ -38,29 +41,19 @@ public class GenericManager {
   }
 
   public static List<GameMeta> getActiveGames(NpHttpClient client) {
-    String source = client.get(HubrisConstants.accountHomeUrl);
-    Matcher matcher = GAME_PATTERN.matcher(source);
+    String source = client.post(HubrisConstants.gamesListUrl, "type=init_player");
+    JsonElement response = new JsonParser().parse(source);
+    JsonObject playerData = response.getAsJsonArray().get(1).getAsJsonObject();
+    JsonElement games = playerData.getAsJsonArray("open_games");
+    List<GameMeta> gameList = new ArrayList<>();
 
-    // TODO: make sure we're getting back the page we expect.
-    if (!matcher.find()) {
-      return Collections.emptyList();
+    for (JsonElement game : games.getAsJsonArray()) {
+      gameList.add(new GameMeta(
+          game.getAsJsonObject().get("name").getAsString(),
+          Long.parseLong(game.getAsJsonObject().get("number").getAsString())
+      ));
     }
-
-    List<GameMeta> games = new ArrayList<GameMeta>();
-
-    do {
-      String name = matcher.group(2);
-      Integer id;
-      try {
-        id = Integer.parseInt(matcher.group(1));
-      } catch (NumberFormatException e) {
-        throw new RuntimeException("Expected game ID (" + matcher.group(1) + ") to be an integer!");
-      }
-
-      games.add(new GameMeta(name, id));
-    } while (matcher.find());
-
-    return games;
+    return gameList;
   }
 
 

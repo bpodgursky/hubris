@@ -27,40 +27,19 @@ public class LoginServlet extends HubrisServlet {
       String password = req.getParameter("password");
       LoginResponse response = client.login(username, password);
 
-      if (response.getResponseType() == LoginClient.LoginResponseType.NEEDS_TWO_FACTOR_AUTH_TOKEN) {
-        String uuid = createPreviousResponse(response);
-
-        req.setAttribute("uuid", uuid);
-        req.setAttribute("username", username);
-        req.getRequestDispatcher("two_factor_auth.jsp").forward(req, resp);
-      }
-      else if (response.getResponseType() == LoginClient.LoginResponseType.INVALID_LOGIN) {
+      if (response.getResponseType() == LoginClient.LoginResponseType.INVALID_LOGIN) {
         req.setAttribute("error", "Invalid login credentials.");
         req.getRequestDispatcher("login.jsp").forward(req, resp);
       }
       else if (response.getResponseType() == LoginClient.LoginResponseType.SUCCESS) {
-        throw new RuntimeException("Login successful.");
-      }
-    }
-    else if ("two_factor".equals(req.getParameter("state"))) {
-      String authToken = req.getParameter("auth_token");
-      String uuid = req.getParameter("uuid");
-      String username = req.getParameter("username");
-      LoginResponse previousResponse = getPreviousResponse(uuid);
-      LoginResponse twoFactorAuthResponse = client.submitTwoFactorAuthToken(previousResponse, authToken);
-
-      if (twoFactorAuthResponse.getResponseType() == LoginClient.LoginResponseType.INVALID_TWO_FACTOR_AUTH_TOKEN) {
-        req.setAttribute("error", "Invalid two-factor auth token.");
-        req.getRequestDispatcher("login.jsp").forward(req, resp);
-      }
-      else if (twoFactorAuthResponse.getResponseType() == LoginClient.LoginResponseType.SUCCESS) {
-        clearResponse(uuid);
-        setCookies(uuid, twoFactorAuthResponse.getCookies());
+        String authToken = req.getParameter("auth_token");
+        String uuid = UUID.randomUUID().toString();
+        setCookies(uuid, response.getCookies());
         NpCookies existingCookies = db.npCookies().fetchOneByUsername(username);
 
         if (existingCookies == null) {
           NpCookies cookiesRow = new NpCookies();
-          cookiesRow.setCookies(twoFactorAuthResponse.getCookies());
+          cookiesRow.setCookies(response.getCookies());
           cookiesRow.setUsername(username);
           cookiesRow.setUuid(uuid);
           db.npCookies().insert(cookiesRow);
@@ -68,7 +47,7 @@ public class LoginServlet extends HubrisServlet {
           resp.addCookie(new Cookie("uuid", uuid));
         }
         else {
-          existingCookies.setCookies(twoFactorAuthResponse.getCookies());
+          existingCookies.setCookies(response.getCookies());
           db.npCookies().update(existingCookies);
 
           resp.addCookie(new Cookie("uuid", existingCookies.getUuid()));
@@ -77,20 +56,6 @@ public class LoginServlet extends HubrisServlet {
         req.getRequestDispatcher("/_games/index.jsp").forward(req, resp);
       }
     }
-  }
-
-  protected void clearResponse(String uuid) {
-    getLoginResponses().remove(uuid);
-  }
-
-  protected String createPreviousResponse(LoginResponse response) {
-    String uuid = UUID.randomUUID().toString();
-    getLoginResponses().put(uuid, response);
-    return uuid;
-  }
-
-  protected LoginResponse getPreviousResponse(String uuid) {
-    return getLoginResponses().get(uuid);
   }
 
   protected String getCookies(String uuid) {

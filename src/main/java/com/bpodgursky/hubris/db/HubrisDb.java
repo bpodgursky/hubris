@@ -22,6 +22,7 @@ public interface HubrisDb {
     public HubrisDb getProduction(File configFile) {
       try {
         HubrisDbImpl.Config config = new Yaml().loadAs(new FileReader(configFile), HubrisDbImpl.Config.class);
+        System.out.println(config);
         return new HubrisDbImpl(config);
       }
       catch (FileNotFoundException e) {

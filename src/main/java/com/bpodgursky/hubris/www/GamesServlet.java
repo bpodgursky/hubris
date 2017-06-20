@@ -61,14 +61,14 @@ public class GamesServlet extends HubrisServlet {
       }
     }
     else {
-      int gameId = Integer.parseInt(req.getPathInfo().substring(1));
+      long gameId = Long.parseLong(req.getPathInfo().substring(1));
       GameConnection gameConnection = new RemoteConnection(result.getCookies());
       try {
         GameSyncsRecord sync = db.dslContext()
           .selectFrom(Tables.GAME_SYNCS)
           .where(
             Tables.GAME_SYNCS.COOKIES_ID.eq(result.getId()),
-            Tables.GAME_SYNCS.GAME_ID.eq(gameId)
+            Tables.GAME_SYNCS.GAME_ID.eq((int)gameId)
           )
           .fetchOne();
 

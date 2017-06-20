@@ -1,6 +1,7 @@
 package com.bpodgursky.hubris;
 
 
+import com.bpodgursky.hubris.account.LoginClient;
 import com.bpodgursky.hubris.db.HubrisDb;
 import com.bpodgursky.hubris.www.GamesServlet;
 import com.bpodgursky.hubris.www.HubrisDefaultServlet;

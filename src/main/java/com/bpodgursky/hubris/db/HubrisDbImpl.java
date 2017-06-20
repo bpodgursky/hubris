@@ -20,6 +20,15 @@ public class HubrisDbImpl implements HubrisDb {
     private String username;
     private String password;
 
+    @Override
+    public String toString() {
+      return "Config{" +
+          "database='" + database + '\'' +
+          ", username='" + username + '\'' +
+          ", password='" + password + '\'' +
+          '}';
+    }
+
     public String getDatabase() {
       return database;
     }
@@ -57,8 +66,10 @@ public class HubrisDbImpl implements HubrisDb {
       throw new RuntimeException(e);
     }
 
-    String connectionUrl = "jdbc:mysql://localhost/" + config.getDatabase()
-      + "?autoReconnect=true&failOverReadOnly=false&maxReconnects=100";
+    System.out.println(config.getDatabase());
+
+    String connectionUrl = "jdbc:mysql://localhost/" + config.getDatabase();
+//      + "?autoReconnect=true&failOverReadOnly=false&maxReconnects=100";
 
     connection = DriverManager.getConnection(connectionUrl,
       config.getUsername(),

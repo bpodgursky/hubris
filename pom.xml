@@ -54,7 +54,17 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.2</version>
+      <version>2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>4.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.3</version>
     </dependency>
     <dependency>
       <groupId>jline</groupId>
@@ -236,8 +246,8 @@
           <jdbc>
             <driver>com.mysql.jdbc.Driver</driver>
             <url>jdbc:mysql://localhost/hubris</url>
-            <user>hubris</user>
-            <password>password</password>
+            <user>root</user>
+            <password></password>
           </jdbc>
 
           <generator>

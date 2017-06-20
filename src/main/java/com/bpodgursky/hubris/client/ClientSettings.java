@@ -129,7 +129,7 @@ public class ClientSettings {
       else {
         password = CONSOLE.readLine("Please enter your password...: ", '*');
       }
-      LoginClient.LoginResponse loginResponse = client.login(getUsername(), password, getTwoFactorAuthCallback());
+      LoginClient.LoginResponse loginResponse = client.login(getUsername(), password);
 
       if (loginResponse.getResponseType() != LoginClient.LoginResponseType.SUCCESS) {
         throw new RuntimeException("Failed to login.");
