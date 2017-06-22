@@ -110,7 +110,7 @@ function updateState(index, skipUpdateSlider) {
         , player = state.playersByID[playerId];
 
       item
-        .append('<span class="player-badge player' + playerId%8 + ' player-group' + playerId/8 + '"></span>')
+        .append('<span class="player-badge player' + playerId%8 + ' player-group' + Math.floor(playerId/8) + '"></span>')
         .append('<span class="player-label player' + playerId%8 + '">' + state.playersByID[playerId].name + '</span>')
         .append(' <span class="player-info">'
            + '[$' + player.cash + '] '
