@@ -11,6 +11,7 @@ import com.bpodgursky.hubris.universe.Comment;
 import com.bpodgursky.hubris.universe.GameState;
 
 import java.util.List;
+import java.util.Optional;
 
 public class RemoteConnection implements GameConnection {
 	private final NpHttpClient client;
@@ -59,4 +60,8 @@ public class RemoteConnection implements GameConnection {
     post(request);
   }
 
+  @Override
+  public Optional<String> refreshCookies() throws Exception {
+    return client.getAuthCookie(HubrisConstants.homepageUrl);
+  }
 }

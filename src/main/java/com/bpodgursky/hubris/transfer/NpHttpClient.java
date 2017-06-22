@@ -2,6 +2,14 @@ package com.bpodgursky.hubris.transfer;
 
 import com.bpodgursky.hubris.account.LoginClient;
 import com.bpodgursky.hubris.common.HubrisConstants;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -10,9 +18,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Optional;
 
 public class NpHttpClient {
   private final String cookies;
@@ -131,10 +141,7 @@ public class NpHttpClient {
    */
   public int get(String url, OutputStream out) {
     try {
-      HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-      setProperties(connection);
-      connection.setRequestMethod("GET");
-
+      HttpURLConnection connection = getRequest(url);
       int returnCode = connection.getResponseCode();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -152,6 +159,42 @@ public class NpHttpClient {
       throw new RuntimeException(e); // this should never happen
     } catch (IOException e) {
       throw new RuntimeException(e); // TODO: better error handling
+    }
+  }
+
+  public Optional<String> getAuthCookie(String url) {
+    try {
+      CookieStore cookieStore = new BasicCookieStore();
+      HttpClient client = HttpClientBuilder.create().setDefaultCookieStore(cookieStore).build();
+      HttpGet request = new HttpGet(url);
+      request.setHeader("Cookie", cookies);
+      HttpResponse execute = client.execute(request);
+
+      for (Cookie cookie : cookieStore.getCookies()) {
+        if (cookie.getName().equals("auth")) {
+          return Optional.of("auth=" + cookie.getValue());
+        }
+      }
+
+      return Optional.empty();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private HttpURLConnection getRequest(String url) {
+    try {
+      HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
+      setProperties(connection);
+      connection.setRequestMethod("GET");
+
+      return connection;
+    } catch (ProtocolException e) {
+      throw new RuntimeException(e);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

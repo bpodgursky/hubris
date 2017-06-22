@@ -8,6 +8,7 @@ import com.bpodgursky.hubris.universe.Comment;
 import com.bpodgursky.hubris.universe.GameState;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GameConnection {
 
@@ -18,6 +19,8 @@ public interface GameConnection {
   public List<Comment> getComments(GetMessageComments messageComments) throws Exception;
 
   public List<Message> getMessages(GetMessages messages) throws Exception;
+
+  Optional<String> refreshCookies() throws Exception;
 
 
   public void submit(GameRequest request) throws Exception;

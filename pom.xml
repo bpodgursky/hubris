@@ -246,8 +246,8 @@
           <jdbc>
             <driver>com.mysql.jdbc.Driver</driver>
             <url>jdbc:mysql://localhost/hubris</url>
-            <user>root</user>
-            <password></password>
+            <user>hubris</user>
+            <password>password</password>
           </jdbc>
 
           <generator>
