@@ -1,9 +1,16 @@
 package com.bpodgursky.hubris.universe;
 import com.bpodgursky.hubris.HubrisUtil;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class Player {
@@ -126,7 +133,6 @@ public class Player {
     switch (type) {
       case RANGE: return getRange();
       case SCANNING: return getScanning();
-      case SPEED: return getSpeed();
       case WEAPONS: return getWeapons();
     }
     throw new IllegalArgumentException("Unknown tech type: " + type);
@@ -209,5 +215,34 @@ public class Player {
 
     // TODO: consider next research too
     return this.getTechLevel(tech) + bonus;
+  }
+
+  public static class Deserializer implements JsonDeserializer<Player> {
+    @Override
+    public Player deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+      JsonObject obj = jsonElement.getAsJsonObject();
+
+      return new Player(
+          obj.get("alias").getAsString(),
+          obj.get("uid").getAsInt(),
+          obj.get("total_economy").getAsInt(),
+          obj.get("total_industry").getAsInt(),
+          obj.get("total_science").getAsInt(),
+          obj.get("total_stars").getAsInt(),
+          obj.get("total_fleets").getAsInt(),
+          0, //unused?
+          0, //unused?
+          obj.get("ai").getAsInt() != 0,
+          "",
+          0,
+          TechType.fromStringValue(Optional.ofNullable(obj.get("researching")).<String>map(JsonElement::getAsString).orElse(null)),
+          Optional.ofNullable(obj.get("researching_next")).<String>map(JsonElement::getAsString).orElse(null),
+          0,
+          0.0,
+          0.0,
+          0.0,
+          null
+      );
+    }
   }
 }

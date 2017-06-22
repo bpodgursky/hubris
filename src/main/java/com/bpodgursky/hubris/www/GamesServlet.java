@@ -36,7 +36,7 @@ public class GamesServlet extends HubrisServlet {
       req.getRequestDispatcher("/_games/_game_list.jsp").forward(req, resp);
     }
     else if ("/states_batch/".equals(req.getPathInfo())) {
-      int gameId = Integer.parseInt(req.getParameter("gameId"));
+      long gameId = Long.parseLong(req.getParameter("gameId"));
       try {
         writeStates(gameId, result.getId(), resp.getOutputStream(), 10);
       } catch (SQLException e) {
@@ -44,7 +44,7 @@ public class GamesServlet extends HubrisServlet {
       }
     }
     else if (req.getParameter("syncs") != null) {
-      int gameId = Integer.parseInt(req.getPathInfo().substring(1));
+      long gameId = Long.parseLong(req.getPathInfo().substring(1));
       if ("1".equals(req.getParameter("syncs"))) {
         db.dslContext()
           .insertInto(Tables.GAME_SYNCS, Tables.GAME_SYNCS.COOKIES_ID, Tables.GAME_SYNCS.GAME_ID)
@@ -68,11 +68,11 @@ public class GamesServlet extends HubrisServlet {
           .selectFrom(Tables.GAME_SYNCS)
           .where(
             Tables.GAME_SYNCS.COOKIES_ID.eq(result.getId()),
-            Tables.GAME_SYNCS.GAME_ID.eq((int)gameId)
+            Tables.GAME_SYNCS.GAME_ID.eq(gameId)
           )
           .fetchOne();
 
-        GameState state = gameConnection.getState(null, new GetState(0, result.getUsername(), (long)gameId));
+        GameState state = gameConnection.getState(null, new GetState(0, result.getUsername(), gameId));
         req.setAttribute("game_state", state);
         req.setAttribute("has_sync", sync != null);
         req.getRequestDispatcher("/_games/_game.jsp").forward(req, resp);
@@ -82,7 +82,7 @@ public class GamesServlet extends HubrisServlet {
     }
   }
 
-  public void writeStates(int gameId, int cookiesId, OutputStream out, int skipSize) throws SQLException, IOException {
+  public void writeStates(long gameId, int cookiesId, OutputStream out, int skipSize) throws SQLException, IOException {
     PrintStream wrappedOut = new PrintStream(out);
     Cursor<GameStatesRecord> results = getStatesResults(gameId, cookiesId);
     int index = 0;
@@ -104,7 +104,7 @@ public class GamesServlet extends HubrisServlet {
     results.close();
   }
 
-  private Cursor<GameStatesRecord> getStatesResults(int gameId, int cookiesId) throws SQLException {
+  private Cursor<GameStatesRecord> getStatesResults(long gameId, int cookiesId) throws SQLException {
     ResultQuery<GameStatesRecord> query = db.dslContext()
       .selectFrom(Tables.GAME_STATES)
       .where(Tables.GAME_STATES.GAME_ID.eq(gameId), Tables.GAME_STATES.COOKIES_ID.eq(cookiesId))

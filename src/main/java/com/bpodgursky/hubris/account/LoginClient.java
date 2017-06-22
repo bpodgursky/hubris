@@ -77,7 +77,6 @@ public class LoginClient {
     try {
       HttpResponse httpResponse = client.execute(request);
       String body = EntityUtils.toString(httpResponse.getEntity());
-      System.out.println(body);
       JsonArray response = new JsonParser().parse(body).getAsJsonArray();
       LoginResponseType responseType;
       String cookieStr = "";

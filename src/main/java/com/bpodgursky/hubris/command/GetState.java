@@ -13,5 +13,7 @@ public class GetState extends GameRequest {
   @Override
   protected void addRequestParams(Map<String, String> params) throws Exception {
     params.put("order", "full_universe_report");
+    params.put("game_number", String.valueOf(gameNumber));
+    params.put("type", "order");
   }
 }

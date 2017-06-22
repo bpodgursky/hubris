@@ -1,12 +1,19 @@
 package com.bpodgursky.hubris.universe;
+
+import java.lang.reflect.Type;
+import java.util.Set;
+
 import com.bpodgursky.hubris.HubrisUtil;
-import com.bpodgursky.hubris.util.BattleOutcome;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.List;
-import java.util.Set;
 
 
 public class Star {
@@ -52,7 +59,7 @@ public class Star {
     this(old.name, old.playerNumber, old.economy, old.econUpgrade, old.ships, old.industry, old.industryUpgrade,
       old.science, old.scienceUpgrade, old.id, old.coords, old.garrisonSize, old.resources, fleets);
   }
-	
+
 	public String toString(){
 		
 		JSONObject json = new JSONObject();
@@ -178,5 +185,47 @@ public class Star {
       fleetShips += state.getFleet(fleet).getShips();
     }
     return getShips() + fleetShips;
+  }
+
+  public static class Deserializer implements JsonDeserializer<Star> {
+    @Override
+    public Star deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+      JsonObject obj = jsonElement.getAsJsonObject();
+      return new Star(
+          obj.get("n").getAsString(),
+          obj.get("puid").getAsInt(),
+          jsonDeserializationContext.deserialize(obj.get("e"), Integer.class),
+          0,
+          jsonDeserializationContext.deserialize(obj.get("st"), Integer.class),
+          jsonDeserializationContext.deserialize(obj.get("i"), Integer.class),
+          0,
+          jsonDeserializationContext.deserialize(obj.get("s"), Integer.class),
+          0,
+          obj.get("uid").getAsInt(),
+          jsonDeserializationContext.deserialize(obj, Coordinate.class),
+          jsonDeserializationContext.deserialize(obj.get("ga"), Integer.class),
+          jsonDeserializationContext.deserialize(obj.get("nr"), Integer.class),
+          Sets.newHashSet()
+      );
+    }
+  }
+
+  public static void main(String[] args) {
+    System.out.println(new Gson().fromJson(" {\n" +
+        "    \"c\": 0,\n" +
+        "    \"e\": 0,\n" +
+        "    \"uid\": 222,\n" +
+        "    \"i\": 0,\n" +
+        "    \"s\": 0,\n" +
+        "    \"n\": \"New Acubens\",\n" +
+        "    \"puid\": -1,\n" +
+        "    \"r\": 10,\n" +
+        "    \"ga\": 0,\n" +
+        "    \"v\": \"1\",\n" +
+        "    \"y\": \"3.2301\",\n" +
+        "    \"x\": \"0.8675\",\n" +
+        "    \"nr\": 10,\n" +
+        "    \"st\": 0\n" +
+        "  }", Star.class));
   }
 }

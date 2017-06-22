@@ -4,17 +4,28 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 public class GameState {
@@ -262,5 +273,51 @@ public class GameState {
 
   public Game getGameData() {
     return gameData;
+  }
+
+  public static class Deserializer implements JsonDeserializer<GameState> {
+    private final long gameNumber;
+
+    public Deserializer(long gameNumber) {
+      this.gameNumber = gameNumber;
+    }
+
+    @Override
+    public GameState deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+      JsonObject stateObject = jsonElement.getAsJsonObject().getAsJsonObject("report");
+      JsonObject players = stateObject.getAsJsonObject("players");
+      JsonObject fleets = stateObject.getAsJsonObject("fleets");
+      JsonObject stars = stateObject.getAsJsonObject("stars");
+
+      Game game = new Game(
+          gameNumber,
+          stateObject.get("name").getAsString(),
+          "",
+          "",
+          "",
+          "",
+          0,
+          "",
+          "",
+          "",
+          ""
+      );
+
+      return new GameState(
+          null,
+          game,
+          players.entrySet().stream().<Player>map(
+              x -> context.deserialize(x.getValue(), Player.class)
+          ).collect(Collectors.toList()),
+          stars.entrySet().stream().<Star>map(
+              x -> context.deserialize(x.getValue(), Star.class)
+          ).collect(Collectors.toList()),
+          fleets.entrySet().stream().<Fleet>map(
+              x -> context.deserialize(x.getValue(), Fleet.class)
+          ).collect(Collectors.toList()),
+          new Alliance(""),
+          stateObject.get("player_uid").getAsInt()
+      );
+    }
   }
 }

@@ -1,7 +1,17 @@
 package com.bpodgursky.hubris.universe;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.bpodgursky.hubris.HubrisUtil;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -147,5 +157,30 @@ public class Fleet {
    */
   public double distanceFrom(Star star) {
     return HubrisUtil.getDistanceInLightYears(getCoords(), star.getCoords());
+  }
+
+  public static class Deserializer implements JsonDeserializer<Fleet> {
+    @Override
+    public Fleet deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+      JsonObject obj = jsonElement.getAsJsonObject();
+
+      return new Fleet(
+          obj.get("n").getAsString(),
+          obj.get("uid").getAsInt(),
+          obj.get("puid").getAsInt(),
+          0,
+          0,
+          obj.get("st").getAsInt(),
+          obj.get("w").getAsInt(), //?
+          StreamSupport
+              .stream(obj.getAsJsonArray("o").spliterator(), false)
+              .<Integer>map(
+                  x -> x.getAsJsonArray().get(1).getAsInt()
+              ).collect(Collectors.toList()),
+          context.deserialize(obj, Coordinate.class),
+          obj.get("l").getAsInt(), //?
+          obj.get("ouid") == null ? null : obj.get("ouid").getAsInt()
+      );
+    }
   }
 }

@@ -5,9 +5,12 @@ package com.bpodgursky.hubris.universe;
  */
 public enum TechType {
 	WEAPONS("fleet_combat", 1d),
-	SPEED("fleet_speed", 0.24),
-	RANGE("fleet_range", 0.25),
-	SCANNING("scanning_range", 0.10);
+	RANGE("propulsion", 1d),
+	SCANNING("scanning_range", 1d),
+  TERRAFORMING("terraforming", 1d),
+  EXPERIMENTATION("experimentation", 1d),
+  BANKING("banking", 1d),
+  MANUFACTURING("manufacturing", 1d),;
 
   private final String stringValue;
   private final double upgradePoints;
@@ -40,6 +43,10 @@ public enum TechType {
 	 * @return
 	 */
 	public static TechType fromStringValue(String id) {
+    if (id == null) {
+      return null;
+    }
+
     for (TechType techType : values()) {
       if (techType.getStringValue().equals(id)) {
         return techType;

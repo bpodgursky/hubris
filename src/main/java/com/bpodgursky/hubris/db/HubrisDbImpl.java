@@ -66,10 +66,8 @@ public class HubrisDbImpl implements HubrisDb {
       throw new RuntimeException(e);
     }
 
-    System.out.println(config.getDatabase());
-
-    String connectionUrl = "jdbc:mysql://localhost/" + config.getDatabase();
-//      + "?autoReconnect=true&failOverReadOnly=false&maxReconnects=100";
+    String connectionUrl = "jdbc:mysql://localhost/" + config.getDatabase()
+      + "?autoReconnect=true&failOverReadOnly=false&maxReconnects=100";
 
     connection = DriverManager.getConnection(connectionUrl,
       config.getUsername(),

@@ -16,6 +16,8 @@ import com.bpodgursky.hubris.notification.TechResearch;
 import com.bpodgursky.hubris.notification.TechSent;
 import com.bpodgursky.hubris.universe.*;
 import com.google.common.collect.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -62,63 +64,70 @@ public class ResponseTransformer {
   public static GameState parseUniverse(GameState prevState, GetState originalRequest, String response) throws SAXException, IOException, TransformerException {
 
     try {
-      Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
-
-      TransformerFactory factory = TransformerFactory.newInstance();
-      Transformer transformer = factory.newTransformer();
-      DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(new StringWriter());
-      transformer.transform(source, result);
-
-      NodeList nodes = doc.getChildNodes();
-
-      Element root = (Element) nodes.item(0);
-      Element universe = (Element) root.getElementsByTagName("universe").item(0);
-
-      NodeList children = universe.getChildNodes();
-
-      Game game = parseGameNode(children.item(1));
-
-      // Get techs before players so that we can set our player's tech state
-      List<Tech> techs = getTechs(children.item(11));
-
-      Alliance alliances = getAlliances(children.item(3));
-      List<Player> players = getPlayers(children.item(5), game.getMid(), techs);
-      StarClosure starClosure = getStars(children.item(7));
-      List<Fleet> fleets = getFleets(children.item(9), starClosure);
-
-      List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
-      List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
-      Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
-
-      // Find ships that are at stars. This isn't provided directly by the game and can be determined when a
-      // fleet doesn't have a star its destinations and is sufficiently close.
-      for (Fleet fleet : fleets) {
-        Star atStar = null;
-
-        for (Star star : starClosure.stars) {
-          double d = fleet.getCoords().distance(star.getCoords());
-
-          if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
-            atStar = star;
-            break;
-          }
-        }
-
-        Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
-        if (atStar != null) {
-          fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
-        }
-        fleetsWithStars.add(fleetWithStar);
-      }
-
-      // Create stars that have references to ships located at them
-      for (Star star : starClosure.stars) {
-        Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
-        starsWithFleets.add(new Star(star, fleetsAtStar == null ? Sets.<Integer>newHashSet() : Sets.newHashSet(fleetsAtStar)));
-      }
-
-      return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
+      Gson gson = new GsonBuilder()
+          .registerTypeAdapter(GameState.class, new GameState.Deserializer(originalRequest.getGameNumber()))
+          .registerTypeAdapter(Player.class, new Player.Deserializer())
+          .registerTypeAdapter(Fleet.class, new Fleet.Deserializer())
+          .registerTypeAdapter(Coordinate.class, new Coordinate.Deserializer())
+          .registerTypeAdapter(Star.class, new Star.Deserializer())
+          .create();
+      return gson.fromJson(response, GameState.class);
+//
+//      TransformerFactory factory = TransformerFactory.newInstance();
+//      Transformer transformer = factory.newTransformer();
+//      DOMSource source = new DOMSource(doc);
+//      StreamResult result = new StreamResult(new StringWriter());
+//      transformer.transform(source, result);
+//
+//      NodeList nodes = doc.getChildNodes();
+//
+//      Element root = (Element) nodes.item(0);
+//      Element universe = (Element) root.getElementsByTagName("universe").item(0);
+//
+//      NodeList children = universe.getChildNodes();
+//
+//      Game game = parseGameNode(children.item(1));
+//
+//      // Get techs before players so that we can set our player's tech state
+//      List<Tech> techs = getTechs(children.item(11));
+//
+//      Alliance alliances = getAlliances(children.item(3));
+//      List<Player> players = getPlayers(children.item(5), game.getMid(), techs);
+//      StarClosure starClosure = getStars(children.item(7));
+//      List<Fleet> fleets = getFleets(children.item(9), starClosure);
+//
+//      List<Star> starsWithFleets = Lists.newArrayListWithCapacity(starClosure.stars.size());
+//      List<Fleet> fleetsWithStars = Lists.newArrayListWithCapacity(fleets.size());
+//      Multimap<Integer, Integer> fleetsAtStars = HashMultimap.create();
+//
+//      // Find ships that are at stars. This isn't provided directly by the game and can be determined when a
+//      // fleet doesn't have a star its destinations and is sufficiently close.
+//      for (Fleet fleet : fleets) {
+//        Star atStar = null;
+//
+//        for (Star star : starClosure.stars) {
+//          double d = fleet.getCoords().distance(star.getCoords());
+//
+//          if ((fleet.getDestinations().isEmpty() || fleet.getDestinations().get(0).longValue() != star.getId()) && d < AT_STAR_THRESHOLD) {
+//            atStar = star;
+//            break;
+//          }
+//        }
+//
+//        Fleet fleetWithStar = new Fleet(fleet, atStar == null ? null : atStar.getId());
+//        if (atStar != null) {
+//          fleetsAtStars.put(atStar.getId(), fleetWithStar.getId());
+//        }
+//        fleetsWithStars.add(fleetWithStar);
+//      }
+//
+//      // Create stars that have references to ships located at them
+//      for (Star star : starClosure.stars) {
+//        Collection<Integer> fleetsAtStar = fleetsAtStars.get(star.getId());
+//        starsWithFleets.add(new Star(star, fleetsAtStar == null ? Sets.<Integer>newHashSet() : Sets.newHashSet(fleetsAtStar)));
+//      }
+//
+//      return new GameState(prevState, game, players, starsWithFleets, fleetsWithStars, alliances, originalRequest.getPlayerNumber());
     } catch (Exception e) {
       LOG.info("Died parsing response: "+response);
 

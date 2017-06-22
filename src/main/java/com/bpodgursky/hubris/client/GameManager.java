@@ -51,8 +51,6 @@ public class GameManager {
       connection.submit(request);
     }
 
-    System.out.println(currentState);
-
     while (true) {
       try {
 

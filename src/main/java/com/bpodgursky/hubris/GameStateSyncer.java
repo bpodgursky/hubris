@@ -29,7 +29,7 @@ public class GameStateSyncer {
     for (GameSyncs syncRequest : syncRequests) {
       NpCookies cookies = conn.npCookies().findById(syncRequest.getCookiesId());
       GameConnection connection = new RemoteConnection(cookies.getCookies());
-      Long gameId = Long.valueOf(syncRequest.getGameId());
+      Long gameId = syncRequest.getGameId();
       LOG.info("Syncing game {} for cookies {}, uuid = {}", gameId, cookies.getId(), cookies.getUuid());
 
       try {
