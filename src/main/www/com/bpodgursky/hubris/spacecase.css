@@ -56,44 +56,63 @@ rect.events-rect {
   font-size: 0.8em;
 }
 
+.player-badge {
+  background-image: url(resources/img/owner_rings_48.png);
+  background-size: 192px 192px;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin-bottom: -5px;
+}
+
+.player-group0 {
+  background-position-x: 0;
+}
+.player-group1 {
+  background-position-x: -24px;
+}
+.player-group2 {
+  background-position-x: -48px;
+}
+
 .player0 {
   stroke: #004080;
-  color: #004080;
+  background-position-y: 0;
 }
 
 .player1 {
   stroke: #7ffeff;
-  color: #7ffeff;
+  background-position-y: -24px;
 }
 
 .player2 {
   stroke: #00ff00;
-  color: #00ff00;
+  background-position-y: -48px;
 }
 
 .player3 {
   stroke: #ffff00;
-  color: #ffff00;
+  background-position-y: -72px;
 }
 
 .player4 {
   stroke: #ff7f00;
-  color: #ff7f00;
+  background-position-y: -96px;
 }
 
 .player5 {
   stroke: #ff0000;
-  color: #ff0000;
+  background-position-y: -120px;
 }
 
 .player6 {
   stroke: #ff00ff;
-  color: #ff00ff;
+  background-position-y: -144px;
 }
 
 .player7 {
   stroke: #7f00ff;
-  color: #7f00ff;
+  background-position-y: -168px;
 }
 
 svg.spacecase-canvas {
