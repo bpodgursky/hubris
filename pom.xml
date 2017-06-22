@@ -256,7 +256,6 @@
               <name>org.jooq.util.mysql.MySQLDatabase</name>
               <includes>.*</includes>
               <excludes></excludes>
-              <inputSchema>true</inputSchema>
             </database>
             <target>
               <packageName>com.bpodgursky.hubris.db.models</packageName>
