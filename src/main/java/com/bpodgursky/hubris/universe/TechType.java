@@ -4,7 +4,7 @@ package com.bpodgursky.hubris.universe;
  * 
  */
 public enum TechType {
-	WEAPONS("fleet_combat", 1d),
+	WEAPONS("weapons", 1d),
 	RANGE("propulsion", 1d),
 	SCANNING("scanning_range", 1d),
   TERRAFORMING("terraforming", 1d),

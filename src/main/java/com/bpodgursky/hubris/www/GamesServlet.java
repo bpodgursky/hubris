@@ -35,7 +35,7 @@ public class GamesServlet extends HubrisServlet {
       req.setAttribute("active_games", activeGames);
       req.getRequestDispatcher("/_games/_game_list.jsp").forward(req, resp);
     }
-    else if ("/states_batch/".equals(req.getPathInfo())) {
+    else if ("/states_batch/".equals(req.getPathInfo()) && req.getMethod().toLowerCase().equals("get")) {
       long gameId = Long.parseLong(req.getParameter("gameId"));
       try {
         writeStates(gameId, result.getId(), resp.getOutputStream(), 10);
