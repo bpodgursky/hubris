@@ -110,10 +110,10 @@ function updateState(index, skipUpdateSlider) {
         , player = state.playersByID[playerId];
 
       item
-        .append('<span class="player-label player' + playerId + '">' + state.playersByID[playerId].name + '</span>')
+        .append('<span class="player-label player' + playerId%8 + '">' + state.playersByID[playerId].name + '</span>')
         .append(' <span class="player-info">'
            + '[$' + player.cash + '] '
-           + '[' + researchTypes[player.currentResearch.toLowerCase()]  + ']'
+           + '[' + researchTypes[(player.currentResearch || "").toLowerCase()]  + ']'
            + '<br />'
            + '[' + getFormattedResearchString(player) + ']'
            + '</span>');

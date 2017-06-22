@@ -15,7 +15,7 @@ spacecase = function() {
             .domain([0, VP_MAX_HEIGHT])
             .range([0, VP_MAX_HEIGHT])
     , zoom = d3.behavior.zoom()
-               .scaleExtent([1, 5])
+               .scaleExtent([0.15, 5])
                .x(x).y(y)
                .on('zoom', zoomed)
     , $data = null
@@ -147,10 +147,49 @@ function updateStars(selector, data) {
     .attr('r', 1);
 
   // If star is owned by someone, draw a circle around it with their color
+  var playerClass = function(s) { return 'star-player-circle player' + ((s.playerNumber == -1) ? '-none' : s.playerNumber%8) };
+  var playerGroupFilter = function(v) {
+    return function(s) {
+      return Math.floor(s.playerNumber/8) == v;
+    };
+  };
+  var h = (Math.sqrt(3)/2),
+      radius = 2.5,
+      xp = 0,
+      yp = 0,
+      hexagonData = [
+        { "x": radius+xp,   "y": yp},
+        { "x": radius/2+xp,  "y": radius*h+yp},
+        { "x": -radius/2+xp,  "y": radius*h+yp},
+        { "x": -radius+xp,  "y": yp},
+        { "x": -radius/2+xp,  "y": -radius*h+yp},
+        { "x": radius/2+xp, "y": -radius*h+yp}
+      ];
+  var drawHexagon =
+      d3.svg.line()
+          .x(function(d) { return d.x; })
+          .y(function(d) { return d.y; })
+          .interpolate("cardinal-closed")
+          .tension("0.1");
+
   container
+    .filter(playerGroupFilter(0))
     .append('circle')
-    .attr('class', function(s) { return 'star-player-circle player' + ((s.playerNumber == -1) ? '-none' : s.playerNumber) })
+    .attr('class', playerClass)
     .attr('r', 2.5);
+  container
+      .filter(playerGroupFilter(1))
+      .append('rect')
+      .attr('class', playerClass)
+      .attr('width', 5)
+      .attr('height', 5)
+      .attr('x', -2.5)
+      .attr('y', -2.5);
+  container
+      .filter(playerGroupFilter(2))
+      .append('path')
+      .attr('class', playerClass)
+      .attr('d', drawHexagon(hexagonData));
 
   // Star resources
   container

@@ -12,6 +12,8 @@
   <script type="text/javascript" src="/resources/scripts/jquery.min.js"></script>
   <script type="text/javascript" src="/resources/scripts/bootstrap.min.js"></script>
   <script type="text/javascript" src="/resources/scripts/d3.min.js"></script>
+  <script type="text/javascript" src="https://d3js.org/d3-path.v1.min.js"></script>
+  <script type="text/javascript" src="https://d3js.org/d3-shape.v1.min.js"></script>
   <script type="text/javascript" src="/resources/scripts/jquery-ui.js"></script>
   <script type="text/javascript" src="/spacecase.js"></script>
 
