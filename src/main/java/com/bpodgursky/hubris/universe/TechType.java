@@ -6,11 +6,11 @@ package com.bpodgursky.hubris.universe;
 public enum TechType {
 	WEAPONS("weapons", 1d),
 	RANGE("propulsion", 1d),
-	SCANNING("scanning_range", 1d),
+	SCANNING("scanning", 1d),
   TERRAFORMING("terraforming", 1d),
-  EXPERIMENTATION("experimentation", 1d),
+  EXPERIMENTATION("research", 1d),
   BANKING("banking", 1d),
-  MANUFACTURING("manufacturing", 1d),;
+  MANUFACTURING("manufacturing", 1d);
 
   private final String stringValue;
   private final double upgradePoints;

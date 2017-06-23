@@ -1,88 +1,74 @@
 package com.bpodgursky.hubris.universe;
 
-import com.google.common.collect.Maps;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 public class Tech {
   private final Integer requiredUpgradePoints;
-  private final Integer currentResearchPoints;
-  private final Integer currentLevel;
-  private final TechType type;
+  private final Integer research;
+  private final Integer level;
 
-  private final Double v;
+  private final Double brr;
   private final Double bv;
   private final Double sv;
+  private final Double value;
 
-  public Tech(TechType type, Integer currentLevel, Integer requiredUpgradePoints, Integer currentResearchPoints,
-              Double v, Double bv, Double sv) {
-
-    this.type = type;
-    this.v = v;
+  public Tech(Integer research,
+              Integer level,
+              Double brr,
+              Double bv,
+              Double sv,
+              Double value) {
+    if (research != null && brr != null) {
+      this.requiredUpgradePoints = (int)Math.round(brr * level);
+    } else {
+      this.requiredUpgradePoints = null;
+    }
+    this.research = research;
+    this.level = level;
+    this.brr = brr;
     this.bv = bv;
     this.sv = sv;
-    this.currentLevel = currentLevel;
-    this.requiredUpgradePoints = requiredUpgradePoints;
-    this.currentResearchPoints = currentResearchPoints;
-
-  }
-
-  public String toString() {
-
-    JSONObject json = new JSONObject();
-    try {
-      json.put("type", type);
-      json.put("currentResearchPoints", currentResearchPoints);
-      json.put("requiredUpgradePoints", requiredUpgradePoints);
-      json.put("currentLevel", currentLevel);
-      json.put("v", v);
-      json.put("bv", bv);
-      json.put("sv", sv);
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-
-    return json.toString();
-  }
-
-  public Double getSv() {
-    return sv;
-  }
-
-  public Double getBv() {
-    return bv;
-  }
-
-  public Double getV() {
-    return v;
-  }
-
-  public TechType getType() {
-    return type;
-  }
-
-  public Integer getCurrentLevel() {
-    return currentLevel;
-  }
-
-  public Integer getCurrentResearchPoints() {
-    return currentResearchPoints;
+    this.value = value;
   }
 
   public Integer getRequiredUpgradePoints() {
     return requiredUpgradePoints;
   }
 
-  public static Map<TechType, Tech> asMap(List<Tech> techs) {
-    Map<TechType, Tech> map = Maps.newHashMap();
-    for (Tech tech : techs) {
-      map.put(tech.getType(), tech);
+  public Integer getResearch() {
+    return research;
+  }
+
+  public Integer getLevel() {
+    return level;
+  }
+
+  @Override
+  public String toString() {
+    return new Gson().toJson(this);
+  }
+
+  public static class Deserializer implements JsonDeserializer<Tech> {
+    @Override
+    public Tech deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+      JsonObject obj = jsonElement.getAsJsonObject();
+
+      return new Tech(
+          context.deserialize(obj.get("research"), Integer.class),
+          context.deserialize(obj.get("level"), Integer.class),
+          context.deserialize(obj.get("brr"), Double.class),
+          context.deserialize(obj.get("bv"), Double.class),
+          context.deserialize(obj.get("sv"), Double.class),
+          context.deserialize(obj.get("value"), Double.class)
+      );
     }
-    return map;
   }
 }

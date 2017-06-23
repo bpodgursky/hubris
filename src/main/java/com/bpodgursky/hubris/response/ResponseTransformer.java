@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.sun.tools.doclint.Entity.reg;
+
 public class ResponseTransformer {
   private static final Logger LOG = LoggerFactory.getLogger(ResponseTransformer.class);
 
@@ -70,6 +72,7 @@ public class ResponseTransformer {
           .registerTypeAdapter(Fleet.class, new Fleet.Deserializer())
           .registerTypeAdapter(Coordinate.class, new Coordinate.Deserializer())
           .registerTypeAdapter(Star.class, new Star.Deserializer())
+          .registerTypeAdapter(Tech.class, new Tech.Deserializer())
           .create();
       return gson.fromJson(response, GameState.class);
 //
@@ -154,174 +157,6 @@ public class ResponseTransformer {
   private static Alliance getAlliances(Node alliance) {
     NamedNodeMap allianceAttributes = alliance.getAttributes();
     return new Alliance(allianceAttributes.getNamedItem("a").getNodeValue());
-  }
-
-  private static List<Player> getPlayers(Node playerNodes, int playerId, List<Tech> techs) {
-    NodeList playerList = playerNodes.getChildNodes();
-
-    List<Player> players = new ArrayList<Player>();
-    for (int i = 0; i < playerList.getLength(); i++) {
-      Node playerNode = playerList.item(i);
-      NamedNodeMap playerAttributes = playerNode.getAttributes();
-      int id = Integer.parseInt(playerAttributes.getNamedItem("id").getNodeValue());
-      Map<TechType, Tech> techMap = (playerId == id) ? Tech.asMap(techs) : null;
-
-      Player player = new Player(playerAttributes.getNamedItem("n").getNodeValue(),
-          Integer.parseInt(playerAttributes.getNamedItem("id").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tecon").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tind").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tsci").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tstars").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tfleets").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("thf").getNodeValue()),
-          Integer.parseInt(playerAttributes.getNamedItem("tships").getNodeValue()),
-          Boolean.parseBoolean(playerAttributes.getNamedItem("ai").getNodeValue()),
-          playerAttributes.getNamedItem("al").getNodeValue(),
-          Integer.parseInt(playerAttributes.getNamedItem("c").getNodeValue()),
-          TechType.fromStringValue(playerAttributes.getNamedItem("cr").getNodeValue()),
-          playerAttributes.getNamedItem("crn").getNodeValue(),
-          Integer.parseInt(playerAttributes.getNamedItem("fc").getNodeValue()),
-          Double.parseDouble(playerAttributes.getNamedItem("fr").getNodeValue()),
-          Double.parseDouble(playerAttributes.getNamedItem("fs").getNodeValue()),
-          Double.parseDouble(playerAttributes.getNamedItem("sr").getNodeValue()),
-          techMap);
-
-      players.add(player);
-    }
-
-    return players;
-  }
-
-  private static StarClosure getStars(Node starsNode) {
-    NodeList starsList = starsNode.getChildNodes();
-
-    List<Star> stars = Lists.newArrayList();
-    List<Integer> xvalues = Lists.newArrayList();
-    List<Integer> yvalues = Lists.newArrayList();
-    for (int i = 0; i < starsList.getLength(); i++) {
-      Node starNode = starsList.item(i);
-      NamedNodeMap starAttributes = starNode.getAttributes();
-
-      Node econ = starAttributes.getNamedItem("e");
-      Node eup = starAttributes.getNamedItem("eup");
-      Node f = starAttributes.getNamedItem("f");
-      Node industry = starAttributes.getNamedItem("i");
-      Node iup = starAttributes.getNamedItem("iup");
-      Node pn = starAttributes.getNamedItem("pn");
-      Node s = starAttributes.getNamedItem("s");
-      Node sup = starAttributes.getNamedItem("sup");
-      Node g = starAttributes.getNamedItem("g");
-      Node resources = starAttributes.getNamedItem("r");
-
-      int x = Integer.parseInt(starAttributes.getNamedItem("x").getNodeValue());
-      int y = Integer.parseInt(starAttributes.getNamedItem("y").getNodeValue());
-      xvalues.add(x);
-      yvalues.add(y);
-
-      stars.add(new Star(starAttributes.getNamedItem("n").getNodeValue(),
-          pn == null ? null : Integer.parseInt(pn.getNodeValue()),
-          econ == null ? null : Integer.parseInt(econ.getNodeValue()),
-          eup == null ? null : Integer.parseInt(eup.getNodeValue()),
-          f == null ? null : Integer.parseInt(f.getNodeValue()),
-          industry == null ? null : Integer.parseInt(industry.getNodeValue()),
-          iup == null ? null : Integer.parseInt(iup.getNodeValue()),
-          s == null ? null : Integer.parseInt(s.getNodeValue()),
-          sup == null ? null : Integer.parseInt(sup.getNodeValue()),
-          Integer.parseInt(starAttributes.getNamedItem("uid").getNodeValue()),
-          Coordinate.from(x, y),
-          g == null ? null : Integer.parseInt(g.getNodeValue()),
-          resources == null ? null : Integer.parseInt(resources.getNodeValue()),
-          Sets.<Integer>newHashSet()));
-    }
-    Range<Integer> xRange = Range.encloseAll(xvalues);
-    Range<Integer> yRange = Range.encloseAll(yvalues);
-    List<Star> normalizedStars = Lists.newArrayList();
-
-    for (Star star : stars) {
-      int shiftX = xRange.lowerEndpoint();
-      int shiftY = yRange.lowerEndpoint();
-
-      Coordinate coords = star.getCoords();
-
-      normalizedStars.add(new Star(star, Coordinate.from((coords.getX() - shiftX), (coords.getY() - shiftY))));
-    }
-
-    return new StarClosure(normalizedStars, xRange, yRange);
-  }
-
-  private static List<Fleet> getFleets(Node fleetsNode, StarClosure starClosure) {
-    NodeList fleetList = fleetsNode.getChildNodes();
-
-    List<Fleet> fleets = new ArrayList<Fleet>();
-    for (int i = 0; i < fleetList.getLength(); i++) {
-      Node fleetNode = fleetList.item(i);
-      NamedNodeMap fleetAttributes = fleetNode.getAttributes();
-
-      String destinations = fleetAttributes.getNamedItem("paths").getNodeValue();
-      String[] destinationIDs = destinations.split(",");
-      List<Integer> destStars = new ArrayList<Integer>();
-      for (String s : destinationIDs) {
-        if (!s.equals("")) {
-          destStars.add(Integer.parseInt(s));
-        }
-      }
-
-      int x = Integer.parseInt(fleetAttributes.getNamedItem("x").getNodeValue());
-      int y = Integer.parseInt(fleetAttributes.getNamedItem("y").getNodeValue());
-      int eta = Integer.parseInt(fleetAttributes.getNamedItem("eta").getNodeValue());
-      int neta = Integer.parseInt(fleetAttributes.getNamedItem("neta").getNodeValue());
-      int jumpPrep = Integer.parseInt(fleetAttributes.getNamedItem("rt").getNodeValue());
-
-      // Normalize coordinate system so all points are >= 0.
-      x = x - starClosure.xRange.lowerEndpoint();
-      y = y - starClosure.yRange.lowerEndpoint();
-
-      // The data model measures eta, neta, and jumpPrepTime in 10 minute ticks. Normalize these to minutes.
-      eta *= HubrisUtil.MINUTES_IN_TICK;
-      neta *= HubrisUtil.MINUTES_IN_TICK;
-      jumpPrep *= HubrisUtil.MINUTES_IN_TICK;
-
-      Fleet fleet = new Fleet(fleetAttributes.getNamedItem("n").getNodeValue(),
-          Integer.parseInt(fleetAttributes.getNamedItem("uid").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("pn").getNodeValue()),
-          eta,
-          neta,
-          Integer.parseInt(fleetAttributes.getNamedItem("s").getNodeValue()),
-          Integer.parseInt(fleetAttributes.getNamedItem("v").getNodeValue()),
-          destStars,
-          Coordinate.from(x, y),
-          jumpPrep,
-          null);
-
-      fleets.add(fleet);
-    }
-
-    return fleets;
-  }
-
-  private static List<Tech> getTechs(Node techsNode) {
-    NodeList techList = techsNode.getChildNodes();
-
-    List<Tech> techs = new ArrayList<Tech>();
-    for (int i = 0; i < techList.getLength(); i++) {
-      Node techNode = techList.item(i);
-      NamedNodeMap techAttributes = techNode.getAttributes();
-
-      Integer level = Integer.parseInt(techAttributes.getNamedItem("l").getNodeValue());
-      Integer increment = Integer.parseInt(techAttributes.getNamedItem("brr").getNodeValue());
-      Integer currentPoints = Integer.parseInt(techAttributes.getNamedItem("cr").getNodeValue());
-      Double v = Double.parseDouble(techAttributes.getNamedItem("v").getNodeValue());
-      Double bv = Double.parseDouble(techAttributes.getNamedItem("bv").getNodeValue());
-      Double sv = Double.parseDouble(techAttributes.getNamedItem("sv").getNodeValue());
-
-      Tech tech = new Tech(
-          TechType.fromStringValue(techAttributes.getNamedItem("n").getNodeValue()),
-          level, level * increment, currentPoints, v, bv, sv);
-
-      techs.add(tech);
-    }
-
-    return techs;
   }
 
   public static List<Message> parseMessages(String messages) throws TransformerException, SAXException, IOException {

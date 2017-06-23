@@ -81,9 +81,12 @@ var hubrisGameState = ${game_state}
   , starNames = getStarNames()
   , researchTypes = {
       'weapons'  : 'W',
-      'speed'    : 'Sp',
-      'range'    : 'R',
-      'scanning' : 'Sc'
+      'scanning' : 'S',
+      'banking'  : 'B',
+      'terraforming' : 'T',
+      'manufacturing' : 'M',
+      'research' : 'E',
+      'propulsion' : 'R'
     };
 
 function getStarNames() {
@@ -111,13 +114,21 @@ function updateState(index, skipUpdateSlider) {
 
       item
         .append('<span class="player-badge player' + playerId%8 + ' player-group' + Math.floor(playerId/8) + '"></span>')
-        .append('<span class="player-label player' + playerId%8 + '">' + state.playersByID[playerId].name + '</span>')
-        .append(' <span class="player-info">'
-           + '[$' + player.cash + '] '
-           + '[' + researchTypes[(player.currentResearch || "").toLowerCase()]  + ']'
-           + '<br />'
-           + '[' + getFormattedResearchString(player) + ']'
-           + '</span>');
+        .append('<span class="player-label player' + playerId%8 + '">' + state.playersByID[playerId].name + '</span>');
+
+      var info = ' <span class="player-info">';
+
+      if (player.cash) {
+        info += '[$' + player.cash + '] ';
+      }
+      if (player.currentResearch) {
+        info += '[' + researchTypes[(player.currentResearch || "").toLowerCase()]  + ']';
+      }
+      if (player.techState) {
+        info += '[' + getFormattedResearchString(player) + ']' + '</span>';
+      }
+
+      item.append(info);
     }
 
     $('#player-breakdown')
@@ -131,11 +142,13 @@ function updateState(index, skipUpdateSlider) {
 }
 
 function getFormattedResearchString(player) {
-  var r = "";
+  var types = Object.keys(player.techState)
+    , r = "";
 
-  for (var longName in researchTypes) {
-    r += player[longName];
-    r += researchTypes[longName];
+  for (var i = 0; i < types.length; i++) {
+    var t = types[i];
+    r += player.techState[t].level;
+    r += researchTypes[t];
     r += " ";
   }
 

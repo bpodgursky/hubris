@@ -1,12 +1,12 @@
 package com.bpodgursky.hubris.universe;
 import com.bpodgursky.hubris.HubrisUtil;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -20,10 +20,6 @@ public class Player {
 	private final Integer cash;
 	private final TechType currentResearch;
 	private final String nextResearch;
-	private final Integer weapons;
-	private final Double range;
-	private final Double speed;
-	private final Double scanning;
 	private final int id;
 	private final String name;
 	private final Integer economy;
@@ -35,22 +31,29 @@ public class Player {
 	private final Integer allFleets;
 	private final Integer stars;
   private final Map<TechType, Tech> techState;
-	
-	public Player(String name, int id, Integer economy, Integer industry, Integer science, Integer stars, Integer carriers, Integer homeFleets, Integer shipFleets,
-			boolean ai, String alliances, Integer cash, TechType currentResearch, String nextResearch, Integer weapons, Double range,
-			Double speed, Double scanning, Map<TechType, Tech> techState){
-		
-		this.id = id;
+
+  public Player(String name,
+                int id,
+                Integer economy,
+                Integer industry,
+                Integer science,
+                Integer stars,
+                Integer carriers,
+                Integer homeFleets,
+                Integer shipFleets,
+                boolean ai,
+                String alliances,
+                Integer cash,
+                TechType currentResearch,
+                String nextResearch,
+                Map<TechType, Tech> techState) {
+    this.id = id;
 		this.ai = ai;
 		this.allFleets = homeFleets + shipFleets;
 		this.alliances = alliances;
 		this.cash = cash;
 		this.currentResearch = currentResearch;
 		this.nextResearch = nextResearch;
-		this.weapons = weapons;
-		this.range = range;
-		this.speed = speed;
-		this.scanning = scanning;
 		this.name = name;
 		this.economy = economy;
 		this.industry = industry;
@@ -63,34 +66,7 @@ public class Player {
 	}
 	
 	public String toString(){
-		
-		JSONObject json = new JSONObject();
-		try{
-			json.put("id", id);
-			json.put("ai", ai);
-			json.put("allFleets",allFleets);
-			json.put("alliances", alliances);
-			json.put("cash", cash);
-			json.put("currentResearch", currentResearch);
-			json.put("nextResearch", nextResearch);
-			json.put("weapons", weapons);
-			json.put("range", range);
-			json.put("speed", speed);
-			json.put("scanning", scanning);
-			json.put("name", name);
-			json.put("economy", economy);
-			json.put("industry", industry);
-			json.put("carriers", carriers);
-			json.put("homeFleets", homeFleets);
-			json.put("shipFleets", shipFleets);
-			json.put("science", science);
-			json.put("stars", stars);
-			
-		}catch(JSONException e){
-			e.printStackTrace();
-		}
-		
-		return json.toString();
+    return new Gson().toJson(this);
 	}
 
   public boolean isAi() {
@@ -113,27 +89,13 @@ public class Player {
     return nextResearch;
   }
 
-  public Integer getWeapons() {
-    return weapons;
+  public Map<TechType, Tech> getTechState() {
+    return techState;
   }
 
-  public Double getRange() {
-    return range;
-  }
-
-  public Double getSpeed() {
-    return speed;
-  }
-
-  public Double getScanning() {
-    return scanning;
-  }
-
-  public double getTechLevel(TechType type) {
-    switch (type) {
-      case RANGE: return getRange();
-      case SCANNING: return getScanning();
-      case WEAPONS: return getWeapons();
+  public int getTechLevel(TechType type) {
+    if (techState.containsKey(type)) {
+      return techState.get(type).getLevel();
     }
     throw new IllegalArgumentException("Unknown tech type: " + type);
   }
@@ -189,6 +151,23 @@ public class Player {
     return techState.get(type);
   }
 
+  public int getWeapons() {
+    return getTechLevel(TechType.WEAPONS);
+  }
+
+  public int getRange() {
+    return getTechLevel(TechType.RANGE) + 3;
+  }
+
+  public int getScanning() {
+    return getTechLevel(TechType.SCANNING) + 2;
+  }
+
+  public Integer getSpeed() {
+    // TODO: warp gates?
+    return 1;
+  }
+
   public boolean isWithinJumpRange(Star star1, Star star2) {
     double distance = star1.distanceFrom(star2);
 
@@ -222,6 +201,15 @@ public class Player {
     public Player deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
       JsonObject obj = jsonElement.getAsJsonObject();
 
+      Map<TechType, Tech> tech = Maps.newHashMap();
+      JsonObject rawTech = obj.getAsJsonObject("tech");
+      for (Map.Entry<String, JsonElement> entry : rawTech.entrySet()) {
+        tech.put(
+            TechType.fromStringValue(entry.getKey()),
+            context.deserialize(entry.getValue(), Tech.class)
+        );
+      }
+
       return new Player(
           obj.get("alias").getAsString(),
           obj.get("uid").getAsInt(),
@@ -234,14 +222,10 @@ public class Player {
           0, //unused?
           obj.get("ai").getAsInt() != 0,
           "",
-          0,
+          context.deserialize(obj.get("cash"), Integer.class),
           TechType.fromStringValue(Optional.ofNullable(obj.get("researching")).<String>map(JsonElement::getAsString).orElse(null)),
           Optional.ofNullable(obj.get("researching_next")).<String>map(JsonElement::getAsString).orElse(null),
-          0,
-          0.0,
-          0.0,
-          0.0,
-          null
+          tech
       );
     }
   }
