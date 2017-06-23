@@ -313,7 +313,7 @@ function updateCarriers(selector, data) {
         }
         return 3.5 + r;
       })
-      .attr('class', function(c) { return 'carrier-circle ' + 'player' + c.player });
+      .attr('class', function(c) { return 'carrier-circle ' + 'player' + c.player%8 });
 
   // Show number of fleets assigned to carrier
   seenClusters = {};
