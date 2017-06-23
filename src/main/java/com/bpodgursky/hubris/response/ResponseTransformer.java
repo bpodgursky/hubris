@@ -1,6 +1,21 @@
 package com.bpodgursky.hubris.response;
 
-import com.bpodgursky.hubris.HubrisUtil;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.notification.AIAdmin;
 import com.bpodgursky.hubris.notification.CapturedSystem;
@@ -14,8 +29,17 @@ import com.bpodgursky.hubris.notification.Production;
 import com.bpodgursky.hubris.notification.TechReceived;
 import com.bpodgursky.hubris.notification.TechResearch;
 import com.bpodgursky.hubris.notification.TechSent;
-import com.bpodgursky.hubris.universe.*;
-import com.google.common.collect.*;
+import com.bpodgursky.hubris.universe.Alliance;
+import com.bpodgursky.hubris.universe.Comment;
+import com.bpodgursky.hubris.universe.Coordinate;
+import com.bpodgursky.hubris.universe.Fleet;
+import com.bpodgursky.hubris.universe.Game;
+import com.bpodgursky.hubris.universe.GameState;
+import com.bpodgursky.hubris.universe.Player;
+import com.bpodgursky.hubris.universe.Star;
+import com.bpodgursky.hubris.universe.Tech;
+import com.bpodgursky.hubris.universe.TechType;
+import com.google.common.collect.Range;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
@@ -26,26 +50,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.sun.tools.doclint.Entity.reg;
 
 public class ResponseTransformer {
   private static final Logger LOG = LoggerFactory.getLogger(ResponseTransformer.class);
