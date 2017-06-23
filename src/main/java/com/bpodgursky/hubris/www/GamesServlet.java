@@ -28,6 +28,15 @@ public class GamesServlet extends HubrisServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     NpCookies result = getCookies(req);
+
+    if (result == null) {
+      resp.addHeader("Location", "/");
+      resp.setStatus(301);
+      resp.getOutputStream().close();
+
+      return;
+    }
+
     NpHttpClient client = new NpHttpClient(result.getCookies());
 
     if ("/index".equals(req.getPathInfo())) {
@@ -35,7 +44,7 @@ public class GamesServlet extends HubrisServlet {
       req.setAttribute("active_games", activeGames);
       req.getRequestDispatcher("/_games/_game_list.jsp").forward(req, resp);
     }
-    else if ("/states_batch/".equals(req.getPathInfo()) && req.getMethod().toLowerCase().equals("get")) {
+    else if ("/states_batch/".equals(req.getPathInfo())) {
       long gameId = Long.parseLong(req.getParameter("gameId"));
       try {
         writeStates(gameId, result.getId(), resp.getOutputStream(), 10);
