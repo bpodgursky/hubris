@@ -53,7 +53,7 @@ public class GameStateSyncer {
           conn.npCookies().update(cookies);
         }
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        LOG.error("Encountered an error", e);
       }
     }
   }
