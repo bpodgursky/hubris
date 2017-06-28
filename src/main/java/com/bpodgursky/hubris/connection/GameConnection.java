@@ -22,6 +22,7 @@ public interface GameConnection {
 
   Optional<String> refreshCookies() throws Exception;
 
+  boolean isLoggedIn() throws Exception;
 
   public void submit(GameRequest request) throws Exception;
 }

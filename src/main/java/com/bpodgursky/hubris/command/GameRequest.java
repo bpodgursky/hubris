@@ -152,6 +152,10 @@ public abstract class GameRequest {
       public String type() {
         return "game_order";
       }
+    },
+
+    ListGames {
+      public String type() { return "list_games"; }
     };
 
     public abstract String type();

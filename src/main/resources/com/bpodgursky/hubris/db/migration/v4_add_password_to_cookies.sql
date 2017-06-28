@@ -1,0 +1,1 @@
+ALTER TABLE np_cookies ADD COLUMN password VARCHAR(255)

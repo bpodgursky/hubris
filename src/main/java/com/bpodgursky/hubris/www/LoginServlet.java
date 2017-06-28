@@ -32,7 +32,6 @@ public class LoginServlet extends HubrisServlet {
         req.getRequestDispatcher("login.jsp").forward(req, resp);
       }
       else if (response.getResponseType() == LoginClient.LoginResponseType.SUCCESS) {
-        String authToken = req.getParameter("auth_token");
         String uuid = UUID.randomUUID().toString();
         setCookies(uuid, response.getCookies());
         NpCookies existingCookies = db.npCookies().fetchOneByUsername(username);
@@ -41,6 +40,7 @@ public class LoginServlet extends HubrisServlet {
           NpCookies cookiesRow = new NpCookies();
           cookiesRow.setCookies(response.getCookies());
           cookiesRow.setUsername(username);
+          cookiesRow.setPassword(password);
           cookiesRow.setUuid(uuid);
           db.npCookies().insert(cookiesRow);
 
@@ -48,6 +48,7 @@ public class LoginServlet extends HubrisServlet {
         }
         else {
           existingCookies.setCookies(response.getCookies());
+          existingCookies.setPassword(password);
           db.npCookies().update(existingCookies);
 
           resp.addCookie(new Cookie("uuid", existingCookies.getUuid()));

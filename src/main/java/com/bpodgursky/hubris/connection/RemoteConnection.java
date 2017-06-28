@@ -9,6 +9,10 @@ import com.bpodgursky.hubris.response.ResponseTransformer;
 import com.bpodgursky.hubris.transfer.NpHttpClient;
 import com.bpodgursky.hubris.universe.Comment;
 import com.bpodgursky.hubris.universe.GameState;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,5 +67,11 @@ public class RemoteConnection implements GameConnection {
   @Override
   public Optional<String> refreshCookies() throws Exception {
     return client.getAuthCookie(HubrisConstants.homepageUrl);
+  }
+
+  @Override
+  public boolean isLoggedIn() throws Exception {
+    JsonArray response = new JsonParser().parse(client.post(HubrisConstants.gamesListUrl)).getAsJsonArray();
+    return "meta:init_player".equals(response.get(0).getAsString());
   }
 }

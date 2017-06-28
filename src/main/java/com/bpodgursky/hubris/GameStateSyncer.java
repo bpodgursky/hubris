@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import com.bpodgursky.hubris.account.LoginClient;
 import com.bpodgursky.hubris.command.GetState;
 import com.bpodgursky.hubris.connection.GameConnection;
 import com.bpodgursky.hubris.connection.RemoteConnection;
@@ -28,12 +29,28 @@ public class GameStateSyncer {
     List<GameSyncs> syncRequests = conn.gameSyncs().findAll();
 
     for (GameSyncs syncRequest : syncRequests) {
-      NpCookies cookies = conn.npCookies().findById(syncRequest.getCookiesId());
-      GameConnection connection = new RemoteConnection(cookies.getCookies());
-      Long gameId = syncRequest.getGameId();
-      LOG.info("Syncing game {} for cookies {}", gameId, cookies.getId());
-
       try {
+        NpCookies cookies = conn.npCookies().findById(syncRequest.getCookiesId());
+        GameConnection connection = new RemoteConnection(cookies.getCookies());
+
+        if (!connection.isLoggedIn()) {
+          LOG.warn("auth cookie for user id {} expired... attempting to refresh with username/password...", cookies.getId());
+          
+          LoginClient loginClient = new LoginClient();
+          LoginClient.LoginResponse loginResponse = loginClient.login(cookies.getUsername(), cookies.getPassword());
+
+          if (loginResponse.getResponseType() == LoginClient.LoginResponseType.INVALID_LOGIN) {
+            throw new RuntimeException("Error renewing cookies for cookie ID: " + cookies.getId());
+          }
+
+          cookies.setCookies(loginResponse.getCookies());
+          conn.npCookies().update(cookies);
+          connection = new RemoteConnection(cookies.getCookies());
+        }
+
+        Long gameId = syncRequest.getGameId();
+        LOG.info("Syncing game {} for cookies {}", gameId, cookies.getId());
+
         GameState state = connection.getState(null, new GetState(0, cookies.getUsername(), gameId));
         GameStates row = new GameStates();
         row.setCookiesId(cookies.getId());
