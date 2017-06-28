@@ -35,7 +35,7 @@ public class GameStateSyncer {
 
         if (!connection.isLoggedIn()) {
           LOG.warn("auth cookie for user id {} expired... attempting to refresh with username/password...", cookies.getId());
-          
+
           LoginClient loginClient = new LoginClient();
           LoginClient.LoginResponse loginResponse = loginClient.login(cookies.getUsername(), cookies.getPassword());
 

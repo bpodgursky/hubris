@@ -71,7 +71,7 @@ public class RemoteConnection implements GameConnection {
 
   @Override
   public boolean isLoggedIn() throws Exception {
-    JsonArray response = new JsonParser().parse(client.post(HubrisConstants.gamesListUrl)).getAsJsonArray();
+    JsonArray response = new JsonParser().parse(client.post(HubrisConstants.gamesListUrl, "type=init_player")).getAsJsonArray();
     return "meta:init_player".equals(response.get(0).getAsString());
   }
 }
